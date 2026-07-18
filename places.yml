@@ -1,0 +1,17 @@
+# Coordinates of the places of the fictional tree (scripts/demo.py)
+"A Coruña": {lat: 43.3623, lon: -8.4115, name: "A Coruña"}
+"Baeza, Jaén": {lat: 37.9934, lon: -3.4697, name: "Baeza"}
+"Betanzos, A Coruña": {lat: 43.2804, lon: -8.2121, name: "Betanzos"}
+"Cazorla, Jaén": {lat: 37.9102, lon: -3.0035, name: "Cazorla"}
+"Granada": {lat: 37.1773, lon: -3.5986, name: "Granada"}
+"Guadix, Granada": {lat: 37.2997, lon: -3.1386, name: "Guadix"}
+"Jaén": {lat: 37.7796, lon: -3.7849, name: "Jaén"}
+"La Habana, Cuba": {lat: 23.1136, lon: -82.3666, name: "La Habana"}
+"Lugo": {lat: 43.0121, lon: -7.5558, name: "Lugo"}
+"Melilla": {lat: 35.2923, lon: -2.9381, name: "Melilla"}
+"Mondoñedo, Lugo": {lat: 43.4283, lon: -7.3626, name: "Mondoñedo"}
+"Ribadeo, Lugo": {lat: 43.5362, lon: -7.0404, name: "Ribadeo"}
+"Valencia": {lat: 39.4699, lon: -0.3763, name: "Valencia"}
+"Vilalba, Lugo": {lat: 43.297, lon: -7.681, name: "Vilalba"}
+"Viveiro, Lugo": {lat: 43.662, lon: -7.5946, name: "Viveiro"}
+"Úbeda, Jaén": {lat: 38.0133, lon: -3.3706, name: "Úbeda"}

@@ -1,0 +1,28 @@
+# A fictional tree, written by scripts/demo.py
+language: es
+paths:
+  people: people
+  sources: sources
+  research: research
+  portraits: portraits
+main: lucila-baron-azorin
+families:
+  - key: north
+    label: "Familia Barón"
+    title: "Familia Barón (Barón y Iriarte)"
+    of: "de la familia Barón"
+    default: true
+  - key: south
+    label: "Familia Azorin"
+    title: "Familia Azorin (Azorin y Ramírez)"
+    of: "de la familia Azorin"
+branches:
+  - {key: baron, label: "Barón", color: "#2a78d6", founder: roberto-baron-marquez, family: north}
+  - {key: iriarte, label: "Iriarte", color: "#eb6834", founder: miguel-angel-iriarte-milla, family: north}
+  - {key: canton, label: "Cantón", color: "#1baf7a", founder: edmundo-canton-piquer, family: north}
+  - {key: azorin, label: "Azorin", color: "#b0489c", founder: cosme-azorin-sevilla, family: south}
+  - {key: ramirez, label: "Ramírez", color: "#c9a227", founder: ceferino-ramirez-abril, family: south}
+other_branch: {key: otras, label: Otras familias, color: "#9a958c"}
+groups:
+  - {family: north, title: "Barón, Iriarte y Cantón", branches: [baron, iriarte, canton]}
+  - {family: south, title: "Azorin y Ramírez", branches: [azorin, ramirez]}
