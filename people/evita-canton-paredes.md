@@ -16,7 +16,7 @@ marriages:
   - {spouse: marcial-baron-iriarte, date: 1914-11-05, place: "Viveiro, Lugo"}
 living: false
 tags: [rama/canton]
-sources: ["[[F001]]"]
+sources: ["[[F001]]", "[[F009]]"]
 ---
 # Evita Cantón Paredes
 
@@ -24,10 +24,10 @@ sources: ["[[F001]]"]
 
 Nació en Viveiro el 6 de marzo de 1891 ([F001](../sources/F001.md)), hija de [Edmundo Cantón
 Piquer](../people/edmundo-canton-piquer.md) y [Guiomar Paredes Garay](../people/guiomar-paredes-garay.md). Fue modista.
-Se casó en Viveiro el 5 de noviembre de 1914 con [Marcial Barón Iriarte](../people/marcial-baron-iriarte.md). Tuvo 4
-hijos: [Paco Barón Cantón](../people/paco-baron-canton.md), [Gaspar Barón Cantón](../people/gaspar-baron-canton.md),
-[Ciriaco Barón Cantón](../people/ciriaco-baron-canton.md), [Reina Barón Cantón](../people/reina-baron-canton.md). Murió
-en Viveiro el 8 de junio de 1968.
+Se casó en Viveiro el 5 de noviembre de 1914 ([F009](../sources/F009.md)) con [Marcial Barón
+Iriarte](../people/marcial-baron-iriarte.md). Tuvo 4 hijos: [Paco Barón Cantón](../people/paco-baron-canton.md), [Gaspar
+Barón Cantón](../people/gaspar-baron-canton.md), [Ciriaco Barón Cantón](../people/ciriaco-baron-canton.md), [Reina Barón
+Cantón](../people/reina-baron-canton.md). Murió en Viveiro el 8 de junio de 1968.
 
 ## Notas de investigación
 

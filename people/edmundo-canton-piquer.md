@@ -12,7 +12,7 @@ marriages:
   - {spouse: guiomar-paredes-garay, date: 1884-08-21, place: "Viveiro, Lugo"}
 living: false
 tags: [rama/canton]
-sources: ["[[F001]]"]
+sources: ["[[F001]]", "[[F009]]"]
 ---
 # Edmundo Cantón Piquer
 

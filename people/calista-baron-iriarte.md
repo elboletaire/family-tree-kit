@@ -16,7 +16,7 @@ marriages:
   - {spouse: ruy-alfonso-bauza, date: 1915-07-07, place: "Ribadeo, Lugo"}
 living: false
 tags: [rama/baron, rama/iriarte]
-sources: ["[[F001]]"]
+sources: ["[[F001]]", "[[F007]]"]
 ---
 # Calista Barón Iriarte
 

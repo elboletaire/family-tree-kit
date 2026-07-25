@@ -16,7 +16,7 @@ marriages:
   - {spouse: jose-baron-artigas, date: 1887-06-13, place: "Vilalba, Lugo"}
 living: false
 tags: [rama/iriarte]
-sources: ["[[F001]]", "[[F006]]"]
+sources: ["[[F001]]", "[[F006]]", "[[F007]]"]
 ---
 # María Dolores Iriarte Caparrós
 

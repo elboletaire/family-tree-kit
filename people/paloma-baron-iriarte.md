@@ -13,7 +13,7 @@ mother: "[[maria-dolores-iriarte-caparros]]"
 parents_confidence: proven
 living: false
 tags: [rama/baron, rama/iriarte]
-sources: ["[[F001]]"]
+sources: ["[[F001]]", "[[F007]]"]
 ---
 # Paloma Barón Iriarte
 

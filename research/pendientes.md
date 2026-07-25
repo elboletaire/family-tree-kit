@@ -8,11 +8,19 @@ Lo que falta por buscar o preguntar.
 
 - **Partidas de bautismo de los hermanos de [José Barón Artigas](../people/jose-baron-artigas.md)**, en el archivo
   parroquial de Mondoñedo: hoy su filiación solo consta en el árbol manuscrito ([F001](../sources/F001.md)).
+- **Revisar el pasaje de [Marcial Barón Iriarte](../people/marcial-baron-iriarte.md) a La Habana**
+  ([F008](../sources/F008.md)): buscar en el mismo índice el viaje de vuelta.
 
 ### Iriarte
 
 - **Defunción de [Miguel Ángel Iriarte Milla](../people/miguel-angel-iriarte-milla.md)**, en Vilalba: la fecha del árbol
   ([F001](../sources/F001.md)) es de memoria.
+
+### Cantón
+
+- **Quién es quién en la fotografía de la boda** ([F009](../sources/F009.md)): solo están identificados los novios.
+- **Partida de bautismo de [Evita Cantón Paredes](../people/evita-canton-paredes.md)** (Viveiro o Ribadeo), para aclarar
+  dónde nació.
 
 ## Familia Azorin (Azorin y Ramírez)
 
@@ -34,3 +42,4 @@ Lo que falta por buscar o preguntar.
 
 ## General
 
+- **Revisar los documentos hallados por investigación automática**: ([F008](../sources/F008.md)).
