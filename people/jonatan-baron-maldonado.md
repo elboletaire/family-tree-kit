@@ -14,7 +14,7 @@ marriages:
   - {spouse: oriana-azorin-torrent, date: 1983-02-11, place: "Valencia"}
 living: true
 tags: [rama/baron, rama/canton, rama/iriarte]
-sources: ["[[F002]]"]
+sources: ["[[F002]]", "[[F012]]"]
 ---
 # Jonatan Barón Maldonado
 

@@ -10,7 +10,7 @@ father: "[[paco-baron-canton]]"
 mother: "[[montserrat-maldonado-roman]]"
 parents_confidence: proven
 tags: [rama/baron, rama/canton, rama/iriarte]
-sources: ["[[F002]]"]
+sources: ["[[F002]]", "[[F012]]"]
 ---
 # Obdulia Barón Maldonado
 

@@ -16,7 +16,7 @@ marriages:
   - {spouse: geronimo-calderon-melero, date: 1917-02-21, place: "Ribadeo, Lugo"}
 living: false
 tags: [rama/baron, rama/iriarte]
-sources: ["[[F001]]", "[[F007]]"]
+sources: ["[[F001]]", "[[F007]]", "[[F010]]"]
 ---
 # Marisa Barón Iriarte
 

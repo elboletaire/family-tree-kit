@@ -20,8 +20,9 @@ photo: portraits/roberto-baron-marquez.jpg
 ## Biografía
 
 Nació en Mondoñedo hacia 1834 ([F001](../sources/F001.md)). Fue labrador. Se casó en Mondoñedo el 18 de mayo de 1859 con
-[Manuela Artigas Mata](../people/manuela-artigas-mata.md). Tuvo 2 hijos: [José Barón
-Artigas](../people/jose-baron-artigas.md), [Natanael Barón Artigas](../people/natanael-baron-artigas.md). Murió en
+[Manuela Artigas Mata](../people/manuela-artigas-mata.md). Tuvo 4 hijos: [Rolando Barón
+Artigas](../people/rolando-baron-artigas.md), [José Barón Artigas](../people/jose-baron-artigas.md), [Leocadio Barón
+Artigas](../people/leocadio-baron-artigas.md), [Natanael Barón Artigas](../people/natanael-baron-artigas.md). Murió en
 Mondoñedo el 18 de septiembre de 1901.
 
 ## Notas de investigación

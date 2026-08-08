@@ -18,8 +18,9 @@ sources: ["[[F001]]", "[[F005]]"]
 ## Biografía
 
 Nació en Mondoñedo el 10 de noviembre de 1838 ([F001](../sources/F001.md)). Fue labradora. Se casó en Mondoñedo el 18 de
-mayo de 1859 con [Roberto Barón Marquez](../people/roberto-baron-marquez.md). Tuvo 2 hijos: [José Barón
-Artigas](../people/jose-baron-artigas.md), [Natanael Barón Artigas](../people/natanael-baron-artigas.md). Murió en
+mayo de 1859 con [Roberto Barón Marquez](../people/roberto-baron-marquez.md). Tuvo 4 hijos: [Rolando Barón
+Artigas](../people/rolando-baron-artigas.md), [José Barón Artigas](../people/jose-baron-artigas.md), [Leocadio Barón
+Artigas](../people/leocadio-baron-artigas.md), [Natanael Barón Artigas](../people/natanael-baron-artigas.md). Murió en
 Mondoñedo el 13 de noviembre de 1918.
 
 ## Notas de investigación

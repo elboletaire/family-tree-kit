@@ -17,7 +17,7 @@ marriages:
   - {spouse: evita-canton-paredes, date: 1914-11-05, place: "Viveiro, Lugo"}
 living: false
 tags: [rama/baron, rama/iriarte]
-sources: ["[[F001]]", "[[F007]]", "[[F008]]", "[[F009]]"]
+sources: ["[[F001]]", "[[F007]]", "[[F008]]", "[[F009]]", "[[F010]]"]
 ---
 # Marcial Barón Iriarte
 

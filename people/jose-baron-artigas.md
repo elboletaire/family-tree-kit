@@ -16,7 +16,7 @@ marriages:
   - {spouse: maria-dolores-iriarte-caparros, date: 1887-06-13, place: "Vilalba, Lugo"}
 living: false
 tags: [rama/baron]
-sources: ["[[F001]]", "[[F005]]", "[[F006]]", "[[F007]]"]
+sources: ["[[F001]]", "[[F005]]", "[[F006]]", "[[F007]]", "[[F010]]"]
 ---
 # José Barón Artigas
 
