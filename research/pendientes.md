@@ -10,6 +10,8 @@ Lo que falta por buscar o preguntar.
   parroquial de Mondoñedo: hoy su filiación solo consta en el árbol manuscrito ([F001](../sources/F001.md)).
 - **Revisar el pasaje de [Marcial Barón Iriarte](../people/marcial-baron-iriarte.md) a La Habana**
   ([F008](../sources/F008.md)): buscar en el mismo índice el viaje de vuelta.
+- **Revisar la esquela de [Paco Barón Cantón](../people/paco-baron-canton.md)** ([F013](../sources/F013.md)), hallada
+  por investigación automática.
 
 ### Iriarte
 

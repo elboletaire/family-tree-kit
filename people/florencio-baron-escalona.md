@@ -13,7 +13,7 @@ mother: "[[maria-pilar-escalona-giner]]"
 parents_confidence: proven
 living: false
 tags: [rama/baron, rama/canton, rama/iriarte]
-sources: ["[[F002]]"]
+sources: ["[[F002]]", "[[F013]]"]
 ---
 # Florencio Barón Escalona
 

@@ -10,7 +10,7 @@ father: "[[paco-baron-canton]]"
 mother: "[[maria-pilar-escalona-giner]]"
 parents_confidence: proven
 tags: [rama/baron, rama/canton, rama/iriarte]
-sources: ["[[F002]]"]
+sources: ["[[F002]]", "[[F013]]"]
 ---
 # Claudio Barón Escalona
 

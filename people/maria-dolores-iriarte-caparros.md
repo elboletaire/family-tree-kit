@@ -17,6 +17,7 @@ marriages:
 living: false
 tags: [rama/iriarte]
 sources: ["[[F001]]", "[[F006]]", "[[F007]]"]
+photo: portraits/maria-dolores-iriarte-caparros.jpg
 ---
 # María Dolores Iriarte Caparrós
 

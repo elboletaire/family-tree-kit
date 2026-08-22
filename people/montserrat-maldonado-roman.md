@@ -12,7 +12,8 @@ marriages:
   - {spouse: cristobal-portillo-frutos, date: 1946-08-20, place: "Betanzos, A Coruña"}
   - {spouse: paco-baron-canton, date: 1952-03-01, place: "A Coruña"}
 living: false
-sources: ["[[F001]]", "[[F002]]", "[[F012]]"]
+sources: ["[[F001]]", "[[F002]]", "[[F012]]", "[[F013]]"]
+photo: portraits/montserrat-maldonado-roman.jpg
 ---
 # Montserrat Maldonado Román
 

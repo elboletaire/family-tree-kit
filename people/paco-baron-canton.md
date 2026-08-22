@@ -17,7 +17,8 @@ marriages:
   - {spouse: montserrat-maldonado-roman, date: 1952-03-01, place: "A Coruña"}
 living: false
 tags: [rama/baron, rama/canton, rama/iriarte]
-sources: ["[[F001]]", "[[F002]]", "[[F011]]", "[[F012]]"]
+sources: ["[[F001]]", "[[F002]]", "[[F011]]", "[[F012]]", "[[F013]]"]
+photo: portraits/paco-baron-canton.jpg
 ---
 # Paco Barón Cantón
 
@@ -30,7 +31,7 @@ Giner](../people/maria-pilar-escalona-giner.md). Se casó en A Coruña el 1 de m
 con [Montserrat Maldonado Román](../people/montserrat-maldonado-roman.md). Tuvo 4 hijos: [Florencio Barón
 Escalona](../people/florencio-baron-escalona.md), [Claudio Barón Escalona](../people/claudio-baron-escalona.md),
 [Obdulia Barón Maldonado](../people/obdulia-baron-maldonado.md), [Jonatan Barón
-Maldonado](../people/jonatan-baron-maldonado.md). Murió en A Coruña en 1994.
+Maldonado](../people/jonatan-baron-maldonado.md). Murió en A Coruña en 1994 ([F013](../sources/F013.md)).
 
 ## Notas de investigación
 

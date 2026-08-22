@@ -18,6 +18,7 @@ marriages:
 living: false
 tags: [rama/baron, rama/iriarte]
 sources: ["[[F001]]", "[[F007]]", "[[F008]]", "[[F009]]", "[[F010]]"]
+photo: portraits/marcial-baron-iriarte.jpg
 ---
 # Marcial Barón Iriarte
 

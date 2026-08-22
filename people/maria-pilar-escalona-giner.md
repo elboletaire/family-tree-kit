@@ -12,6 +12,7 @@ marriages:
   - {spouse: paco-baron-canton, date: 1942-04-02, place: "Lugo"}
 living: false
 sources: ["[[F001]]", "[[F002]]", "[[F011]]"]
+photo: portraits/maria-pilar-escalona-giner.jpg
 ---
 # María Pilar Escalona Giner
 

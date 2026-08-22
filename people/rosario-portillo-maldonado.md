@@ -9,7 +9,7 @@ birth_order: 1
 father: "[[cristobal-portillo-frutos]]"
 mother: "[[montserrat-maldonado-roman]]"
 parents_confidence: proven
-sources: ["[[F002]]"]
+sources: ["[[F002]]", "[[F013]]"]
 ---
 # Rosario Portillo Maldonado
 

@@ -17,6 +17,7 @@ marriages:
 living: false
 tags: [rama/canton]
 sources: ["[[F001]]", "[[F009]]"]
+photo: portraits/evita-canton-paredes.jpg
 ---
 # Evita Cantón Paredes
 
