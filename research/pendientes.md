@@ -26,11 +26,6 @@ Lo que falta por buscar o preguntar.
 
 ## Familia Azorin (Azorin y Ramírez)
 
-### Azorin
-
-- **Filiación de [Marcelo Azorin Canals](../people/marcelo-azorin-canals.md)**: solo consta en la relación de la familia
-  ([F003](../sources/F003.md)).
-
 ### Ramírez
 
 - **Padres de [Ceferino Ramírez Abril](../people/ceferino-ramirez-abril.md)**: la relación ([F003](../sources/F003.md))

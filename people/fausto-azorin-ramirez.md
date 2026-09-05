@@ -13,7 +13,7 @@ mother: "[[ascension-ramirez-jaen]]"
 parents_confidence: proven
 living: false
 tags: [rama/azorin, rama/ramirez]
-sources: ["[[F003]]", "[[F004]]"]
+sources: ["[[F003]]", "[[F004]]", "[[F016]]"]
 ---
 # Fausto Azorin Ramírez
 

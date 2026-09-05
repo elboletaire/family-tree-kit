@@ -16,7 +16,7 @@ marriages:
   - {spouse: timoteo-lago-comas, date: 1926-10-03, place: "Úbeda, Jaén"}
 living: false
 tags: [rama/azorin, rama/ramirez]
-sources: ["[[F003]]", "[[F004]]"]
+sources: ["[[F003]]", "[[F004]]", "[[F016]]"]
 ---
 # Marina Azorin Ramírez
 

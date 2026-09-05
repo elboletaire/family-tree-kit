@@ -11,7 +11,7 @@ spouses: ["[[ceferino-ramirez-abril]]"]
 marriages:
   - {spouse: ceferino-ramirez-abril, date: 1871-12-02, place: "Baeza, Jaén"}
 living: false
-sources: ["[[F003]]"]
+sources: ["[[F003]]", "[[F015]]"]
 ---
 # Rebeca Jaén Manrique
 

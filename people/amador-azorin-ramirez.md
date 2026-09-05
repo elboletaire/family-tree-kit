@@ -16,7 +16,7 @@ marriages:
   - {spouse: malena-bautista-checa, date: 1925-01-03, place: "Cazorla, Jaén"}
 living: false
 tags: [rama/azorin, rama/ramirez]
-sources: ["[[F003]]"]
+sources: ["[[F003]]", "[[F016]]"]
 ---
 # Amador Azorin Ramírez
 

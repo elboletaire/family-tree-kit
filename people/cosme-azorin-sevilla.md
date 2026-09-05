@@ -12,7 +12,7 @@ marriages:
   - {spouse: irene-canals-novoa, date: 1866-12-20, place: "Úbeda, Jaén"}
 living: false
 tags: [rama/azorin]
-sources: ["[[F003]]"]
+sources: ["[[F003]]", "[[F014]]"]
 photo: portraits/cosme-azorin-sevilla.jpg
 ---
 # Cosme Azorin Sevilla

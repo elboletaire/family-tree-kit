@@ -12,7 +12,7 @@ marriages:
   - {spouse: rebeca-jaen-manrique, date: 1871-12-02, place: "Baeza, Jaén"}
 living: false
 tags: [rama/ramirez]
-sources: ["[[F003]]"]
+sources: ["[[F003]]", "[[F015]]"]
 ---
 # Ceferino Ramírez Abril
 

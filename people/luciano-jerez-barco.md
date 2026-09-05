@@ -18,7 +18,8 @@ sources: ["[[F003]]"]
 ## Biografía
 
 Nació en Úbeda el 28 de octubre de 1868 ([F003](../sources/F003.md)). Fue arriero. Se casó en Úbeda el 14 de diciembre
-de 1894 con [Carmen Azorin Canals](../people/carmen-azorin-canals.md). Tuvo 1 hijo: [Belen Jerez
+de 1894 con [Carmen Azorin Canals](../people/carmen-azorin-canals.md). Tuvo 3 hijos: [Irene Jerez
+Azorin](../people/irene-jerez-azorin.md), [Virgilio Jerez Azorin](../people/virgilio-jerez-azorin.md), [Belen Jerez
 Azorin](../people/belen-jerez-azorin.md). Murió en Úbeda el 1 de agosto de 1947.
 
 ## Notas de investigación

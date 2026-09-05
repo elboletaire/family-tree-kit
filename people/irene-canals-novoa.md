@@ -11,7 +11,7 @@ spouses: ["[[cosme-azorin-sevilla]]"]
 marriages:
   - {spouse: cosme-azorin-sevilla, date: 1866-12-20, place: "Úbeda, Jaén"}
 living: false
-sources: ["[[F003]]"]
+sources: ["[[F003]]", "[[F014]]"]
 ---
 # Irene Canals Novoa
 

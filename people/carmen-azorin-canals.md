@@ -24,7 +24,8 @@ sources: ["[[F003]]"]
 
 Nació en Úbeda el 4 de julio de 1867 ([F003](../sources/F003.md)), hija de [Cosme Azorin
 Sevilla](../people/cosme-azorin-sevilla.md) y [Irene Canals Novoa](../people/irene-canals-novoa.md). Fue costurera. Se
-casó en Úbeda el 14 de diciembre de 1894 con [Luciano Jerez Barco](../people/luciano-jerez-barco.md). Tuvo 1 hijo:
+casó en Úbeda el 14 de diciembre de 1894 con [Luciano Jerez Barco](../people/luciano-jerez-barco.md). Tuvo 3 hijos:
+[Irene Jerez Azorin](../people/irene-jerez-azorin.md), [Virgilio Jerez Azorin](../people/virgilio-jerez-azorin.md),
 [Belen Jerez Azorin](../people/belen-jerez-azorin.md). Murió en Úbeda el 13 de abril de 1934.
 
 ## Notas de investigación
