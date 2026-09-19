@@ -16,7 +16,7 @@ marriages:
   - {spouse: malena-bautista-checa, date: 1925-01-03, place: "Cazorla, Jaén"}
 living: false
 tags: [rama/azorin, rama/ramirez]
-sources: ["[[F003]]", "[[F016]]"]
+sources: ["[[F003]]", "[[F016]]", "[[F017]]"]
 ---
 # Amador Azorin Ramírez
 
@@ -27,8 +27,8 @@ Canals](../people/marcelo-azorin-canals.md) y [Ascensión Ramírez Jaén](../peo
 civil. Se casó en Cazorla el 3 de enero de 1925 con [Malena Bautista Checa](../people/malena-bautista-checa.md). Tuvo 3
 hijos: [Samuel Azorin Bautista](../people/samuel-azorin-bautista.md), [Bautista Azorin
 Bautista](../people/bautista-azorin-bautista.md), [Miguel Azorin Bautista](../people/miguel-azorin-bautista.md). Hizo el
-servicio militar en Melilla en 1920, en los meses de la guerra del Rif, y volvió sin heridas. Murió en Cazorla el 20 de
-julio de 1983.
+servicio militar en Melilla en 1920, en los meses de la guerra del Rif, y volvió sin heridas.
+([F017](../sources/F017.md)) Murió en Cazorla el 20 de julio de 1983.
 
 ## Notas de investigación
 

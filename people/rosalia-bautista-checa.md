@@ -1,6 +1,6 @@
 ---
 given_name: "Rosalía"
-surnames: "Bautista"
+surnames: "Bautista Checa"
 sex: F
 born: 1900-08-20
 birth_place: "Cazorla, Jaén"
@@ -11,7 +11,7 @@ siblings: ["[[malena-bautista-checa]]"]
 living: false
 sources: ["[[F003]]", "[[F004]]"]
 ---
-# Rosalía Bautista
+# Rosalía Bautista Checa
 
 ## Biografía
 

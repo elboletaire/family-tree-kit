@@ -7,7 +7,7 @@ birth_place: "Cazorla, Jaén"
 died: 1988-10-14
 death_place: "Cazorla, Jaén"
 occupation: "maestra"
-siblings: ["[[rosalia-bautista]]"]
+siblings: ["[[rosalia-bautista-checa]]"]
 spouses: ["[[amador-azorin-ramirez]]"]
 marriages:
   - {spouse: amador-azorin-ramirez, date: 1925-01-03, place: "Cazorla, Jaén"}

@@ -20,11 +20,14 @@ Lo que falta por buscar o preguntar.
 
 ### Cantón
 
-- **Quién es quién en la fotografía de la boda** ([F009](../sources/F009.md)): solo están identificados los novios.
 - **Partida de bautismo de [Evita Cantón Paredes](../people/evita-canton-paredes.md)** (Viveiro o Ribadeo), para aclarar
   dónde nació.
 
 ## Familia Azorin (Azorin y Ramírez)
+
+### Azorin
+
+- **Partida de bautismo de [Amador Azorin Ramírez](../people/amador-azorin-ramirez.md)** en Úbeda, para fijar el año.
 
 ### Ramírez
 
@@ -33,9 +36,9 @@ Lo que falta por buscar o preguntar.
 
 ### Varias ramas
 
-- **Padres de [Malena Bautista Checa](../people/malena-bautista-checa.md) y [Rosalía
-  Bautista](../people/rosalia-bautista.md)**: preguntar a [Oriana Azorin Torrent](../people/oriana-azorin-torrent.md), y
-  buscar en el archivo parroquial de Cazorla.
+- **Padres de [Malena Bautista Checa](../people/malena-bautista-checa.md) y [Rosalía Bautista
+  Checa](../people/rosalia-bautista-checa.md)**: preguntar a [Oriana Azorin
+  Torrent](../people/oriana-azorin-torrent.md), y buscar en el archivo parroquial de Cazorla.
 
 ## General
 

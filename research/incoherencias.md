@@ -18,6 +18,12 @@ Contradicciones entre documentos, y cuál se sigue.
 
 ## Familia Azorin (Azorin y Ramírez)
 
+### Azorin
+
+- **Año de nacimiento de [Amador Azorin Ramírez](../people/amador-azorin-ramirez.md)**: la hoja de servicios
+  ([F017](../sources/F017.md)) dice 1898; la relación de la familia ([F003](../sources/F003.md)), 1899. Hace falta su
+  partida de bautismo.
+
 ## General
 
 - **Fecha de la boda de [Jonatan Barón Maldonado](../people/jonatan-baron-maldonado.md) y [Oriana Azorin
