@@ -43,11 +43,12 @@ const pointKey = (pl: Place): string => `${pl.lat.toFixed(3)},${pl.lon.toFixed(3
 /** Is the fact visible up to the year `until`? (null: all, also the undated) */
 const upTo = (year: number | null, until: number | null): boolean => until == null || (year != null && year <= until);
 
-/** Facts in located places of the people in `keep` (everybody, if null), up to the year `until` */
-export function mapFacts(keep: Set<string> | null, until: number | null): Fact[] {
+/** Facts in located places of the people in `keep` (everybody, if null), up to the year `until`, of the `kinds`
+    (all, if null) */
+export function mapFacts(keep: Set<string> | null, until: number | null, kinds: ReadonlySet<FactKind> | null = null): Fact[] {
   const inScope = (id: string) => !keep || keep.has(id);
   const out: Fact[] = [];
-  const add = (f: Fact) => { if (locate(f.place) && upTo(f.year, until)) out.push(f); };
+  const add = (f: Fact) => { if ((!kinds || kinds.has(f.kind)) && locate(f.place) && upTo(f.year, until)) out.push(f); };
   DATA.people.filter(p => inScope(p.id)).forEach(p => {
     add({ kind: 'birth', p, year: p.bornYear, place: p.birthPlace });
     add({ kind: 'death', p, year: p.diedYear, place: p.deathPlace });

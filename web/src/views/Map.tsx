@@ -21,6 +21,8 @@ import { arc, FACT_KINDS, kindCounts, mainBounds, mapFacts, mapPlaces, migration
 
 const TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const LINES_KEY = 'arbre-map-lines';
+/** The kinds of facts hidden, comma-separated: the ones not listed (also those added later) are shown */
+const HIDDEN_KINDS_KEY = 'arbre-map-hidden';
 const branchColor = (key: string): string => (BR.get(key) ?? BR.get(DATA.otherBranch)!).color;
 /** Coastline of the world (Natural Earth, 1:110m), under the tiles: what is seen without network */
 const LAND = feature(land110 as unknown as Topology, (land110 as unknown as Topology).objects.land as GeometryCollection);
@@ -49,15 +51,24 @@ export function MapView() {
   const [until, setUntil] = createSignal<number | null>(null);
   const [showLines, setShowLinesSignal] = createSignal(store.get(LINES_KEY) !== '0');
   const setShowLines = (on: boolean) => { setShowLinesSignal(on); store.set(LINES_KEY, on ? '1' : '0'); };
+  const [hidden, setHiddenSignal] = createSignal(new Set((store.get(HIDDEN_KINDS_KEY) ?? '').split(',').filter(Boolean)));
+  const setShown = (k: FactKind, on: boolean) => {
+    const next = new Set(hidden());
+    if (on) next.delete(k); else next.add(k);
+    setHiddenSignal(next);
+    store.set(HIDDEN_KINDS_KEY, [...next].join(','));
+  };
+  const kinds = createMemo(() => new Set(FACT_KINDS.filter(k => !hidden().has(k))));
   const [selected, setSelected] = createSignal<string | null>(null);
   const [offline, setOffline] = createSignal(false);
 
-  const allFacts = createMemo(() => mapFacts(keep(), null));
+  const allFacts = createMemo(() => mapFacts(keep(), null, kinds()));
   const minYear = createMemo(() => Math.min(now, ...allFacts().map(f => f.year ?? now)));
-  const places = createMemo(() => mapPlaces(until() == null ? allFacts() : mapFacts(keep(), until()), focus()));
-  // Only between points on the map: a parent born in an undated place has no point until all the years are shown
+  const places = createMemo(() => mapPlaces(until() == null ? allFacts() : mapFacts(keep(), until(), kinds()), focus()));
+  // Only between places with facts up to the year, of any kind (the lines stay with the births hidden): a parent born
+  // in an undated place has no point until all the years are shown
   const lines = createMemo(() => {
-    const shown = new Set(places().map(pl => pl.key));
+    const shown = new Set(mapPlaces(mapFacts(keep(), until()), focus()).map(pl => pl.key));
     return migrations(keep(), until(), line()).filter(m => shown.has(m.from.key) && shown.has(m.to.key));
   });
   const current = createMemo(() => places().find(pl => pl.key === selected()) ?? null);
@@ -176,6 +187,14 @@ export function MapView() {
         <p class="muted">{texts.map.intro}</p>
         <ScopeChips id="map-filters" label={texts.scope.filterPeople} value={scope()} onChange={setScope} />
         <div class="map-controls">
+          <div class="map-kinds" role="group" aria-label={texts.map.kindsLabel}>
+            <For each={FACT_KINDS}>{k => (
+              <label class="map-toggle">
+                <input type="checkbox" id={`map-kind-${k}`} checked={!hidden().has(k)} onChange={e => setShown(k, e.currentTarget.checked)} />
+                {texts.map.kinds[k].label}
+              </label>
+            )}</For>
+          </div>
           <label class="map-toggle" title={texts.map.migrationsTitle}>
             <input type="checkbox" id="map-lines" checked={showLines()} onChange={e => setShowLines(e.currentTarget.checked)} />
             {texts.map.migrations}

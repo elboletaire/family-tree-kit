@@ -373,6 +373,7 @@ section[data-family][hidden] { display: none; }
 
 /* Map: Leaflet inside its own stacking context, so that its panes (z-index up to 1000) stay under the bar and the card */
 .map-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem; margin-top: .7rem; font-size: .88rem; }
+.map-kinds { display: contents; }
 .map-toggle { display: inline-flex; align-items: center; gap: .35rem; cursor: pointer; color: var(--ink-2); }
 .map-play { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
             cursor: pointer; color: var(--ink); font-size: .8rem; }

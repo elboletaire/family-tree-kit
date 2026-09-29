@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { initData } from '../src/data';
 import { initFocus, kinSet } from '../src/state';
-import { arc, kindCounts, mainBounds, mapFacts, mapPlaces, migrations, radius, unlocated } from '../src/views/mapLayout';
+import { arc, FACT_KINDS, kindCounts, mainBounds, mapFacts, mapPlaces, migrations, radius, unlocated, type FactKind } from '../src/views/mapLayout';
 import { fixture } from './fixture';
 
 beforeEach(() => {
@@ -35,6 +35,12 @@ describe('map', () => {
     expect(summary(null, 1920)).toEqual([['Monte Medio', 1], ['Villa Alta', 1]]);
     expect(summary(null, 1950)).toEqual([['Villa Alta', 2], ['Monte Medio', 1]]);
     expect(summary(kinSet('direct'), null)).toEqual([['Villa Alta', 2], ['Monte Medio', 1], ['Puerto Bajo', 1]]);
+  });
+  it('shows only the kinds of facts chosen', () => {
+    const kinds = (ks: FactKind[]) => mapPlaces(mapFacts(null, null, new Set(ks)), 'yo').map(pl => [pl.name, kindCounts(pl.facts)]);
+    expect(kinds(['doc'])).toEqual([['Puerto Bajo', [['doc', 1]]]]);
+    expect(kinds([])).toEqual([]);
+    expect(mapFacts(null, null, new Set(FACT_KINDS))).toEqual(mapFacts(null, null));
   });
   it('draws the migrations from the birthplace of the parents to that of their children', () => {
     expect(lines(null, null)).toEqual([

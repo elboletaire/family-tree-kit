@@ -223,6 +223,7 @@ export const es = {
     intro: 'Cada punto es un lugar donde nació, se casó o murió alguien de la familia, o de donde es un documento: ' +
       'cuanto más grande, más acontecimientos, y del color de la familia con más gente allí. Las líneas van del lugar ' +
       'de nacimiento de los padres al de sus hijos. Pulsa un punto para ver quién y qué.',
+    kindsLabel: 'Qué se ve en el mapa',
     migrations: 'Migraciones',
     migrationsTitle: 'Líneas del lugar de nacimiento de los padres al de sus hijos',
     until: (year: number) => `Hasta ${year}`,
