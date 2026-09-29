@@ -146,4 +146,14 @@ test('map: a point per place, its list, the year and the migrations', async ({ p
     await page.locator('#map-lines').uncheck();
     await expect(page.locator('#map path.map-line, #map path.map-life')).toHaveCount(0);
   }
+
+  // The play goes a year at a time and tells it over the map; the speed changes on the way
+  await expect(page.locator('#map-now')).toHaveCount(0);
+  await page.locator('#map-speed').click();
+  await expect(page.locator('#map-speed')).toHaveText('×2');
+  await page.locator('#map-play').click();
+  const first = Number(await page.locator('#map-now b').textContent());
+  await expect.poll(async () => Number(await page.locator('#map-now b').textContent())).toBeGreaterThan(first);
+  await page.locator('#map-play').click();
+  await expect(page.locator('#map-play')).toHaveAttribute('aria-label', /Recorrer/);
 });

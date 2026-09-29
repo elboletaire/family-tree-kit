@@ -378,6 +378,13 @@ section[data-family][hidden] { display: none; }
 .map-play { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
             cursor: pointer; color: var(--ink); font-size: .8rem; }
 .map-play:hover { background: var(--paper-2); }
+.map-speed { min-width: 3rem; font-variant-numeric: tabular-nums; }
+/* The year seen, big over the map, and what happened in it */
+.map-now { position: absolute; left: .7rem; bottom: 1.7rem; z-index: 1000; max-width: min(75%, 440px); pointer-events: none;
+           padding: .3rem .75rem .45rem; border: 1px solid var(--line); border-radius: 10px;
+           background: color-mix(in srgb, var(--card) 88%, transparent); }
+.map-now b { display: block; font-size: 2rem; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--ink); }
+.map-now span { display: block; font-size: .8rem; line-height: 1.35; color: var(--ink-2); }
 #map-year { flex: 1 1 180px; max-width: 360px; accent-color: var(--accent); }
 .map-until { font-variant-numeric: tabular-nums; color: var(--ink-2); min-width: 7.5em; }
 .map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 1rem; align-items: start; }
