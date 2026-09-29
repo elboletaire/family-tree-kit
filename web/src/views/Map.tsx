@@ -1,5 +1,6 @@
 /* MAP: the places of the family (places.yml) on OpenStreetMap, with Leaflet. A point per place, sized by its facts and
-   colored by its branch; lines from the parents' birthplace to their children's. The list of the side is Solid; the
+   colored by its branch; lines from the parents' birthplace to their children's, and from each person's birthplace to
+   the place where they died. The list of the side is Solid; the
    points and lines are Leaflet layers, redrawn from the memos */
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -17,7 +18,7 @@ import { texts } from '../i18n';
 import { view } from '../router';
 import { focus, focusName, kinSet, type Scope } from '../state';
 import { fmtDate, reduced, store } from '../util';
-import { arc, FACT_KINDS, kindCounts, mainBounds, mapFacts, mapPlaces, migrations, radius, unlocated, type Fact, type FactKind, type MapPlace } from './mapLayout';
+import { arc, FACT_KINDS, kindCounts, lifeLines, mainBounds, mapFacts, mapPlaces, migrations, radius, unlocated, type Fact, type FactKind, type MapPlace } from './mapLayout';
 
 const TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const LINES_KEY = 'arbre-map-lines';
@@ -67,10 +68,9 @@ export function MapView() {
   const places = createMemo(() => mapPlaces(until() == null ? allFacts() : mapFacts(keep(), until(), kinds()), focus()));
   // Only between places with facts up to the year, of any kind (the lines stay with the births hidden): a parent born
   // in an undated place has no point until all the years are shown
-  const lines = createMemo(() => {
-    const shown = new Set(mapPlaces(mapFacts(keep(), until()), focus()).map(pl => pl.key));
-    return migrations(keep(), until(), line()).filter(m => shown.has(m.from.key) && shown.has(m.to.key));
-  });
+  const shownPoints = createMemo(() => new Set(mapPlaces(mapFacts(keep(), until()), focus()).map(pl => pl.key)));
+  const lines = createMemo(() => migrations(keep(), until(), line()).filter(m => shownPoints().has(m.from.key) && shownPoints().has(m.to.key)));
+  const lives = createMemo(() => lifeLines(keep(), until(), line()).filter(l => shownPoints().has(l.from.key) && shownPoints().has(l.to.key)));
   const current = createMemo(() => places().find(pl => pl.key === selected()) ?? null);
   const total = createMemo(() => places().reduce((n, pl) => n + pl.facts.length, 0));
   const missing = unlocated().length;
@@ -92,7 +92,7 @@ export function MapView() {
 
   /* --- the Leaflet map */
   let map: L.Map | undefined;
-  const pointLayer = L.layerGroup(), lineLayer = L.layerGroup();
+  const pointLayer = L.layerGroup(), lineLayer = L.layerGroup(), lifeLayer = L.layerGroup();
   const markers = new Map<string, L.CircleMarker>();
   onMount(() => {
     map = L.map(el, { zoomSnap: .5, worldCopyJump: true, attributionControl: true });
@@ -103,6 +103,7 @@ export function MapView() {
     // the tiles send the site's origin only
     const tiles = L.tileLayer(TILES, { maxZoom: 18, attribution: texts.map.attribution, referrerPolicy: 'strict-origin' });
     tiles.on('tileerror', () => setOffline(true)).on('tileload', () => setOffline(false)).addTo(map);
+    lifeLayer.addTo(map);
     lineLayer.addTo(map);
     pointLayer.addTo(map);
     map.on('click', () => setSelected(null));
@@ -167,6 +168,23 @@ export function MapView() {
       }, (e as L.LeafletMouseEvent).originalEvent));
       l.on('mouseout', hideTip);
       l.addTo(lineLayer);
+    });
+  });
+  // Migrations of a life, dotted and under the others: from where each person was born to where they died
+  createEffect(() => {
+    lifeLayer.clearLayers();
+    if (!showLines()) return;
+    [...lives()].sort((a, b) => Number(a.direct) - Number(b.direct)).forEach(lf => {
+      const l = L.polyline(arc([lf.from.lat, lf.from.lon], [lf.to.lat, lf.to.lon]), {
+        color: branchColor(lf.branch), weight: (lf.direct ? 2.5 : 1.5) + Math.min(3, lf.people.length - 1),
+        opacity: lf.direct ? .85 : .5, className: 'map-life' + (lf.direct ? ' direct' : ''), dashArray: '1 6', lineCap: 'round',
+      });
+      l.on('mousemove', e => showTip({
+        title: texts.map.migration(lf.from.name, lf.to.name),
+        lines: [texts.map.livedFromTo(lf.from.name, lf.to.name, lf.people.map(p => p.name))],
+      }, (e as L.LeafletMouseEvent).originalEvent));
+      l.on('mouseout', hideTip);
+      l.addTo(lifeLayer);
     });
   });
   // A place chosen from the list: the map goes to it

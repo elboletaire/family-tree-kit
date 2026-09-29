@@ -222,10 +222,12 @@ export const es = {
     label: 'Mapa de los lugares de la familia',
     intro: 'Cada punto es un lugar donde nació, se casó o murió alguien de la familia, o de donde es un documento: ' +
       'cuanto más grande, más acontecimientos, y del color de la familia con más gente allí. Las líneas van del lugar ' +
-      'de nacimiento de los padres al de sus hijos. Pulsa un punto para ver quién y qué.',
+      'de nacimiento de los padres al de sus hijos y, punteadas, del lugar donde nació cada persona al lugar donde murió. ' +
+      'Pulsa un punto para ver quién y qué.',
     kindsLabel: 'Qué se ve en el mapa',
     migrations: 'Migraciones',
-    migrationsTitle: 'Líneas del lugar de nacimiento de los padres al de sus hijos',
+    migrationsTitle: 'Líneas del lugar de nacimiento de los padres al de sus hijos y, punteadas, del lugar donde nació ' +
+      'cada persona al lugar donde murió',
     until: (year: number) => `Hasta ${year}`,
     allYears: 'Todos los años',
     year: 'Año',
@@ -247,6 +249,7 @@ export const es = {
     unlocated: (n: number) => `${plural(n, 'lugar', 'lugares')} sin situar en el mapa`,
     migration: (from: string, to: string) => `De ${from} a ${to}`,
     bornThere: (names: string[]) => `Nacieron allí: ${names.join(', ')}`,
+    livedFromTo: (from: string, to: string, names: string[]) => `Nacieron en ${from} y murieron en ${to}: ${names.join(', ')}`,
     offline: 'Sin conexión: no se puede cargar el mapa de fondo. Los lugares se ven sobre un contorno aproximado de la costa.',
     focusNote: (name: string) => `Con borde oscuro, los lugares de ${name}; en trazo continuo, las migraciones de sus antepasados y descendientes.`,
     empty: 'No hay lugares con coordenadas para estas personas y años.',

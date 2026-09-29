@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { initData } from '../src/data';
 import { initFocus, kinSet } from '../src/state';
-import { arc, FACT_KINDS, kindCounts, mainBounds, mapFacts, mapPlaces, migrations, radius, unlocated, type FactKind } from '../src/views/mapLayout';
+import { arc, FACT_KINDS, kindCounts, lifeLines, mainBounds, mapFacts, mapPlaces, migrations, radius, unlocated, type FactKind } from '../src/views/mapLayout';
 import { fixture } from './fixture';
 
 beforeEach(() => {
@@ -50,6 +50,20 @@ describe('map', () => {
     ]);
     expect(lines(null, 1950)).toEqual([['Monte Medio', 'Villa Alta', ['padre'], true]]);
     expect(lines(kinSet('direct'), null)).toEqual([['Monte Medio', 'Villa Alta', ['padre'], true]]);
+  });
+  it('draws the lives from the birthplace to the place of death', () => {
+    // The grandfather died in a place without coordinates: no line
+    expect(lifeLines(null, null, kinSet('direct')!)).toEqual([]);
+    const data = fixture();
+    Object.assign(data.people.find(p => p.id === 'abuela')!, { diedYear: 1980, died: '1980', deathPlace: 'Puerto Bajo' });
+    Object.assign(data.people.find(p => p.id === 'tia')!, { diedYear: 1990, died: '1990', deathPlace: 'Monte Medio' });
+    initData(data);
+    initFocus();
+    const lives = (until: number | null) => lifeLines(null, until, kinSet('direct')!).map(l => [l.from.name, l.to.name, l.people.map(p => p.id), l.year, l.direct]);
+    // The grandmother is of the direct line; the aunt is not
+    expect(lives(null)).toEqual([['Monte Medio', 'Puerto Bajo', ['abuela'], 1980, true], ['Puerto Bajo', 'Monte Medio', ['tia'], 1990, false]]);
+    expect(lives(1985)).toEqual([['Monte Medio', 'Puerto Bajo', ['abuela'], 1980, true]]);
+    expect(lives(1979)).toEqual([]);
   });
   it('frames the places that gather most facts', () => {
     const places = mapPlaces(mapFacts(null, null), 'yo');

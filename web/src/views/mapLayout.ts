@@ -1,5 +1,6 @@
 /* Calculations of the map, without DOM: the facts of each place (births, deaths, marriages and documents), the points
-   they make and the migrations from the parents' birthplace to their children's */
+   they make, the migrations from the parents' birthplace to their children's and the lives from the birthplace to the
+   place of death */
 import { AI, DATA, P } from '../data';
 import type { Doc, Person, Place } from '../types';
 
@@ -34,6 +35,19 @@ export interface Migration {
   /** The first birth, to show it from that year on */
   year: number | null;
   /** Parents and children of the focused person's direct line */
+  direct: boolean;
+}
+
+/** From the birthplace of some people to the place where they died, in one branch */
+export interface LifeLine {
+  key: string;
+  from: MapPlace;
+  to: MapPlace;
+  branch: string;
+  people: Person[];
+  /** The first death, to show it from that year on */
+  year: number | null;
+  /** Some of them is of the focused person's direct line */
   direct: boolean;
 }
 
@@ -97,14 +111,7 @@ function count(values: string[]): [string, number][] {
     (all, if null) and the child born up to `until`; `line` is the focused person's direct line, highlighted */
 export function migrations(keep: Set<string> | null, until: number | null, line: Set<string>): Migration[] {
   const inScope = (id: string) => !keep || keep.has(id);
-  const point = new Map<string, MapPlace>();
-  const at = (text: string): MapPlace | undefined => {
-    const pl = locate(text);
-    if (!pl) return undefined;
-    const k = pointKey(pl);
-    if (!point.has(k)) point.set(k, { key: k, name: pl.name, lat: pl.lat, lon: pl.lon, texts: [text], facts: [], branch: '', mine: false });
-    return point.get(k);
-  };
+  const at = pointAt();
   const out = new Map<string, Migration>();
   DATA.people.filter(c => inScope(c.id) && upTo(c.bornYear, until)).forEach(c => {
     const to = at(c.birthPlace);
@@ -125,6 +132,38 @@ export function migrations(keep: Set<string> | null, until: number | null, line:
     });
   });
   return [...out.values()];
+}
+
+/** Lines from the birthplace of each person to the place where they died, when they differ. The person has to be in
+    `keep` (all, if null) and dead up to `until`; `line` is the focused person's direct line, highlighted */
+export function lifeLines(keep: Set<string> | null, until: number | null, line: Set<string>): LifeLine[] {
+  const at = pointAt();
+  const out = new Map<string, LifeLine>();
+  DATA.people.filter(p => (!keep || keep.has(p.id)) && upTo(p.diedYear, until)).forEach(p => {
+    const from = at(p.birthPlace), to = at(p.deathPlace);
+    if (!from || !to || from.key === to.key) return;
+    const key = `${from.key}>${to.key}>${p.branch}`;
+    const l = out.get(key);
+    if (!l) out.set(key, { key, from, to, branch: p.branch, people: [p], year: p.diedYear, direct: line.has(p.id) });
+    else {
+      l.people.push(p);
+      l.direct ||= line.has(p.id);
+      if (p.diedYear != null && (l.year == null || p.diedYear < l.year)) l.year = p.diedYear;
+    }
+  });
+  return [...out.values()];
+}
+
+/** A point (without facts) for each way of writing a located place, the same for the texts with the same coordinates */
+function pointAt(): (text: string) => MapPlace | undefined {
+  const point = new Map<string, MapPlace>();
+  return text => {
+    const pl = locate(text);
+    if (!pl) return undefined;
+    const k = pointKey(pl);
+    if (!point.has(k)) point.set(k, { key: k, name: pl.name, lat: pl.lat, lon: pl.lon, texts: [text], facts: [], branch: '', mine: false });
+    return point.get(k);
+  };
 }
 
 /** [[south, west], [north, east]] of the places that gather `share` of the facts, the biggest first: a place far away

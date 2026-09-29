@@ -123,8 +123,9 @@ test('map: a point per place, its list, the year and the migrations', async ({ p
   await expect(points).toHaveCount(0);
   for (const k of ['birth', 'marriage', 'death', 'doc']) await page.locator(`#map-kind-${k}`).check();
   await expect(points).toHaveCount(all);
-  if (await page.locator('#map path.map-line').count()) {
+  // The migrations, between generations and of a life (from birth to death), are hidden together
+  if (await page.locator('#map path.map-line, #map path.map-life').count()) {
     await page.locator('#map-lines').uncheck();
-    await expect(page.locator('#map path.map-line')).toHaveCount(0);
+    await expect(page.locator('#map path.map-line, #map path.map-life')).toHaveCount(0);
   }
 });
