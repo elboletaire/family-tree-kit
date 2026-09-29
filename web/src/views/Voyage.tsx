@@ -6,8 +6,9 @@ import { PersonChip } from '../components/PersonChip';
 import { ScopeChips } from '../components/ScopeChips';
 import { color, DATA, P } from '../data';
 import { listen } from '../events';
+import { createFullscreen } from '../fullscreen';
 import { texts } from '../i18n';
-import { openDoc, openPerson, panel, view } from '../router';
+import { openDoc, openPerson, view } from '../router';
 import { focus, focusName, kinOf, kinSet, type Scope } from '../state';
 import type { Person } from '../types';
 import { fmtDate, initials, reduced } from '../util';
@@ -156,29 +157,8 @@ export function Voyage() {
   });
   createEffect(() => { const cur = t(); if (cur != null && document.activeElement !== range) range.value = cur.toFixed(1); });
 
-  /* --- full screen: the browser's if it exists (the whole page, so the card shows on top);
-     otherwise (Safari on iPhone), the view takes the whole window */
-  const [full, setFullSignal] = createSignal(false);
-  createEffect(() => document.body.classList.toggle('voyage-full', full()));
-  onCleanup(() => document.body.classList.remove('voyage-full'));
-  type FsDocument = Document & { webkitFullscreenElement?: Element; webkitExitFullscreen?: () => Promise<void> };
-  const inFullscreen = () => { const doc = document as FsDocument; return Boolean(doc.fullscreenElement || doc.webkitFullscreenElement); };
-  function setFull(on: boolean, fromBrowser?: boolean) {
-    setFullSignal(on);
-    const root = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => Promise<void> };
-    const doc = document as FsDocument;
-    if (on && !inFullscreen()) (root.requestFullscreen || root.webkitRequestFullscreen)?.call(root)?.catch?.(() => {});
-    if (!on && inFullscreen() && !fromBrowser) (doc.exitFullscreen || doc.webkitExitFullscreen)?.call(doc);
-    el.focus({ preventScroll: true });
-  }
-  // When leaving the browser's full screen (Esc, system gesture), the view is undone too
-  const fsChange = () => { if (!inFullscreen()) setFull(false, true); };
-  listen(document, 'fullscreenchange', fsChange);
-  listen(document, 'webkitfullscreenchange', fsChange);
-  // In the simulated full screen (iPhone), Esc closes it if there is no open card to close first
-  listen(document, 'keydown', e => {
-    if (e.key === 'Escape' && full() && !panel() && !lightboxOpen()) setFull(false);
-  }, true);
+  /* --- full screen */
+  const [full, setFull] = createFullscreen('voyage-full', () => el.focus({ preventScroll: true }));
 
   /* --- when the view opens: the first time, at the beginning (or, from another person's card, at their birth);
      afterwards, only if the focused person has changed */

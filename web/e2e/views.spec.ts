@@ -156,4 +156,14 @@ test('map: a point per place, its list, the year and the migrations', async ({ p
   await expect.poll(async () => Number(await page.locator('#map-now b').textContent())).toBeGreaterThan(first);
   await page.locator('#map-play').click();
   await expect(page.locator('#map-play')).toHaveAttribute('aria-label', /Recorrer/);
+
+  // Full screen: the controls, the map and the list of places take the whole window; the button leaves it
+  await page.locator('#map-full').click();
+  await expect(page.locator('body')).toHaveClass(/map-full/);
+  const box = (await page.locator('.map-view').boundingBox())!;
+  expect(box.y).toBe(0);
+  await expect(page.locator('#map-side')).toBeVisible();
+  await expect(page.locator('#map-play')).toBeVisible();
+  await page.locator('#map-full').click();
+  await expect(page.locator('body')).not.toHaveClass(/map-full/);
 });

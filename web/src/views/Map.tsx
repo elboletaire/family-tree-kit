@@ -14,6 +14,7 @@ import { PersonChip } from '../components/PersonChip';
 import { ScopeChips } from '../components/ScopeChips';
 import { hideTip, showTip } from '../components/Tooltip';
 import { BR, DATA } from '../data';
+import { createFullscreen } from '../fullscreen';
 import { texts } from '../i18n';
 import { view } from '../router';
 import { focus, focusName, kinSet, type Scope } from '../state';
@@ -248,8 +249,16 @@ export function MapView() {
     if (!box) map.setView([40.4, -3.7], 5);  // nothing to show: the Iberian Peninsula
     else map.fitBounds(box, { padding: [30, 30], maxZoom: 9 });
   }
-  // The map is created inside a hidden page when it is not the active view: when it shows again, it measures itself
-  createEffect(on(() => view() === 'map', active => { if (active && map) { map.invalidateSize(); } }, { defer: true }));
+  /* --- full screen: the controls, the legend, the map and the list of places take the whole window */
+  const [full, setFull] = createFullscreen('map-full');
+  // The map measures itself again when it changes size
+  createEffect(on(full, () => requestAnimationFrame(() => map?.invalidateSize()), { defer: true }));
+  // The map is created inside a hidden page when it is not the active view: when it shows again, it measures itself;
+  // leaving the view leaves the full screen
+  createEffect(on(() => view() === 'map', active => {
+    if (active && map) map.invalidateSize();
+    if (!active && full()) setFull(false);
+  }, { defer: true }));
 
   const tipLines = (pl: MapPlace) => kindCounts(pl.facts).map(([k, n]) => `${n} ${n === 1 ? texts.map.kinds[k].one : texts.map.kinds[k].many}`);
   // The points are kept from one year to the next: while playing, the new ones grow and those that gain facts pulse
@@ -346,7 +355,7 @@ export function MapView() {
   const usedBranches = createMemo(() => [...new Set(places().map(pl => pl.branch))]);
 
   return (
-    <>
+    <div class="map-view">
       <div class="view-head">
         <h2>{texts.map.title}</h2>
         <p class="muted">{texts.map.intro}</p>
@@ -380,6 +389,12 @@ export function MapView() {
       <div class="map-layout">
         <div class="map-wrap">
           <div class="map" id="map" role="region" aria-label={texts.map.label} ref={el} />
+          <button type="button" id="map-full" class="map-fs" classList={{ on: full() }} title={full() ? texts.map.fullscreen.off : texts.map.fullscreen.on}
+                  aria-label={full() ? texts.map.fullscreen.off : texts.map.fullscreen.on} onClick={() => setFull(!full())}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path class="fs-open" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /><path class="fs-close" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+            </svg>
+          </button>
           <Show when={offline()}><p class="map-offline" role="status">{texts.map.offline}</p></Show>
           <Show when={until() != null}>
             <div class="map-now" id="map-now">
@@ -426,6 +441,6 @@ export function MapView() {
         </aside>
       </div>
       <p class="muted map-note">{texts.map.focusNote(focusName())}</p>
-    </>
+    </div>
   );
 }

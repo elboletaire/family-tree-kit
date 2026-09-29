@@ -222,9 +222,9 @@ main { padding: 0 1.4rem 3rem; }
                            border: 0; font-size: 1rem; }
 .voyage-bar .voyage-play:hover { background: #f0cf95; }
 #voyage-range { width: 100%; accent-color: #e8c07d; }
-#voyage-full svg { display: block; }
-#voyage-full .fs-close, #voyage-full.on .fs-open { display: none; }
-#voyage-full.on .fs-close { display: inline; }
+#voyage-full svg, #map-full svg { display: block; }
+#voyage-full .fs-close, #voyage-full.on .fs-open, #map-full .fs-close, #map-full.on .fs-open { display: none; }
+#voyage-full.on .fs-close, #map-full.on .fs-close { display: inline; }
 body.voyage-full { overflow: hidden; }
 body.voyage-full .voyage { position: fixed; inset: 0; z-index: 35; height: 100vh; height: 100dvh; border-radius: 0; }
 body.voyage-full .drawer { top: 0; }
@@ -378,6 +378,22 @@ section[data-family][hidden] { display: none; }
 .map-play { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
             cursor: pointer; color: var(--ink); font-size: .8rem; }
 .map-play:hover { background: var(--paper-2); }
+/* The full screen button, like Leaflet's zoom buttons, on the other corner */
+.map-fs { position: absolute; top: 10px; right: 10px; z-index: 1000; display: grid; place-items: center; width: 34px;
+          height: 34px; padding: 0; border: 2px solid rgba(0, 0, 0, .2); border-radius: 4px; background: #fff; color: #333;
+          cursor: pointer; background-clip: padding-box; }
+.map-fs:hover { background-color: #f4f4f4; }
+/* Full screen: the view over the whole window, without its title; the map and the list fill what is left */
+body.map-full { overflow: hidden; }
+body.map-full .map-view { position: fixed; inset: 0; z-index: 35; display: flex; flex-direction: column; overflow: hidden;
+                          padding: 0 1rem calc(.8rem + env(safe-area-inset-bottom)); background: var(--paper); }
+body.map-full .map-view .view-head { padding-top: .6rem; max-width: none; }
+body.map-full .map-view .view-head h2, body.map-full .map-view .view-head > p, body.map-full .map-note { display: none; }
+body.map-full .map-layout { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+body.map-full .map-wrap { display: flex; flex-direction: column; min-height: 0; }
+body.map-full .map { flex: 1; height: auto; min-height: 0; max-height: none; }
+body.map-full .map-side { max-height: none; min-height: 0; }
+body.map-full .drawer { top: 0; }
 .map-speed { min-width: 3rem; font-variant-numeric: tabular-nums; }
 /* The year seen, big over the map, and what happened in it */
 .map-now { position: absolute; left: .7rem; bottom: 1.7rem; z-index: 1000; max-width: min(75%, 440px); pointer-events: none;
@@ -443,6 +459,11 @@ section[data-family][hidden] { display: none; }
   .map-layout { grid-template-columns: 1fr; }
   .map { height: 62vh; min-height: 320px; }
   .map-side { max-height: 70vh; scroll-margin-top: calc(var(--topbar-h, 0px) + .5rem); }
+  /* Narrow full screen: the view scrolls, with the map almost as high as the window and the list below */
+  body.map-full .map-view { overflow-y: auto; }
+  body.map-full .map-layout { flex: none; grid-template-rows: auto; }
+  body.map-full .map { flex: none; height: 70vh; height: 70dvh; }
+  body.map-full .map-side { max-height: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

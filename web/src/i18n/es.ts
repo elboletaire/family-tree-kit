@@ -232,6 +232,7 @@ export const es = {
     allYears: 'Todos los años',
     year: 'Año',
     play: 'Recorrer los años',
+    fullscreen: { on: 'Pantalla completa', off: 'Salir de pantalla completa' },
     speed: 'Velocidad del recorrido',
     speedLabel: (n: number) => `Velocidad del recorrido: ×${n}`,
     happened: {
