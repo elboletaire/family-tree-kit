@@ -80,10 +80,12 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   anything weaker `probable`. Speculative links never go in the frontmatter — only in the notes.
 - Sources that mention several people must be linked from all of them (a list of candidates names two relatives:
   both get the source).
-- Remove from `pendientes.md` what the document answers; add what it opens.
+- Remove from `pendientes.md` what the document answers; add what it opens: every question it raises (an
+  unidentified person, a doubtful reading of a name or date, a gap, something to ask the family) is written there
+  now, not only in the report to the user.
 
 ## 5. Close
 
 `make validate` (0 errors; it also checks that every file in `<sources>/F0xx/` is listed), commit, and tell the user
 in a few lines what the document added, what was redacted or left out and why, and which questions it raises for
-the family.
+the family — each of them already in `pendientes.md` or `incoherencias.md`.

@@ -9,4 +9,5 @@ skills:
 You import documents into this family tree. Read `AGENTS.md` and, if it exists, `TREE.md` first, and follow the `add-document` skill step by step:
 look at every file, transcribe literally, clean up the images, create the source notes, update the people, and run
 `make validate` before committing. When a reading is doubtful, mark it `[?]` rather than guessing, and say so in your
-report.
+report. Every question the documents open (an unidentified person, a doubtful reading that matters, a gap) goes to
+the research folder's `pendientes.md` before you report.

@@ -94,8 +94,9 @@ Only after grading, and following the `add-document` skill:
   the document must be requested.
 - Transcribe literally; mark doubtful readings `[?]`.
 - Link the source from every person it names.
-- Leads that are not evidence (possible relatives, weak matches) go to `## Notas de investigación` or
-  `<research>/pendientes.md`, never to frontmatter fields.
+- Leads that are not evidence (possible relatives, weak matches) go to `## Notas de investigación` and
+  `<research>/pendientes.md`, never to frontmatter fields. Every question a search opens, and a search that found
+  nothing (with the queries tried), is written in `pendientes.md`.
 - Contradictions with other documents go to `<research>/incoherencias.md` (see `references/identification.md`).
 - AI output (including your own summaries) is never a source. A claim from an AI conversation can be a lead to check.
 - If the family later rejects a source, delete it and every datum that depends on it.

@@ -275,6 +275,11 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
 - If a document contradicts a compiled tree, the document wins. If two documents contradict each other (above all on
   dates), do not choose blindly: use the one closest to the fact, explain it in the notes and record it in
   `research/incoherencias.md`. Data are not invented: the gaps go to `research/pendientes.md`.
+- **Every open question is written down when it comes up.** Whatever a new document, an answer, a testimony or a
+  search opens (who someone is, a doubtful reading that matters, a gap, something to ask the family) goes to
+  `research/pendientes.md`, and a contradiction to `research/incoherencias.md`, in the same change that brings it and
+  before telling the user. The notes of a person or a source can explain it, but the item is in those files: a
+  question said only in the conversation is lost.
 - AI-generated content (`category: ia`) is **never** the source of a fact.
 - `incoherencias.md` and `pendientes.md` go by families: a `##` for each family of `families.yml` (with its exact
   `title`), with a `###` per branch, and «General». Each new item goes in the family and branch of the people it
