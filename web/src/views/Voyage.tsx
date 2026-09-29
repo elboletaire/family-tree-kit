@@ -58,6 +58,9 @@ function CardBody(props: { e: VEvent }) {
   );
 }
 
+/** Years the play advances each second: two seconds a year, to follow who is born and dies */
+const PLAY_YEARS_PER_SECOND = .5;
+
 export function Voyage() {
   let el!: HTMLDivElement;
   let range!: HTMLInputElement;
@@ -100,7 +103,7 @@ export function Voyage() {
   function tick(ms: number) {
     const dt = Math.min(.05, (ms - last) / 1000); last = ms;
     if (playing()) {
-      target = Math.min(target! + dt * 3, max);
+      target = Math.min(target! + dt * PLAY_YEARS_PER_SECOND, max);
       if (target >= max) setPlaying(false);
     }
     const cur = t()!, d = target! - cur;
