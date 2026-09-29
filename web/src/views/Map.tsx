@@ -28,6 +28,16 @@ const branchColor = (key: string): string => (BR.get(key) ?? BR.get(DATA.otherBr
 /** Coastline of the world (Natural Earth, 1:110m), under the tiles: what is seen without network */
 const LAND = feature(land110 as unknown as Topology, (land110 as unknown as Topology).objects.land as GeometryCollection);
 
+/** A line of the map, drawn as it is seen but without events, over a wider invisible one that takes them: the gaps of
+    the dashes and the thin lines can be hovered too */
+function addLine(layer: L.LayerGroup, pts: [number, number][], style: L.PolylineOptions, tip: () => { title: string; lines: string[] }) {
+  const hit = L.polyline(pts, { weight: 14, opacity: 0, className: 'map-hit' });
+  hit.on('mousemove', e => showTip(tip(), (e as L.LeafletMouseEvent).originalEvent));
+  hit.on('mouseout', hideTip);
+  L.polyline(pts, { ...style, interactive: false }).addTo(layer);
+  hit.addTo(layer);
+}
+
 /** One fact in the list of a place: who (or which document) and when */
 function FactRow(props: { f: Fact }) {
   const when = () => props.f.year ? fmtDate(props.f.kind === 'doc' ? props.f.d!.date : String(props.f.year)) : texts.map.undated;
@@ -158,16 +168,13 @@ export function MapView() {
     // The focused person's direct line, above and stronger
     [...lines()].sort((a, b) => Number(a.direct) - Number(b.direct)).forEach(mg => {
       const pts = arc([mg.from.lat, mg.from.lon], [mg.to.lat, mg.to.lon]);
-      const l = L.polyline(pts, {
+      addLine(lineLayer, pts, {
         color: branchColor(mg.branch), weight: (mg.direct ? 2.5 : 1.2) + Math.min(3, mg.children.length - 1),
         opacity: mg.direct ? .9 : .45, className: 'map-line' + (mg.direct ? ' direct' : ''), dashArray: mg.direct ? undefined : '4 4',
-      });
-      l.on('mousemove', e => showTip({
+      }, () => ({
         title: texts.map.migration(mg.from.name, mg.to.name),
         lines: [texts.map.bornThere(mg.children.map(c => c.name))],
-      }, (e as L.LeafletMouseEvent).originalEvent));
-      l.on('mouseout', hideTip);
-      l.addTo(lineLayer);
+      }));
     });
   });
   // Migrations of a life, dotted and under the others: from where each person was born to where they died
@@ -175,16 +182,13 @@ export function MapView() {
     lifeLayer.clearLayers();
     if (!showLines()) return;
     [...lives()].sort((a, b) => Number(a.direct) - Number(b.direct)).forEach(lf => {
-      const l = L.polyline(arc([lf.from.lat, lf.from.lon], [lf.to.lat, lf.to.lon]), {
+      addLine(lifeLayer, arc([lf.from.lat, lf.from.lon], [lf.to.lat, lf.to.lon]), {
         color: branchColor(lf.branch), weight: (lf.direct ? 2.5 : 1.5) + Math.min(3, lf.people.length - 1),
         opacity: lf.direct ? .85 : .5, className: 'map-life' + (lf.direct ? ' direct' : ''), dashArray: '1 6', lineCap: 'round',
-      });
-      l.on('mousemove', e => showTip({
+      }, () => ({
         title: texts.map.migration(lf.from.name, lf.to.name),
         lines: [texts.map.livedFromTo(lf.from.name, lf.to.name, lf.people.map(p => p.name))],
-      }, (e as L.LeafletMouseEvent).originalEvent));
-      l.on('mouseout', hideTip);
-      l.addTo(lifeLayer);
+      }));
     });
   });
   // A place chosen from the list: the map goes to it

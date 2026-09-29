@@ -123,8 +123,26 @@ test('map: a point per place, its list, the year and the migrations', async ({ p
   await expect(points).toHaveCount(0);
   for (const k of ['birth', 'marriage', 'death', 'doc']) await page.locator(`#map-kind-${k}`).check();
   await expect(points).toHaveCount(all);
-  // The migrations, between generations and of a life (from birth to death), are hidden together
+  // The migrations, between generations and of a life (from birth to death), are hidden together; a wide invisible
+  // line under each one shows what it is on hover, also in the gaps of the dashes
   if (await page.locator('#map path.map-line, #map path.map-life').count()) {
+    // The middle of a line inside the map, a little to the side: over the invisible line, not the drawn one
+    const at = await page.evaluate(() => {
+      const box = document.querySelector('#map')!.getBoundingClientRect();
+      for (const el of document.querySelectorAll<SVGPathElement>('#map path.map-hit')) {
+        const m = el.getPointAtLength(el.getTotalLength() / 2), ctm = el.getScreenCTM()!;
+        const x = m.x * ctm.a + ctm.e, y = m.y * ctm.d + ctm.f + 4;
+        const inside = x > box.left + 40 && x < box.right - 40 && y > box.top + 40 && y < box.bottom - 40;
+        // Not under a point, which has its own tooltip
+        if (inside && document.elementFromPoint(x, y)?.classList.contains('map-hit')) return { x, y };
+      }
+      return null;
+    });
+    if (at) {
+      await page.mouse.move(at.x, at.y);
+      await expect(page.locator('#tooltip')).toBeVisible();
+      await page.mouse.move(0, 0);
+    }
     await page.locator('#map-lines').uncheck();
     await expect(page.locator('#map path.map-line, #map path.map-life')).toHaveCount(0);
   }
