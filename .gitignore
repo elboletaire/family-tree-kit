@@ -1,0 +1,6 @@
+build/
+__pycache__/
+.obsidian/workspace*.json
+.obsidian/cache
+.trash/
+.env

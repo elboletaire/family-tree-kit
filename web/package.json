@@ -1,0 +1,35 @@
+{
+  "name": "arbre-web",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "d3": "7.9.0",
+    "family-chart": "0.9.0",
+    "leaflet": "1.9.4",
+    "solid-js": "1.9.15",
+    "topojson-client": "3.1.0",
+    "world-atlas": "2.0.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@solidjs/testing-library": "^0.8.10",
+    "@testing-library/dom": "^10.4.2",
+    "@types/d3": "^7.4.3",
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^26.6.3",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-specification": "^1.0.5",
+    "jsdom": "^30.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vite-plugin-solid": "^2.11.14",
+    "vitest": "^5.0.2"
+  }
+}

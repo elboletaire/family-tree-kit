@@ -1,0 +1,27 @@
+# Files of the engine: identical in every tree made from the template, and never with names of a family (see
+# "Engine and data" in AGENTS.md). One path per line; a trailing «/» takes the whole folder. Everything else in the
+# repository is the family's (families.yml, places.yml, TREE.md, the data folders), and scripts/check_template.py
+# fails on a file that is neither.
+.agents/
+.claude/agents/
+.claude/skills
+.env.example
+.github/
+.gitattributes
+.gitignore
+.obsidian/app.json
+.obsidian/core-plugins.json
+.obsidian/templates.json
+AGENTS.md
+LICENSE
+Makefile
+README.es.md
+README.md
+deploy/
+docs/
+docker-compose.yml
+families.example.yml
+scripts/
+templates/
+tests/
+web/

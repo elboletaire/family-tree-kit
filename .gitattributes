@@ -1,0 +1,22 @@
+# Originals of the family archive (Git LFS)
+*.pdf filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.JPG filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+*.doc filter=lfs diff=lfs merge=lfs -text
+*.docx filter=lfs diff=lfs merge=lfs -text
+*.xls filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.dwg filter=lfs diff=lfs merge=lfs -text
+*.bak filter=lfs diff=lfs merge=lfs -text
+*.htm filter=lfs diff=lfs merge=lfs -text
+# Everything inside a document's folder (<sources>/F0xx/, whatever the sources folder is called) is an original:
+# always to LFS (the notes, <sources>/F0xx.md, are not)
+**/F[0-9][0-9][0-9]/** filter=lfs diff=lfs merge=lfs -text
+**/F[0-9][0-9][0-9][0-9]/** filter=lfs diff=lfs merge=lfs -text
+**/F[0-9][0-9][0-9].md !filter !diff !merge text
+**/F[0-9][0-9][0-9][0-9].md !filter !diff !merge text
+# The READMEs' screenshots are not originals: plain git, so that they show on GitHub and in any clone without Git LFS
+docs/screenshots/** !filter !diff !merge binary

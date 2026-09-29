@@ -1,0 +1,53 @@
+# The demo of the template: a fictional tree (scripts/demo.py) and its whole website, published on GitHub Pages on
+# every push to main (`make demo`, build/demo).
+#
+# It only runs in the public template, elboletaire/family-tree-kit: in a family's repository made from it (whatever
+# its name), the jobs are skipped, so the workflow can stay there without publishing anything. A family's tree is
+# never built here: the demo is generated from nothing.
+name: Demo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.repository == 'elboletaire/family-tree-kit'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: make demo
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/demo
+
+  deploy:
+    if: github.repository == 'elboletaire/family-tree-kit'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

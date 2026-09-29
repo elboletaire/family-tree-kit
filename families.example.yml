@@ -1,0 +1,60 @@
+# Example of families.yml, the configuration of a tree: copy it to families.yml and replace the fictional family with
+# yours (the start-tree skill, .agents/skills/start-tree/SKILL.md, walks through it). The names of people and
+# families live here, not in the code: it is read by scripts/arbre.py (revision.md, validation and report) and
+# scripts/build_site.py, which passes it to the web. `make validate` checks that the keys match each other and that
+# the founders and `main` exist.
+# The values (labels, titles) are content that the family reads, so they go in the tree's language.
+
+# Language of the texts the family reads: the generated sections of the notes, the website and the report
+# (scripts/i18n_<language>.py and web/src/i18n/<language>.ts). Only `es` (Spanish) exists for now, and it is the
+# default.
+language: es
+
+# Data folders, by role. Each one is a folder at the root of the repository; these are the defaults.
+#   people:    one note per person (<slug>.md)
+#   sources:   one note per document (F001.md…) and its originals (F001/…)
+#   research:  incoherencias.md, pendientes.md and the generated revision.md
+#   portraits: crops of photos used in the `photo` field of the people
+paths:
+  people: people
+  sources: sources
+  research: research
+  portraits: portraits
+
+# Person through whose eyes the web opens (slug of a person)
+main: anna-ferrer-puig
+
+# Families the research documents are split into (incoherencias.md, pendientes.md and revision.md).
+#   key:     key (data-family in the web, `make report FAMILY=<key>`); `several`, `general`, `all` and `todo` are
+#            reserved
+#   label:   short name, in the web's selector
+#   title:   `##` title of its section in incoherencias.md and pendientes.md (not changed without changing the files)
+#   of:      how its documents are counted («14 de la familia de …»)
+#   default: the one shown by default in the web and in `make report` (only one)
+# Besides these, two sections are always shown: «Afecta a varias familias» and «General».
+families:
+  - key: ferrer
+    label: Familia Ferrer
+    title: Familia Ferrer
+    of: de la familia Ferrer
+    default: true
+  - key: puig
+    label: Familia Puig
+    title: Familia Puig
+    of: de la familia Puig
+
+# Family branches, in the order of the legend: each one matches the `rama/<key>` tag of the people.
+# A person's branch is the one of their paternal (or maternal) line up to the founder (their oldest known ancestor
+# of that line).
+branches:
+  - {key: ferrer, label: Ferrer, color: "#2a78d6", founder: jaume-ferrer-soler, family: ferrer}
+  - {key: soler, label: Soler, color: "#eb6834", founder: maria-soler-roca, family: ferrer}
+  - {key: puig, label: Puig, color: "#1baf7a", founder: joan-puig-vidal, family: puig}
+
+# Whoever does not descend from any branch
+other_branch: {key: otras, label: Otras familias, color: "#9a958c"}
+
+# `###` subsections of each family in revision.md, by branches (in this order)
+groups:
+  - {family: ferrer, title: Ferrer y Soler, branches: [ferrer, soler]}
+  - {family: puig, title: Puig, branches: [puig]}

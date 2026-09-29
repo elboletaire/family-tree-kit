@@ -1,0 +1,49 @@
+#!/bin/sh
+# pre-push hook of the tree: `make hooks` installs it (the hook that was there before becomes pre-push.local and still
+# runs, after this one). Before a push to the remotes called `github` or `kit`, the public template (the second is the
+# name of the kit a tree was cloned from, for its updates, which a tree never pushes to), it refuses any ref whose
+# history touches the family's files (families.yml, places.yml, TREE.md, .obsidian/graph.json and the data folders of
+# `paths`), whose engine files carry names of the family, or whose new commits carry them in their messages, or the
+# «(cherry picked from commit …)» line of `git cherry-pick -x` (scripts/check_template.py). Then it runs pre-push.local
+# or, without one, Git LFS.
+remote="$1"
+input=$(mktemp) || exit 1
+trap 'rm -f "$input"' EXIT
+cat > "$input"
+
+if [ "$remote" = github ] || [ "$remote" = kit ]; then
+  # The family's data are in the first worktree with a families.yml: the template's own worktree has none
+  family=$(git worktree list --porcelain | sed -n 's/^worktree //p' | while read -r dir; do
+    if [ -f "$dir/families.yml" ]; then echo "$dir"; break; fi
+  done)
+  top=$(git rev-parse --show-toplevel)
+  family=${family:-$top}
+  check="$top/scripts/check_template.py"
+  paths=$(ARBRE_ROOT="$family" uv run --quiet "$check" --family-paths) || exit 1
+  while read -r local_ref local_sha remote_ref remote_sha; do
+    case "$local_sha" in *[!0]*) ;; *) continue ;; esac  # a deletion: nothing is sent
+    # shellcheck disable=SC2086  # the paths are folder names without spaces
+    # (the .gitkeep of the template's empty data folders are not data)
+    touched=$(git rev-list -n 1 "$local_sha" -- $paths ':(exclude,glob)**/.gitkeep')
+    if [ -n "$touched" ]; then
+      echo "pre-push: $local_ref has commits that touch the family's data (e.g. $touched): not pushed to $remote" >&2
+      exit 1
+    fi
+    if ! ARBRE_ROOT="$family" uv run --quiet "$check" --rev "$local_sha" --remote "$remote"; then
+      echo "pre-push: $local_ref has names of the family in its engine files or commit messages:" \
+        "not pushed to $remote" >&2
+      exit 1
+    fi
+  done < "$input"
+fi
+
+local_hook="$(git rev-parse --git-path hooks)/pre-push.local"
+if [ -x "$local_hook" ]; then
+  "$local_hook" "$@" < "$input"
+  exit $?
+fi
+if command -v git-lfs >/dev/null 2>&1; then
+  git lfs pre-push "$@" < "$input"
+  exit $?
+fi
+exit 0

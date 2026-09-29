@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# post-receive hook of the server's bare repository: deploys `main` to the web's directory.
+#
+# Installation (on the server, inside the bare repository):
+#   git show main:deploy/post-receive > hooks/post-receive && chmod +x hooks/post-receive
+#
+# On each push to main:
+#   1. moves the LFS objects that git-lfs-transfer may have left in .git/lfs (if the repo name does not end in .git);
+#   2. checks out main into $ARBRE_WEB_DIR (by default, ../web next to the repository) without fetching LFS;
+#   3. replaces each LFS pointer with a hard link to the object in lfs/objects (it takes no space);
+#   4. regenerates the site with `docker compose run --rm build` (which also compiles the interface of web/, with Node):
+#      build/public, the public version, and build/private, served only with a session; and, if the container is
+#      already running, updates it. If the leak check finds a living person's data in the public version, the build
+#      fails, the previous version stays and the hook stops here.
+#
+# Variables: ARBRE_WEB_DIR, ARBRE_BRANCH (main), ARBRE_BUILD (1; 0 not to regenerate the web). SOURCES_DIR, the folder
+# whose originals the web container serves, is read from families.yml (`paths.sources`).
+# The linked files are the LFS objects themselves: they must not be edited in the web's directory.
+set -euo pipefail
+
+GIT_DIR=$(cd "${GIT_DIR:-.}" && pwd)
+export GIT_DIR
+BRANCH=${ARBRE_BRANCH:-main}
+WEB=${ARBRE_WEB_DIR:-$(dirname "$GIT_DIR")/web}
+OBJECTS="$GIT_DIR/lfs/objects"
+
+deploy=0
+while read -r _old _new ref; do
+    [ "$ref" = "refs/heads/$BRANCH" ] && deploy=1
+done
+[ "$deploy" = 1 ] || exit 0
+
+log() { echo "[deploy] $*"; }
+
+# 1. LFS objects stored in the wrong place
+if [ -d "$GIT_DIR/.git/lfs/objects" ]; then
+    log "moving LFS objects from .git/lfs"
+    mkdir -p "$OBJECTS"
+    cp -aln "$GIT_DIR/.git/lfs/objects/." "$OBJECTS/"
+    rm -rf "$GIT_DIR/.git"
+fi
+
+# 2. Checkout without LFS with its own index: read-tree --reset -u also deletes what has been removed
+mkdir -p "$WEB"
+log "checking out $BRANCH into $WEB"
+GIT_INDEX_FILE="$GIT_DIR/deploy-index" GIT_LFS_SKIP_SMUDGE=1 \
+    git --work-tree="$WEB" read-tree --reset -u "$BRANCH"
+
+# 3. LFS pointers -> hard links to the objects
+linked=0; missing=0
+while read -r oid _mark path; do
+    obj="$OBJECTS/${oid:0:2}/${oid:2:2}/$oid"
+    if [ -f "$obj" ]; then
+        ln -f "$obj" "$WEB/$path"
+        linked=$((linked + 1))
+    else
+        echo "  missing LFS object of $path" >&2
+        missing=$((missing + 1))
+    fi
+done < <(git lfs ls-files --long "$BRANCH")
+log "$linked originals linked"
+[ "$missing" = 0 ] || log "WARNING: $missing pointers without an LFS object (was git lfs push run before the push?)"
+
+# 4. Regenerate the web
+if [ "${ARBRE_BUILD:-1}" = 1 ] && command -v docker >/dev/null; then
+    cd "$WEB"
+    if [ ! -f .env ]; then
+        # The web needs DOMAIN and SITE_PASSWORD; placeholder values are enough to generate build/
+        export DOMAIN=not-configured SITE_PASSWORD=not-configured
+        log "no $WEB/.env: the web is generated, but the container cannot start until it is created"
+    fi
+    # The `build` image (Node, pnpm and uv) is rebuilt if deploy/build.Dockerfile has changed; otherwise it comes from the cache
+    log "preparing the build image"
+    docker compose --profile build build build
+    export ARBRE_UID=$(id -u) ARBRE_GID=$(id -g)
+    SOURCES_DIR=$(docker compose run --rm -T build uv run --quiet scripts/config.py paths.sources)
+    export SOURCES_DIR
+    log "compiling the interface and generating build/public and build/private (originals in $SOURCES_DIR/)"
+    if ! docker compose run --rm build; then
+        log "ERROR: the site could not be generated (see above: a leak of the public version?); the previous one stays"
+        exit 1
+    fi
+    if [ -f .env ] && [ -n "$(docker compose ps -q web 2>/dev/null)" ]; then
+        log "updating the web container"
+        docker compose up -d --build web
+    fi
+fi
+log "done"

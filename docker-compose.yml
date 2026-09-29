@@ -1,0 +1,63 @@
+# The tree's website behind Traefik: closed with a password by default; with PUBLIC_SITE=1 in .env, public, and the
+# private data (the living, the originals) with the password. After changing it: docker compose up -d web
+# 1. docker compose run --rm build   (generates build/public and build/private; uv and Node do not need to be installed)
+# 2. docker compose up -d --build
+# Configuration in .env (see .env.example). The originals of the sources folder have to be downloaded (git lfs pull);
+# its name (`paths.sources` in families.yml) goes in SOURCES_DIR, which the post-receive hook reads from families.yml.
+services:
+  # Compiles the interface (web/, TypeScript) and generates the web with the Python scripts. The image builds itself the
+  # first time; if deploy/build.Dockerfile changes, `docker compose build build` (the post-receive hook already does it).
+  build:
+    build:
+      context: ./deploy
+      dockerfile: build.Dockerfile
+    profiles: [build]
+    working_dir: /repo
+    user: "${ARBRE_UID:-1000}:${ARBRE_GID:-1000}"
+    environment:
+      UV_CACHE_DIR: /repo/build/.uv-cache
+      npm_config_store_dir: /repo/build/.pnpm-store
+      CI: "true"  # pnpm asks nothing (there is no terminal) if it has to rebuild web/node_modules
+      HOME: /tmp
+    volumes:
+      - .:/repo
+    # build_site.py goes through the public version with the leak check before writing it: if it finds a living
+    # person's data it fails, the previous version stays in place and the post-receive hook stops
+    command: >-
+      sh -c "cd web && pnpm install --frozen-lockfile && pnpm build && cd ..
+      && uv run scripts/validate.py && uv run scripts/build_site.py --only site"
+
+  web:
+    build: ./deploy
+    restart: unless-stopped
+    environment:
+      SITE_PASSWORD: ${SITE_PASSWORD:?define SITE_PASSWORD in .env}
+      # 0: nothing without a session, only the login page; 1: the public version to everybody (deploy/server.py)
+      PUBLIC_SITE: ${PUBLIC_SITE:-0}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      SESSION_DAYS: ${SESSION_DAYS:-30}
+      SOURCES_DIR: ${SOURCES_DIR:-sources}
+      # build_site.py replaces build/public and build/private whole: the folder above them is mounted, so that the
+      # container sees the new ones without restarting
+      PUBLIC_DIR: /site/build/public
+      PRIVATE_DIR: /site/build/private
+      SOURCES_ROOT: /site/sources
+      # Traefik adds the client's address to X-Forwarded-For
+      TRUST_PROXY: "1"
+    volumes:
+      - ./build:/site/build:ro
+      - ./${SOURCES_DIR:-sources}:/site/sources:ro
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      # No entrypoints: the router serves HTTP and HTTPS (TLS configured in Traefik) and the https-redirect
+      # middleware (defined in the Traefik container) sends HTTP to HTTPS
+      - traefik.http.routers.arbre.rule=Host(`${DOMAIN:?define DOMAIN in .env}`)
+      - traefik.http.routers.arbre.middlewares=https-redirect
+      - traefik.http.services.arbre.loadbalancer.server.port=8000
+
+networks:
+  traefik:
+    external: true
