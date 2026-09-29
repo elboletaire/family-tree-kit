@@ -88,7 +88,9 @@ export function MapView() {
     map.createPane('outline').style.zIndex = '150';  // under the tiles (200)
     map.createPane('points').style.zIndex = '450';   // over the lines (overlayPane, 400)
     L.geoJSON(LAND, { pane: 'outline', interactive: false, style: { color: '#b9ad9c', weight: 1, fillColor: '#f2eee6', fillOpacity: 1 } }).addTo(map);
-    const tiles = L.tileLayer(TILES, { maxZoom: 18, attribution: texts.map.attribution });
+    // The server sends «Referrer-Policy: no-referrer», and OpenStreetMap blocks tile requests without a Referer:
+    // the tiles send the site's origin only
+    const tiles = L.tileLayer(TILES, { maxZoom: 18, attribution: texts.map.attribution, referrerPolicy: 'strict-origin' });
     tiles.on('tileerror', () => setOffline(true)).on('tileload', () => setOffline(false)).addTo(map);
     lineLayer.addTo(map);
     pointLayer.addTo(map);
