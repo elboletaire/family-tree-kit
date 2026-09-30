@@ -34,7 +34,11 @@ const GROW_MS = 1200, PULSE_MS = 900, TRACE_MS = 1000;
 const pingRadius = (r: number): number => r * 3 + 14;
 /** While playing, the camera stays between these zooms: not too close to the first point, and not so far that a place
     across the ocean shrinks the rest (the minimum is about the width of a country; less on narrow screens) */
-const PLAY_MAX_ZOOM = 8.5, PLAY_MIN_ZOOM = 5, PLAY_MIN_ZOOM_NARROW = 4;
+const PLAY_MAX_ZOOM = 10.5, PLAY_MIN_ZOOM = 5, PLAY_MIN_ZOOM_NARROW = 4;
+/** How far it may go out when the new places of a year are far apart (a birth across the ocean and others at home) */
+const PLAY_WIDE_ZOOM = 2;
+/** A flight longer than this (km) is a long journey: it lasts longer, and the camera stays there a moment */
+const FAR_KM = 1500, FAR_STAY_MS = 1500;
 /** The kinds of facts hidden, comma-separated: the ones not listed (also those added later) are shown */
 const HIDDEN_KINDS_KEY = 'arbre-map-hidden';
 const branchColor = (key: string): string => (BR.get(key) ?? BR.get(DATA.otherBranch)!).color;
@@ -71,15 +75,15 @@ interface LineSpec { key: string; pts: [number, number][]; style: L.PolylineOpti
 
 /** Keeps the lines of `layer` as `specs`: removes the ones gone, restyles the ones kept and adds the new ones, traced
     from their start if `trace` */
-function syncLines(layer: L.LayerGroup, drawn: Map<string, DrawnLine>, specs: LineSpec[], pane: string, trace: boolean) {
+function syncLines(layer: L.LayerGroup, drawn: Map<string, DrawnLine>, specs: LineSpec[], renderer: L.Renderer, trace: boolean) {
   const keys = new Set(specs.map(s => s.key));
   drawn.forEach((d, k) => { if (!keys.has(k)) { layer.removeLayer(d.vis); layer.removeLayer(d.hit); drawn.delete(k); } });
   specs.forEach(s => {
     const old = drawn.get(s.key);
     if (old) { old.vis.setStyle(s.style); old.tip = s.tip; return; }
     const d: DrawnLine = {
-      vis: L.polyline(trace ? s.pts.slice(0, 1) : s.pts, { ...s.style, pane, interactive: false }),
-      hit: L.polyline(s.pts, { pane, weight: 14, opacity: 0, className: 'map-hit' }),
+      vis: L.polyline(trace ? s.pts.slice(0, 1) : s.pts, { ...s.style, renderer, interactive: false }),
+      hit: L.polyline(s.pts, { renderer, weight: 14, opacity: 0, className: 'map-hit' }),
       tip: s.tip,
     };
     d.hit.on('mousemove', e => showTip(d.tip(), (e as L.LeafletMouseEvent).originalEvent));
@@ -161,24 +165,27 @@ export function MapView() {
   /** The camera follows the new facts while playing, until the map is moved by hand */
   let following = false;
   /** Goes to the year `y`: the camera flies to what is new in it, and then the year shows and `then` goes on */
-  function showYear(y: number, then: (changed: boolean) => void) {
+  function showYear(y: number, then: (changed: boolean, stay: number) => void) {
     const before = new Map(places().map(pl => [pl.key, pl.facts.length]));
     const shown = mapPlaces(mapFacts(keep(), y, kinds()), focus());
     const fresh = shown.filter(pl => (before.get(pl.key) ?? 0) < pl.facts.length);
     // The camera first, and the year once it is there: what appears is drawn in place, not in the middle of a flight
-    const flight = following && fresh.length ? follow(fresh, shown) : 0;
-    const show = () => { setUntil(y); then(fresh.length > 0); };
+    const { flight, stay } = following && fresh.length ? follow(fresh, shown) : { flight: 0, stay: 0 };
+    const show = () => { setUntil(y); then(fresh.length > 0, stay); };
     if (flight) timer = setTimeout(show, flight); else show();
   }
   // Each step reads the speed, so that changing it applies at once
-  // After a year with something new, the next one waits for its points to finish appearing
-  const nextYear = (changed = false) => { timer = setTimeout(tick, (changed ? Math.max(YEAR_MS, GROW_MS) : YEAR_MS) / speed()); };
+  // After a year with something new, the next one waits for its points to finish appearing (and after a long journey,
+  // a little more)
+  const nextYear = (changed = false, stay = 0) => {
+    timer = setTimeout(tick, ((changed ? Math.max(YEAR_MS, GROW_MS) : YEAR_MS) + stay) / speed());
+  };
   function tick() {
     const next = (until() ?? minYear()) + 1;
     if (next >= now) {
       setUntil(null);
       stop();
-      if (following && map) { settle(); const box = mainBounds(places()); if (box) map.flyToBounds(box, { padding: [30, 30], maxZoom: 9, animate: !reduced }); }
+      if (following && map) { settle(); const box = mainBounds(places()); flying = !reduced; if (box) map.flyToBounds(box, { padding: [30, 30], maxZoom: 9, animate: !reduced }); }
       return;
     }
     showYear(next, nextYear);
@@ -195,22 +202,36 @@ export function MapView() {
   /** Flies to the places that are new or have new facts, framed with the others already on the map that fit (those
       with most facts first; a place across the ocean stays out, or alone for a moment if it is the new one); returns
       how long the flight lasts (0 if they are already well in sight at about the same zoom) */
-  function follow(fresh: MapPlace[], shown: MapPlace[]): number {
-    if (!map) return 0;
-    const pad = L.point(40, 40), at = (pl: MapPlace): L.LatLngTuple => [pl.lat, pl.lon];
+  function follow(fresh: MapPlace[], shown: MapPlace[]): { flight: number; stay: number } {
+    const still = { flight: 0, stay: 0 };
+    if (!map) return still;
+    // Room around (more above and below: the box of the year covers the bottom of the map)
+    const pad = L.point(80, 240), at = (pl: MapPlace): L.LatLngTuple => [pl.lat, pl.lon];
     const minZoom = el.clientWidth < 600 ? PLAY_MIN_ZOOM_NARROW : PLAY_MIN_ZOOM;
-    let target = L.latLngBounds(fresh.map(at));
-    for (const pl of [...shown].sort((a, b) => b.facts.length - a.facts.length)) {
-      const wider = L.latLngBounds(target.getSouthWest(), target.getNorthEast()).extend(at(pl));
-      if (map.getBoundsZoom(wider, false, pad) >= minZoom) target = wider;
-    }
-    const zoom = Math.min(PLAY_MAX_ZOOM, Math.max(minZoom, map.getBoundsZoom(target, false, pad)));
     const inSight = map.getBounds().pad(-.1);
-    if (fresh.every(pl => inSight.contains(at(pl))) && Math.abs(zoom - map.getZoom()) < 1) return 0;
-    const seconds = Math.max(.6, 1.4 / speed());
+    const byFacts = (pls: MapPlace[]) => [...pls].sort((a, b) => b.facts.length - a.facts.length);
+    const unseen = byFacts(fresh.filter(pl => !inSight.contains(at(pl))));
+    let target = L.latLngBounds(fresh.map(at)), low = PLAY_WIDE_ZOOM;
+    // New places far apart the same year (across the ocean and at home): all of them, as far out as needed. Otherwise
+    // the news first (the new places out of sight), then the other new ones and the places already shown that fit
+    if (map.getBoundsZoom(target, false, pad) >= minZoom) {
+      low = minZoom;
+      const order = [...unseen, ...byFacts(fresh.filter(pl => !unseen.includes(pl))), ...byFacts(shown)];
+      target = L.latLngBounds([at(order[0])]);
+      for (const pl of order.slice(1)) {
+        const wider = L.latLngBounds(target.getSouthWest(), target.getNorthEast()).extend(at(pl));
+        if (map.getBoundsZoom(wider, false, pad) >= minZoom) target = wider;
+      }
+    }
+    const zoom = Math.min(PLAY_MAX_ZOOM, Math.max(low, map.getBoundsZoom(target, false, pad)));
+    if (!unseen.length && Math.abs(zoom - map.getZoom()) < 1) return still;
+    // Longer the farther it goes (and the more the zoom changes), shorter when faster
+    const km = map.distance(map.getCenter(), target.getCenter()) / 1000;
+    const seconds = Math.min(3.5, .8 + km / 2500 + .12 * Math.abs(zoom - map.getZoom())) / speed();
     settle();
+    flying = !reduced;
     map.flyTo(target.getCenter(), zoom, { animate: !reduced, duration: seconds });
-    return reduced ? 0 : seconds * 1000;
+    return reduced ? still : { flight: seconds * 1000, stay: km > FAR_KM ? FAR_STAY_MS : 0 };
   }
   onCleanup(stop);
 
@@ -221,6 +242,10 @@ export function MapView() {
   /** The place each marker shows now, for its tooltip and its click */
   const placeAt = new Map<string, MapPlace>();
   const drawnLines = new Map<string, DrawnLine>(), drawnLives = new Map<string, DrawnLine>();
+  /** A drawing for each pane: the migrations of a life, under the others; the other migrations; the points, on top */
+  const svgLives = L.svg({ pane: 'lives' }), svgLines = L.svg(), svgPoints = L.svg({ pane: 'points' });
+  /** The camera is flying for the play: the drawings are redone on each step of the zoom */
+  let flying = false;
   onMount(() => {
     map = L.map(el, { zoomSnap: .5, worldCopyJump: true, attributionControl: true });
     map.createPane('outline').style.zIndex = '150';  // under the tiles (200)
@@ -235,6 +260,13 @@ export function MapView() {
     lineLayer.addTo(map);
     pointLayer.addTo(map);
     map.on('click', () => setSelected(null));
+    // While the zoom animates, Leaflet scales the drawings as images, and a zoom of several levels (back from across the
+    // ocean) makes the points huge for a moment: during the play's flights they are drawn again at each step, with
+    // Leaflet's internal _reset (what it does on a viewreset)
+    map.on('zoom', () => {
+      if (flying) for (const r of [svgLives, svgLines, svgPoints]) (r as unknown as { _reset(): void })._reset();
+    });
+    map.on('moveend', () => { flying = false; });
     // Moving the map by hand stops the camera from following the play
     map.on('dragstart', () => { following = false; });
     el.addEventListener('wheel', () => { following = false; }, { passive: true });
@@ -272,7 +304,7 @@ export function MapView() {
       if (!m) {
         const key = pl.key;
         m = L.circleMarker([pl.lat, pl.lon], {
-          pane: 'points', radius: grow ? pingRadius(r) : r, fillColor: branchColor(pl.branch), fillOpacity: grow ? .4 : .85,
+          renderer: svgPoints, radius: grow ? pingRadius(r) : r, fillColor: branchColor(pl.branch), fillOpacity: grow ? .4 : .85,
           color: '#fff', weight: 1.5, className: 'map-point',
         });
         m.on('mousemove', e => { const p = placeAt.get(key)!; showTip({ title: p.name, lines: tipLines(p) }, (e as L.LeafletMouseEvent).originalEvent); });
@@ -325,7 +357,7 @@ export function MapView() {
         opacity: mg.direct ? .9 : .45, className: 'map-line' + (mg.direct ? ' direct' : ''), dashArray: mg.direct ? undefined : '4 4',
       },
       tip: () => ({ title: texts.map.migration(mg.from.name, mg.to.name), lines: [texts.map.bornThere(mg.children.map(c => c.name))] }),
-    })), 'overlayPane', playing());
+    })), svgLines, playing());
   });
   // Migrations of a life, dotted and under the others: from where each person was born to where they died
   createEffect(() => {
@@ -340,7 +372,7 @@ export function MapView() {
         title: texts.map.migration(lf.from.name, lf.to.name),
         lines: [texts.map.livedFromTo(lf.from.name, lf.to.name, lf.people.map(p => p.name))],
       }),
-    })), 'lives', playing());
+    })), svgLives, playing());
   });
   // A place chosen from the list: the map goes to it
   function choose(pl: MapPlace) {
