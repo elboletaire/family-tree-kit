@@ -74,11 +74,12 @@ def source(sid, title, files=(), review=None, date=1920):
     return "---\n" + "\n".join(lines) + f"\n---\n# {title}\n\nFictional document.\n"
 
 
-def make_tree(root, language="es", main="pau-ferrer-puig", living=False, **paths):
+def make_tree(root, language="es", main="pau-ferrer-puig", living=False, extra_config="", **paths):
     """The fictional tree; with `living`, two more generations: Pau's daughter Anna (`living: true`) and her son Marc
     (born in 1990, without a death: living by the 100-year rule), and a recent document that cites Anna."""
     folders = {**PATHS, **paths}
-    (root / "families.yml").write_text(CONFIG.format(language=language, main=main, **folders), encoding="utf-8")
+    (root / "families.yml").write_text(CONFIG.format(language=language, main=main, **folders) + extra_config,
+                                       encoding="utf-8")
     people, sources, research, portraits = (root / folders[k] for k in PATHS)
     for d in (people, sources / "F001", research, portraits):
         d.mkdir(parents=True, exist_ok=True)
@@ -410,19 +411,84 @@ class Places(unittest.TestCase):
         self.assertEqual(data["places"]["Monte Medio"]["name"], "Monte Medio")  # without a name, the text
 
 
+class LinkPreview(unittest.TestCase):
+    """The collage of deceased people for the preview of shared links (scripts/share_image.py)."""
+
+    URL = "https://arbre.example.org"
+
+    def build(self, extra_config):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        make_tree(root, main="anna-ferrer-roca", living=True, extra_config=extra_config)
+        run(root, "references")
+        return root, run(root, "build_site", "--only", "site")
+
+    def test_collage_of_the_closest_deceased_ancestors(self):
+        root, result = self.build(f"site_url: {self.URL}/\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("link preview: 1 portraits of deceased people", result.stdout)
+        public = root / "build" / "public"
+        meta = json.loads((public / "share" / "meta.json").read_text(encoding="utf-8"))
+        image = next((public / "share").glob("og-*.jpg"))
+        self.assertEqual(meta["image"], f"{self.URL}/share/{image.name}")
+        self.assertEqual((meta["width"], meta["height"]), (1200, 630))
+        data = image.read_bytes()
+        self.assertEqual(data[:3], b"\xff\xd8\xff")
+        self.assertNotIn(b"Exif", data)  # no metadata
+        _, html = read_data(public / "index.html")
+        self.assertIn(f'<meta property="og:image" content="{self.URL}/share/{image.name}">', html)
+        self.assertIn('<meta name="twitter:card" content="summary_large_image">', html)
+        self.assertIn("leak check: 0 leaks", result.stdout)
+
+    def test_without_site_url_there_is_no_preview(self):
+        root, result = self.build("")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("`site_url` is missing", result.stdout)
+        self.assertFalse((root / "build" / "public" / "share").exists())
+        _, html = read_data(root / "build" / "public" / "index.html")
+        self.assertNotIn("og:image", html)
+        self.assertNotIn("<!--SHARE-->", html)
+
+    def test_it_can_be_turned_off(self):
+        root, result = self.build(f"site_url: {self.URL}\nlink_preview: false\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("link preview", result.stdout)
+        self.assertFalse((root / "build" / "public" / "share").exists())
+        _, html = read_data(root / "build" / "public" / "index.html")
+        self.assertNotIn("og:", html)
+
+    def test_a_living_person_in_the_list_stops_the_build(self):
+        root, result = self.build(f"site_url: {self.URL}\nshare_image: [anna-ferrer-roca]\n")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("share_image: anna-ferrer-roca is a living person", result.stderr)
+        self.assertFalse((root / "build" / "public").exists())
+
+    def test_the_list_chooses_the_portraits(self):
+        root, result = self.build(f"site_url: {self.URL}\nshare_image: [pau-ferrer-puig]\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(next((root / "build" / "public" / "share").glob("og-*.jpg")).is_file())
+
+
 class InvalidConfig(unittest.TestCase):
     def check(self, message, **tree):
         with tempfile.TemporaryDirectory() as tmp:
             make_tree(Path(tmp), **tree)
             result = run(Path(tmp), "validate")
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn(message, result.stderr)
+        self.assertIn(message, result.stderr + result.stdout)
 
     def test_unknown_language(self):
         self.check("language: unknown «xx» (available: es)", language="xx")
 
     def test_folder_outside_the_root(self):
         self.check("paths.people: «data/people» is not the name of a folder at the root", people="data/people")
+
+    def test_site_url_and_share_image(self):
+        self.check("site_url: «arbre.example.org» is not an http(s) address", extra_config="site_url: arbre.example.org\n")
+        self.check("share_image: expected a list of slugs", extra_config="share_image: pau\n")
+        self.check("link_preview: expected true or false", extra_config="link_preview: maybe\n")
+        self.check("share_image names a missing person: nobody", extra_config="share_image: [nobody]\n")
 
     def test_two_roles_in_one_folder(self):
         self.check("paths: two roles share the same folder", research="sources")

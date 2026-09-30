@@ -215,6 +215,51 @@ class SiteServer(unittest.TestCase):
 
 
 
+class ClosedSiteLinkPreview(unittest.TestCase):
+    """The closed mode with a link preview: its image and its tags are the only thing served without a session."""
+
+    TAGS = '<meta property="og:title" content="Preview">'
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.root = Path(cls.tmp.name)
+        for rel, text in {**FILES, "public/share/og-abc.jpg": "collage",
+                          "public/share/meta.json": json.dumps({"tags": cls.TAGS})}.items():
+            (cls.root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (cls.root / rel).write_text(text)
+        cls.server = Server(cls.root)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.stop()
+        cls.tmp.cleanup()
+
+    def test_the_image_is_served_without_a_session(self):
+        status, headers, body = self.server.request("GET", "/share/og-abc.jpg")
+        self.assertEqual((status, body), (200, b"collage"))
+        self.assertEqual(headers["Content-Type"], "image/jpeg")
+
+    def test_the_login_page_has_the_tags(self):
+        for path in ("/", "/index.html"):
+            status, _, body = self.server.request("GET", path)
+            self.assertEqual(status, 200)
+            self.assertIn(self.TAGS.encode(), body)
+            self.assertIn(b'<form method="post" action="/login"', body)
+
+    def test_nothing_else_of_the_folder_or_the_site(self):
+        for path in ("/share/meta.json", "/share/", "/share/og-abc.jpg/../../private/data.json",
+                     "/share/%2e%2e/private/data.json", "/media/abc.jpg", "/private/data.json"):
+            with self.subTest(path=path):
+                status, _, body = self.server.request("GET", path)
+                self.assertEqual(status, 401)
+                self.assertNotIn(b"collage", body)
+                self.assertNotIn(b'"access"', body)
+
+    def test_a_missing_image_is_a_404(self):
+        self.assertEqual(self.server.request("GET", "/share/nothing.jpg")[0], 404)
+
+
 class ClosedSiteServer(unittest.TestCase):
     """The closed mode, the default one: nothing without a session."""
 
@@ -246,6 +291,7 @@ class ClosedSiteServer(unittest.TestCase):
         for text in FILES.values():
             self.assertNotIn(text.encode(), body)
         self.assertNotIn(b"DATA", body)
+        self.assertNotIn(b"og:", body)  # no preview built: no tags
 
     def test_without_a_session_only_the_login_page(self):
         for path in self.PATHS:

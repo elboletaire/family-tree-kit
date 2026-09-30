@@ -312,6 +312,7 @@ SHARED_TITLE = {SEVERAL: "Afecta a varias familias", GENERAL: "General"}
 # Keys a family cannot have: the shared sections and the «All» option
 RESERVED_KEYS = {SEVERAL, GENERAL, ALL, ALL_LEGACY}
 COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+SITE_URL_RE = re.compile(r"^https?://[^\s/?#]+(/[^\s?#]*)?$")
 # Languages with texts for the family: one scripts/i18n_<language>.py each (and its web/src/i18n/<language>.ts)
 LANGUAGES = tuple(sorted(f.stem.removeprefix("i18n_") for f in Path(__file__).parent.glob("i18n_*.py")))
 DEFAULT_LANGUAGE = "es"
@@ -360,6 +361,9 @@ class Config:
     groups: tuple  # (family, title, frozenset of branches)
     language: str = DEFAULT_LANGUAGE
     paths: Paths = Paths(**DEFAULT_PATHS)
+    site_url: str = ""  # public address of the site, for the preview image of shared links
+    share_image: tuple = ()  # slugs of the deceased in that image; empty: the main person's closest ancestors
+    link_preview: bool = True  # `false` opts out of the preview image (and of its exception in the closed mode)
 
     @property
     def default_family(self):
@@ -447,7 +451,19 @@ def load_config(path=CONFIG_PATH):
             raise ConfigError(f"paths.{k}: «{v}» is not the name of a folder at the root")
     if len(set(folders.values())) != len(folders):
         raise ConfigError("paths: two roles share the same folder")
-    return Config(text(raw, "main", path.name), families, branches, other, tuple(groups), language, Paths(**folders))
+    site_url = raw.get("site_url") or ""
+    if site_url and not (isinstance(site_url, str) and SITE_URL_RE.match(site_url.strip())):
+        raise ConfigError(f"site_url: «{site_url}» is not an http(s) address")
+    share = raw.get("share_image") or []
+    if not isinstance(share, list) or not all(isinstance(s, str) and SLUG_RE.match(s) for s in share):
+        raise ConfigError("share_image: expected a list of slugs")
+    if len(set(share)) != len(share):
+        raise ConfigError("share_image: repeated slugs")
+    preview = raw.get("link_preview", True)
+    if not isinstance(preview, bool):
+        raise ConfigError("link_preview: expected true or false")
+    return Config(text(raw, "main", path.name), families, branches, other, tuple(groups), language, Paths(**folders),
+                  site_url.strip().rstrip("/"), tuple(share), preview)
 
 
 try:

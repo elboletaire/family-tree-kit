@@ -214,6 +214,9 @@ def main(argv):
     config = CONFIG_PATH.name
     if CONFIG.main not in people:
         err(config, f"main points to a missing person: {CONFIG.main}")
+    for slug in CONFIG.share_image:
+        if slug not in people:
+            err(config, f"share_image names a missing person: {slug}")
     founders = {}
     for b in CONFIG.branches:
         if b.founder not in people:

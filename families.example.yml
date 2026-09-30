@@ -21,6 +21,15 @@ paths:
   research: research
   portraits: portraits
 
+# Optional: the preview of the link when it is shared (WhatsApp, Telegram…): a collage of portraits of deceased people
+# in the public version, and its tags in the login page. It is on by default but needs `site_url`, the public address
+# of the site (no final «/»); without it there is no preview. Without `share_image` the main person's closest
+# ancestors with a portrait are used; with it, the ones you name (only deceased: a living person here stops the
+# build). `link_preview: false` turns it all off: no image, no tags and nothing served without a session.
+# site_url: https://arbre.example.com
+# share_image: [jaume-ferrer-soler, rosa-puig-vidal]
+# link_preview: false
+
 # Person through whose eyes the web opens (slug of a person)
 main: anna-ferrer-puig
 

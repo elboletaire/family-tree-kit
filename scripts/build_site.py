@@ -37,6 +37,7 @@ import pymupdf
 from PIL import Image, ImageOps
 
 import leak_check
+import share_image
 from arbre import (BRANCHES, CODE_ROOT, COMPILATION_TYPE, CONFIG, DEFAULT_CATEGORY, IMAGE_EXT, OTHER_BRANCH, PLACES_PATH,
                    RESEARCH_DIR, ROOT, SOURCES_DIR, branch_of, family_sections, i18n, is_pending, load_people,
                    load_places, load_sources, parse_date, person_families, person_review, revision_markdown,
@@ -155,6 +156,10 @@ class Output:
 
     def write(self, name, text):
         (self.tmp / name).write_text(text, encoding="utf-8")
+
+    def write_bytes(self, name, data):
+        (self.tmp / name).parent.mkdir(parents=True, exist_ok=True)
+        (self.tmp / name).write_bytes(data)
 
     def commit(self):
         old = self.dir.with_name(self.dir.name + ".old")
@@ -414,20 +419,39 @@ def build_payload(people, sources, main, media, view=None):
     }
 
 
-def page(payload):
-    """index.html: the template with the compiled interface and the data."""
+def page(payload, share=""):
+    """index.html: the template with the compiled interface and the data (and, in the public version, the tags of the
+    link preview)."""
     blob = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     out = (WEB / "template.html").read_text(encoding="utf-8").replace("/*LANG*/", CONFIG.language)
     js, css = (f.read_text(encoding="utf-8") for f in BUNDLE)
     if "</script" in js.lower():  # it would close early the <script> it is embedded in
         sys.exit("web/dist/web.js contains «</script»: it cannot be embedded")
     for marker, content in (
+        ("<!--SHARE-->", share),
         ("/*WEB_CSS*/", css),
         ("/*WEB_JS*/", js),
         ("/*DATA*/null", blob),
     ):
         out = out.replace(marker, content)
     return out
+
+
+def link_preview(people, main_slug, view):
+    """Collage of deceased people for the preview of the shared link, or None (see share_image.py)."""
+    if not CONFIG.link_preview:
+        return None
+    try:
+        slugs = share_image.pick(people, main_slug, view.living, CONFIG.share_image)
+    except ValueError as e:
+        sys.exit(str(e))
+    if slugs and not CONFIG.site_url:
+        print("link preview: no image, `site_url` is missing in families.yml")
+    built = share_image.build(CONFIG.site_url, [people[s].photo for s in slugs], i18n.SHARE_TITLE,
+                              i18n.SHARE_DESCRIPTION)
+    if built:
+        print(f"link preview: {len(slugs)} portraits of deceased people in {built[1]}")
+    return built
 
 
 def main(argv):
@@ -476,7 +500,14 @@ def main(argv):
 
     public = Output(args.public, cache, opaque=True)
     shown = build_payload(people, sources, main_slug, media, view)
-    public.write("index.html", page(resolve(shown, public.media)))
+    preview = link_preview(people, main_slug, view)
+    tags = ""
+    if preview:
+        data_jpg, rel, meta = preview
+        public.write_bytes(rel, data_jpg)
+        public.write(f"{share_image.FOLDER}/{share_image.META}", meta)
+        tags = json.loads(meta)["tags"]
+    public.write("index.html", page(resolve(shown, public.media), tags))
     public.write("robots.txt", "User-agent: *\nDisallow: /\n")
     found, excluded = leak_check.check(public.tmp, view)
     leak_check.report(found, excluded)

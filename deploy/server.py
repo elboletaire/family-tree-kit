@@ -7,6 +7,8 @@ PUBLIC_SITE chooses between two modes:
   login form goes back to the path it was shown at. With a session everything is served, as in the public mode.
   POST /logout tells the web (X-Site-Mode: closed) to reload, so that it lands on the login page.
 - 1, public: the public version to everybody and, with the password, the private data (the lock of the web).
+One exception in the closed mode: the collage of deceased people of the link preview (/share/*.jpg, if the build made
+one), and its <meta> tags in the login page, so that the chat apps can show the preview of a shared link.
 To open the site to the public: PUBLIC_SITE=1 in .env and `docker compose up -d web`; to close it again, PUBLIC_SITE=0
 (or remove the line) and the same command.
 
@@ -75,6 +77,17 @@ COOKIE, HINT = "arbre_session", "arbre_hint"
 MODE_HEADER = ("X-Site-Mode", "public" if PUBLIC_SITE else "closed")
 # Paths of the page itself: in the closed mode, the login page answers them with 200
 PAGE_PATHS = ("/", "/index.html")
+# The only path served without a session in the closed mode besides the login page: the image of the link preview
+# (build_site.py writes it, and the tags that point to it, in the public version's share/ folder)
+SHARE_PREFIX = "/share/"
+
+
+def share_tags():
+    """<meta> tags of the link preview that build_site.py wrote, for the login page; none if there is no preview."""
+    try:
+        return str(json.loads((PUBLIC / SHARE_PREFIX.strip("/") / "meta.json").read_text(encoding="utf-8"))["tags"])
+    except (OSError, ValueError, KeyError):
+        return ""
 KEY = hashlib.sha256(b"arbre-session:" + PASSWORD.encode() + b"\0" + os.environ.get("SESSION_SECRET", "").encode()).digest()
 PASSWORD_DIGEST = hashlib.sha256(PASSWORD.encode()).digest()
 MAX_BODY = 4096
@@ -101,6 +114,7 @@ TEXTS = {
 LOGIN_PAGE = """<!doctype html>
 <html lang="{lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
+{share}
 <style>
   body {{ margin: 0; min-height: 100vh; display: grid; place-items: center; background: #faf8f4; color: #2b2622;
          font-family: system-ui, sans-serif; }}
@@ -241,6 +255,9 @@ class Handler(BaseHTTPRequestHandler):
         path = posixpath.normpath("/" + path.lstrip("/"))
         if path == "/health":
             return self.reply(HTTPStatus.OK, b"ok")
+        if path.startswith(SHARE_PREFIX) and path.endswith(".jpg"):
+            # The collage of the deceased for the preview of shared links: the crawlers of the chat apps have no session
+            return self.serve_file(PUBLIC, path, private=False)
         if not PUBLIC_SITE and path == "/login":
             nxt = safe_next(parse_qs(urlsplit(self.path).query).get("next", ["/"])[0])
             if self.authed():
@@ -302,7 +319,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def login_page(self, nxt: str = "/", error: bool = False, status=HTTPStatus.OK):
         err = f'<p class="error" role="alert">{html.escape(TEXTS["error"])}</p>' if error else ""
-        body = LOGIN_PAGE.format(lang=LANG, title=html.escape(TITLE), prompt=html.escape(TEXTS["prompt"]),
+        body = LOGIN_PAGE.format(lang=LANG, title=html.escape(TITLE), share=share_tags(), prompt=html.escape(TEXTS["prompt"]),
                                  password=html.escape(TEXTS["password"]), enter=html.escape(TEXTS["enter"]),
                                  error=err, next=html.escape(nxt))
         # With no-referrer the browser would send the form with «Origin: null», which same_origin refuses

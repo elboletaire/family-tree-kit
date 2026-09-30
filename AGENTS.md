@@ -30,7 +30,8 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
 - `scripts/` — Python with inline dependencies (PEP 723), common logic in `arbre.py` and the texts the family reads
   (revision.md, website data, report, GEDCOM) in `i18n_<language>.py`. `build_site.py` generates the website data and
   embeds them, with the compiled interface, in `build/web/index.html`, and the site's pair: `build/public/` and
-  `build/private/` (see "Public version"); `privacy.py` decides what is public and `leak_check.py` is the leak check;
+  `build/private/` (see "Public version"); `privacy.py` decides what is public and `leak_check.py` is the leak check; `share_image.py` makes the collage of the
+  link preview (see "Public version");
   `references.py` regenerates the generated sections and `report.py` makes the report; `geocode.py` fills in
   `places.yml`; `config.py` prints a value of `families.yml` for the shell scripts; `check_template.py` checks that
   no name of the family is in the engine's files (see "Engine and data"); `demo.py` writes the fictional demo tree
@@ -173,6 +174,16 @@ generated in Python already without them (nothing is hidden with JavaScript nor 
   private part. To open it to the public: `PUBLIC_SITE=1` in `.env` and `docker compose up -d web`; to close it again,
   `PUBLIC_SITE=0` (or remove the line) and the same command. The public version is generated and goes through the
   leak check the same in both cases.
+- **Link preview** (Open Graph, `scripts/share_image.py`): the public version's `index.html` carries `og:` and
+  `twitter:` tags that point to a 1200x630 collage of portraits of **deceased** people (`share/og-<hash>.jpg`, with no
+  metadata; it goes through the leak check like the rest). They are the ones in `share_image` of `families.yml` (a
+  living person there stops the build) or, by default, the closest ancestors of `main` with a portrait (up to 8).
+  Needs `site_url` in `families.yml` (absolute address, no final «/»); without it, or without portraits, there is
+  no preview. **Opt-out:** `link_preview: false` in `families.yml`: no image, no tags and no exception in the closed
+  mode. It is the one exception of the closed mode: `deploy/server.py` serves `/share/*.jpg` without a session
+  and adds the same tags (from `share/meta.json`) to its login page, so that chat apps can show the preview of a
+  shared link; nothing else of `share/` nor of the site is served. The tags are only in the public version, not in
+  `build/web`.
 
 ## Dates
 
@@ -243,6 +254,8 @@ the website have names written in them. It is read by `scripts/arbre.py` (with `
 and `build_site.py`, which passes it to the website in `DATA.families`, `DATA.branches` and `DATA.main`.
 
 - `main`: the person through whose eyes the website opens.
+- `site_url`, `share_image` and `link_preview` (optional): the site's address, the deceased in the link preview's
+  collage and `false` to opt out of it (see "Public version").
 - `families`: `key`, `label` (the website's selector), `title` (the `##` of `incoherencias.md` and `pendientes.md`),
   `of` (to count its documents: «de la familia …») and `default: true` in only one. `several`, `general`, `all` and
   `todo` are reserved.

@@ -94,6 +94,9 @@ PLACE_AND = "y"
 # Name of a living person in the public version, and what replaces the links to them in the texts of the deceased
 LIVING_PERSON_NAME = "Persona viva"
 LIVING_PERSON_TEXT = "persona viva"
+# Preview of a shared link (Open Graph): title and description, with a collage of the deceased as the image
+SHARE_TITLE = "Historia de la familia"
+SHARE_DESCRIPTION = "Nuestros antepasados, sus historias y sus documentos."
 # Heading of the research notes of a person's note: the public version leaves them out
 RESEARCH_NOTES_HEADING = "Notas de investigación"
 MONTH_NAMES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre",
