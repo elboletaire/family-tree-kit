@@ -5,12 +5,12 @@ import { DocCard } from '../components/DocCard';
 import { ScopeChips } from '../components/ScopeChips';
 import { CATEGORIES, catLabel, DATA, pendingDocs, REVIEW_PENDING } from '../data';
 import { texts } from '../i18n';
-import { kinSet, type Scope } from '../state';
+import { scope, setScope } from '../router';
+import { kinSet } from '../state';
 
 export function Documents() {
   const counts = d3.rollup(DATA.docs, v => v.length, d => d.category);
   const [filter, setFilter] = createSignal('all');
-  const [scope, setScope] = createSignal<Scope>('all');
   const filters: [string, string, string?][] = [
     ['all', texts.documents.all(DATA.docs.length)],
     ...CATEGORIES.filter(c => counts.has(c)).map(c => [c, texts.documents.category(catLabel(c), counts.get(c)!)] as [string, string]),

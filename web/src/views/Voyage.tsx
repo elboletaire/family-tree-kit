@@ -8,8 +8,8 @@ import { color, DATA, P } from '../data';
 import { listen } from '../events';
 import { createFullscreen } from '../fullscreen';
 import { texts } from '../i18n';
-import { openDoc, openPerson, view } from '../router';
-import { focus, focusName, kinOf, kinSet, type Scope } from '../state';
+import { openDoc, openPerson, scope, setScope, view } from '../router';
+import { focus, focusName, kinOf, kinSet } from '../state';
 import type { Person } from '../types';
 import { fmtDate, initials, reduced } from '../util';
 import { century, decades, eraSummary, KIND, voyageEvents, type Placed, type VEvent } from './voyageEvents';
@@ -68,7 +68,6 @@ export function Voyage() {
   const now = new Date().getFullYear(), max = now + 1;
   const active = () => view() === 'voyage';
 
-  const [scope, setScope] = createSignal<Scope>('all');
   const keep = createMemo(() => kinSet(scope()));
   const inScope = (id: string) => { const k = keep(); return !k || k.has(id); };
   const events = createMemo(() => voyageEvents(focus(), keep()));

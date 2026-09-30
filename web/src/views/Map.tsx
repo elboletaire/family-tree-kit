@@ -16,8 +16,8 @@ import { hideTip, showTip } from '../components/Tooltip';
 import { BR, DATA } from '../data';
 import { createFullscreen } from '../fullscreen';
 import { texts } from '../i18n';
-import { view } from '../router';
-import { focus, focusName, kinSet, type Scope } from '../state';
+import { scope, setScope, view } from '../router';
+import { focus, focusName, kinSet } from '../state';
 import { fmtDate, reduced, store } from '../util';
 import { arc, FACT_KINDS, kindCounts, lifeLines, mainBounds, mapFacts, mapPlaces, migrations, radius, unlocated, type Fact, type FactKind, type MapPlace } from './mapLayout';
 
@@ -110,7 +110,6 @@ export function MapView() {
   let el!: HTMLDivElement;
   let side!: HTMLElement;
   const now = new Date().getFullYear();
-  const [scope, setScope] = createSignal<Scope>('all');
   const keep = createMemo(() => kinSet(scope()));
   const line = createMemo(() => kinSet('direct')!);
   /** Year up to which the facts are seen (null: all, also the undated) */

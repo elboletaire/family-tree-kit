@@ -7,7 +7,7 @@
 import { batch, createSignal } from 'solid-js';
 import { clearData, DATA, initData, P } from './data';
 import { initFamily } from './family';
-import { resetRouter } from './router';
+import { resetRouter, splitHash } from './router';
 import { focus, savedFocus, setDefaultFocus, setFocus } from './state';
 import type { Data } from './types';
 
@@ -45,12 +45,13 @@ function swap(data: Data, ids: Record<string, string>): void {
   const tr = (id: string) => ids[id] ?? id;
   const saved = savedFocus();
   const chosen = saved !== null && saved !== publicData?.main;
-  const [view, arg, pnl] = decodeURIComponent(location.hash.slice(1)).split('/');
+  const [path, query] = splitHash(location.hash);
+  const [view, arg, pnl] = path.split('/');
   const parts = [view, arg && tr(arg), pnl && (pnl.startsWith('p:') ? 'p:' + tr(pnl.slice(2)) : pnl)].filter(Boolean);
   const person = tr(focus());
   setDialog(false);
   clearData();
-  if (view) history.replaceState(history.state, '', '#' + parts.join('/'));
+  if (view) history.replaceState(history.state, '', '#' + parts.join('/') + (query ? '?' + query : ''));
   resetRouter();
   batch(() => {
     initData(data);

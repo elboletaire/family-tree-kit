@@ -6,7 +6,7 @@ import { Html } from '../src/components/Html';
 import { Topbar } from '../src/components/Topbar';
 import { initData } from '../src/data';
 import { family, initFamily } from '../src/family';
-import { canGoBack, go, openDoc, openPerson, openResearch, panel, resetRouter, route, useRouter, view, type HistoryState } from '../src/router';
+import { canGoBack, go, openDoc, openPerson, openResearch, panel, resetRouter, route, scope, setScope, useRouter, view, viewHash, type HistoryState } from '../src/router';
 import { focus, initFocus } from '../src/state';
 import { fixture } from './fixture';
 
@@ -28,6 +28,31 @@ beforeEach(() => {
   initFamily();
   resetRouter();
   at('#');
+});
+
+describe('filter of people', () => {
+  it('starts at the blood family, and the hash can choose another one', () => {
+    at('#mapa/abuela');
+    expect(scope()).toBe('blood');
+    at('#mapa/abuela?filtro=linea');
+    expect([view(), focus(), scope()]).toEqual(['map', 'abuela', 'direct']);
+    at('#viaje/yo/p:tia?filtro=todos');
+    expect([view(), panel(), scope()]).toEqual(['voyage', 'p:tia', 'all']);
+    at('#viaje/yo?filtro=nada');
+    expect(scope()).toBe('blood');
+  });
+  it('choosing it writes it in the hash without a new history entry, and the links keep it', () => {
+    at('#cronologia/yo');
+    const before = history.length;
+    setScope('all');
+    expect(location.hash).toBe('#cronologia/yo?filtro=todos');
+    expect(history.length).toBe(before);
+    expect(viewHash('map', 'tia')).toBe('#mapa/tia?filtro=todos');
+    openPerson('tia');
+    expect(location.hash).toBe('#cronologia/yo/p:tia?filtro=todos');
+    setScope('blood');
+    expect(location.hash).toBe('#cronologia/yo/p:tia');
+  });
 });
 
 describe('route', () => {

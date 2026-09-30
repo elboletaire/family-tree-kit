@@ -6,8 +6,8 @@ import { ScopeChips } from '../components/ScopeChips';
 import { hideTip, showTip } from '../components/Tooltip';
 import { BR, DATA, P, PHOTO } from '../data';
 import { texts } from '../i18n';
-import { openDoc, openPerson, view } from '../router';
-import { focus, focusName, kinOf, kinSet, type Scope } from '../state';
+import { openDoc, openPerson, scope, setScope, view } from '../router';
+import { focus, focusName, kinOf, kinSet } from '../state';
 import type { Doc } from '../types';
 import { lifespan, reduced, T } from '../util';
 import { aliveIn, datedDocs, estimateBirths, lifeRows, type Row } from './timelineLayout';
@@ -22,7 +22,6 @@ export function Timeline() {
   let svg!: SVGSVGElement;
   const now = new Date().getFullYear();
   const est = estimateBirths();
-  const [scope, setScope] = createSignal<Scope>('all');
   const [ready, setReady] = createSignal(false);
   onMount(() => setReady(true));
   const keep = createMemo(() => kinSet(scope()));

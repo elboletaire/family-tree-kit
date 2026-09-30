@@ -32,19 +32,28 @@ async function drawerOnTop(page: Page): Promise<string[]> {
   });
 }
 
-test('voyage: the pressed filter stays marked', async ({ page }) => {
+test('voyage: the pressed filter stays marked, and goes in the address', async ({ page }) => {
   await page.goto(`${PAGE}#viaje`);
   const chips = page.locator('#voyage-filters .chip');
   const all = chips.and(page.locator('[data-s="all"]'));
   const blood = chips.and(page.locator('[data-s="blood"]'));
-  await expect(all).toHaveAttribute('aria-pressed', 'true');
-  const idle = await blood.evaluate(el => getComputedStyle(el).backgroundColor);
-
-  await blood.click();
+  // The blood family by default
   await expect(blood).toHaveAttribute('aria-pressed', 'true');
-  await expect(all).toHaveAttribute('aria-pressed', 'false');
+  const idle = await all.evaluate(el => getComputedStyle(el).backgroundColor);
+
+  await all.click();
+  await expect(all).toHaveAttribute('aria-pressed', 'true');
+  await expect(blood).toHaveAttribute('aria-pressed', 'false');
   await expect(chips.and(page.locator('[aria-pressed="true"]'))).toHaveCount(1);
-  expect(await blood.evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe(idle);
+  expect(await all.evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe(idle);
+
+  // The filter is in the address: it survives a reload and goes with the view links
+  await expect(page).toHaveURL(/\?filtro=todos$/);
+  await page.reload();
+  await expect(chips.and(page.locator('[data-s="all"]'))).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('.topbar a[data-view="map"]').first().click();
+  await expect(page).toHaveURL(/#mapa\/.*\?filtro=todos$/);
+  await expect(page.locator('#map-filters [data-s="all"]')).toHaveAttribute('aria-pressed', 'true');
 });
 
 for (const [name, viewport] of [['desktop', { width: 1400, height: 900 }], ['mobile', { width: 390, height: 844 }]] as const) {
