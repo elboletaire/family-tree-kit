@@ -27,8 +27,9 @@ fictional family, made up by `scripts/demo.py`.
 A family tree kept as a code repository: **one markdown note per person** (relations in the frontmatter, biography
 below) and **one per document** (transcription, with the scans next to it). Every change stays in the git history,
 every fact cites the document it comes from, and a set of scripts checks the tree and turns it into a website:
-a tree you can browse, a fan chart of ancestors, a timeline, a "journey in time", a map of the family's places and a
-gallery of documents, all seen "through the eyes" of whoever you choose. The website can be published with the living
+a tree you can browse, a fan chart of ancestors, a timeline, a "journey in time", a map of the family's places, a
+gallery of documents and the tree's news (what changed, day by day, read from the git history of the data), all seen
+"through the eyes" of whoever you choose. The website can be published with the living
 hidden (and everything else behind a password).
 
 It is meant to be worked on with an AI coding agent (Claude Code, Codex…): the agent interviews you, transcribes the
@@ -152,7 +153,8 @@ person counts as **living** if their note says `living: true` or if their death 
 **less than 100 years ago** (without a birth date, it is estimated from their family; if it cannot be, they are
 treated as living). Each living person is only a «Persona viva» box in their place in the tree. Documents **more than
 100 years old that neither cite nor name anyone alive**, only their transcription and thumbnail; scans and PDFs,
-always with the password. Nothing of the research documents. When the website is built, a **leak check** searches
+always with the password. Nothing of the research documents. In **Novedades** (what's new), only the changes to
+deceased people and public documents. When the website is built, a **leak check** searches
 every public file for the names, dates and places of the living: if it finds anything, the build fails and nothing is
 published.
 

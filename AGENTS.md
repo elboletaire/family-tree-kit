@@ -31,7 +31,7 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   (revision.md, website data, report, GEDCOM) in `i18n_<language>.py`. `build_site.py` generates the website data and
   embeds them, with the compiled interface, in `build/web/index.html`, and the site's pair: `build/public/` and
   `build/private/` (see "Public version"); `privacy.py` decides what is public and `leak_check.py` is the leak check; `share_image.py` makes the collage of the
-  link preview (see "Public version");
+  link preview (see "Public version"); `history.py` reads «Novedades» from the Git history (see "What's new");
   `references.py` regenerates the generated sections and `report.py` makes the report; `geocode.py` fills in
   `places.yml`; `folders.py` creates the data folders of `paths`; `config.py` prints a value of `families.yml` for the shell scripts; `check_template.py` checks that
   no name of the family is in the engine's files (see "Engine and data"); `demo.py` writes the fictional demo tree
@@ -42,8 +42,9 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   person and kinship), `session.ts` (the lock of the site), `family.ts` (family chosen in the research documents),
   `components/` (top bar, search, side panel, chips, cards, viewer, tooltip and `Html.tsx`, the only one that uses
   `innerHTML`: for the HTML that `build_site.py` already generates), `panels/` (person, document and research panels)
-  and `views/` (`Home`, `Tree`, `Fan`, `Timeline`, `Voyage`, `Map` (`#mapa`, with Leaflet) and `Documents`, with their
-  DOM-free computations in `fanLayout.ts`, `timelineLayout.ts`, `voyageEvents.ts` and `mapLayout.ts`). All the texts
+  and `views/` (`Home`, `Tree`, `Fan`, `Timeline`, `Voyage`, `Map` (`#mapa`, with Leaflet), `Documents` and `News`
+  (`#novedades`), with their DOM-free computations in `fanLayout.ts`, `timelineLayout.ts`, `voyageEvents.ts`,
+  `mapLayout.ts` and `newsLayout.ts`). All the texts
   the family sees are in `src/i18n/<language>.ts`, and `src/i18n/index.ts` picks the dictionary by the `<html lang>`
   that `build_site.py` writes. `src/types.ts` is the shape of the `DATA` that `build_site.py` generates, and
   `template.html` the page with the markers it fills in. Solid, d3 (scales, forces, zoom and drag), family-chart
@@ -59,9 +60,9 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
 - `.github/workflows/demo.yml` — builds the demo and publishes it on GitHub Pages; it only runs in the public template
   (`elboletaire/family-tree-kit`), never in a family's repository.
 - `tests/` — test of the scripts on a fictional tree, in a temporary folder and with the default folders
-  (`ARBRE_ROOT` points the scripts to another tree), the public version included; of the server
-  (`test_server.py`); and of the protection of the template (`test_template.py`: `check_template.py` and the
-  `pre-push` hook, on scratch git repositories with a fictional family).
+  (`ARBRE_ROOT` points the scripts to another tree), the public version and «Novedades» (on a scratch Git repository)
+  included; of the server (`test_server.py`); and of the protection of the template (`test_template.py`:
+  `check_template.py` and the `pre-push` hook, on scratch git repositories with a fictional family).
 
 ## Commands
 
@@ -75,7 +76,7 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
 - `make web` — compiles the interface (`web/dist/`); needs Node 22 and pnpm. `make html` already compiles it.
 - `make html` — generates `build/web/` (the whole website, to open without a server; 1-2 min the first time) and the
   site's pair, `build/public/` and `build/private/`, through the leak check; checks that their `DATA` matches
-  `web/src/types.ts`.
+  `web/src/types.ts`. «Novedades» is read from the Git history of the data (cached in `build/history-cache.json`).
 - `make test` (`tests/test_scripts.py`, `tests/test_server.py`, `tests/test_template.py` and vitest) · `make e2e` (Playwright on `build/web`,
   served with `python3 -m http.server 8765`, and on the site served by `deploy/server.py`, public on 8766 and closed
   on 8767; the first time, `cd web && pnpm exec playwright install chromium`).
@@ -159,6 +160,9 @@ generated in Python already without them (nothing is hidden with JavaScript nor 
   a place only the living have, or the given name of a close living relative that no dead person around also has),
   they are hidden entirely.
 - The **research documents** (incoherencias, pendientes, revisión) are not in the public version.
+- **Novedades** (see "What's new"): only the changes of deceased people and public documents, by their ids (the names
+  and titles come from the public data); nothing of the living, of the people removed or renamed, of the research
+  notes nor of the research documents, and no day that is a date of a living person.
 - **Leak check** (`scripts/leak_check.py`, inside `build_site.py` and the deploy): searches every file of
   `build/public/` (text, file names and EXIF metadata), without accents or capitals, for the names, aliases, slugs,
   dates with month, places, occupations and map labels of the living, and the titles and files of the private
@@ -186,6 +190,23 @@ generated in Python already without them (nothing is hidden with JavaScript nor 
   and adds the same tags (from `share/meta.json`) to its login page, so that chat apps can show the preview of a
   shared link; nothing else of `share/` nor of the site is served. The tags are only in the public version, not in
   `build/web`.
+
+## What's new
+
+The website's «Novedades» view (`#novedades`), the «Historial de la ficha» of the person card and the documents of
+«Documentos añadidos hace poco» on the home come from the Git history of the data, not from the commit messages
+(`scripts/history.py`, in `DATA.history`). For each day with commits along the first-parent line of the branch, the
+notes at the end of the previous day are compared with those at the end of that day: sources added, approved
+(`review` from `pendiente` to `revisada`), updated or removed; people added, removed, renamed (Git's rename detection)
+or with changed facts (name, dates, places, parents, spouses, photo, biography, research notes) and new sources; and
+the open items of `incoherencias.md` and `pendientes.md` that appeared or were closed (only in the private data).
+
+- `history_months` (optional, in `families.yml`): how many months back, 6 by default; `0` turns it off.
+- Without Git, outside a repository or in a shallow clone there is less or no history, never an error (the home then
+  shows a sample of the documents by their own date). The deploy builds from a checkout without `.git`:
+  `deploy/post-receive` mounts the bare repository in the build container (`ARBRE_GIT_DIR`, `ARBRE_GIT_REF`), whose
+  image has Git.
+- A day's changes only depend on its two commits: they are cached in `build/history-cache.json`.
 
 ## Dates
 
@@ -258,6 +279,7 @@ and `build_site.py`, which passes it to the website in `DATA.families`, `DATA.br
 - `main`: the person through whose eyes the website opens.
 - `site_url`, `share_image` and `link_preview` (optional): the site's address, the deceased in the link preview's
   collage and `false` to opt out of it (see "Public version").
+- `history_months` (optional): how many months of «Novedades» (see "What's new").
 - `families`: `key`, `label` (the website's selector), `title` (the `##` of `incoherencias.md` and `pendientes.md`),
   `of` (to count its documents: «de la familia …») and `default: true` in only one. `several`, `general`, `all` and
   `todo` are reserved.

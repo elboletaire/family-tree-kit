@@ -28,7 +28,8 @@ Un árbol genealógico llevado como un repositorio de código: **una ficha markd
 cabecera, la biografía debajo) y **una por documento** (la transcripción, con los escaneos al lado). Cada cambio queda
 en el historial de git, cada dato cita el documento del que sale, y unos scripts comprueban el árbol y lo convierten en
 una web: un árbol navegable, un abanico de antepasados, una cronología, un «viaje en el tiempo», un mapa de los lugares
-de la familia y una galería de documentos, todo visto «con los ojos» de quien elijas. La web se puede publicar con las
+de la familia, una galería de documentos y las novedades del árbol (lo que ha cambiado, día a día, leído del historial de
+git de los datos), todo visto «con los ojos» de quien elijas. La web se puede publicar con las
 personas vivas ocultas (y todo lo demás tras una contraseña).
 
 Está pensado para trabajar con un agente de programación con IA (Claude Code, Codex…): el agente te entrevista,
@@ -155,7 +156,7 @@ investigación). Una persona cuenta como **viva** si su ficha dice `living: true
 **menos de 100 años** (sin fecha de nacimiento, se estima por su familia; si no se puede, se trata como viva). De cada
 viva solo hay un recuadro «Persona viva» en su sitio del árbol. Los documentos de **más de 100 años que no citan ni
 nombran a nadie vivo**, solo su transcripción y su miniatura; los escaneos y los PDF, siempre con contraseña. Nada de
-los documentos de investigación. Al generar la web, una **prueba de fugas** busca los nombres, fechas y lugares de los
+los documentos de investigación. En **Novedades**, solo los cambios de personas fallecidas y documentos públicos. Al generar la web, una **prueba de fugas** busca los nombres, fechas y lugares de los
 vivos en cada fichero público: si encuentra algo, la generación falla y no se publica nada.
 
 `docker-compose.yml` levanta un pequeño servidor (`deploy/server.py`, solo biblioteca estándar de Python) detrás de
