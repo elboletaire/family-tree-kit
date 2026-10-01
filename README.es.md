@@ -48,7 +48,7 @@ De la [demo](https://elboletaire.github.io/family-tree-kit/) (`make screenshots`
 | **Abanico** de antepasados | **Cronología** de vidas, documentos y acontecimientos históricos |
 | ![Mapa](docs/screenshots/map.jpg) | ![Persona](docs/screenshots/person.jpg) |
 | **Mapa** de los lugares y las migraciones | La **ficha de una persona**: datos, parientes, documentos |
-| ![Documentos](docs/screenshots/documents.jpg) | |
+| ![Documentos](docs/screenshots/documents.jpg) | ![Novedades](docs/screenshots/news.jpg) |
 | **Documentos**, con los pendientes de revisar | |
 
 ## Empezar a mano

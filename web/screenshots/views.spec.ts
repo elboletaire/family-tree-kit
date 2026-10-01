@@ -13,7 +13,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => { try { localStorage.clear(); } catch { /* */ } });
 });
 
-for (const [name, segment] of [['home', 'inicio'], ['fan', 'abanico'], ['timeline', 'cronologia'], ['documents', 'documentos']]) {
+for (const [name, segment] of [['home', 'inicio'], ['fan', 'abanico'], ['timeline', 'cronologia'], ['documents', 'documentos'], ['news', 'novedades']]) {
   test(name, async ({ page }) => {
     await page.goto(`#${segment}`);
     await expect(page.locator(`#view-${name}`)).toHaveClass(/active/);

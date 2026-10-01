@@ -48,7 +48,7 @@ From the [demo](https://elboletaire.github.io/family-tree-kit/) (`make screensho
 | **Fan chart** of ancestors | **Timeline** of lives, documents and historical events |
 | ![Map](docs/screenshots/map.jpg) | ![Person](docs/screenshots/person.jpg) |
 | **Map** of the places and migrations | A **person's card**: facts, relatives, documents |
-| ![Documents](docs/screenshots/documents.jpg) | |
+| ![Documents](docs/screenshots/documents.jpg) | ![What's new](docs/screenshots/news.jpg) |
 | **Documents**, with those pending review | |
 
 ## Start by hand
