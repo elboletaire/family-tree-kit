@@ -35,7 +35,13 @@ Schema and rules are in `AGENTS.md` (sources, dates, confidence, privacy), and t
 4. Ask for spellings of names and places (accents, local forms), and for surnames of in-laws and grandparents,
    which are the usual gaps.
 5. Ask about documents and photos they keep (certificates, funeral cards, family books, photos with names on the
-   back), and whether they agree to be recorded in the tree.
+   back).
+6. Tell them, at the top of the list, how the answers are used: only what they know or want to say; doubts are
+   recorded as doubts; no addresses, phones or ID numbers; they can ask to leave someone or something out; the living
+   are only seen with the password. Do **not** ask them whether they agree to appear in the tree: they cannot consent
+   for the other people the questions are about, a «no» has no defined effect (the person is already in the tree from
+   other sources), and someone who answers a family interview already knows what it is for. If they object by their
+   own account, follow the Privacy section.
 
 Do not ask the family to confirm trivial things (a living cousin's public profile, obvious identities): decide
 yourself and move on.
