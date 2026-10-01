@@ -5,13 +5,15 @@ import { Html } from '../components/Html';
 import { openLightbox } from '../components/Lightbox';
 import { PeopleChips } from '../components/PersonChip';
 import { ReviewFlag } from '../components/ReviewFlag';
-import { branchOf, P, REVISION, S } from '../data';
+import { branchOf, DATA, P, REVISION, S } from '../data';
 import { texts } from '../i18n';
 import { stepSiblings } from '../kinship';
 import { openResearch, view, viewHash, type ViewName } from '../router';
 import { focus, focusName, kinOf } from '../state';
 import type { Doc, Person } from '../types';
-import { initials, lifespan } from '../util';
+import { fmtDate, initials, lifespan } from '../util';
+import { ChangeText } from '../components/ChangeText';
+import { personHistory } from '../views/newsLayout';
 
 /** Siblings (by father, by mother or without known parents) and step-siblings (see `stepSiblings`) */
 export function siblingsOf(p: Person): { siblings: string[]; step: string[] } {
@@ -43,6 +45,7 @@ export function PersonPanel(props: { id: string }) {
   const docs = p.sources.map(s => S.get(s)).filter((d): d is Doc => Boolean(d));
   const isFocus = () => props.id === focus();
   const kin = createMemo(() => kinOf(props.id));
+  const changes = personHistory(DATA.history, props.id);
   const born = [p.born, p.birthPlace].filter(Boolean).join(' · ');
   const died = [p.died, p.deathPlace].filter(Boolean).join(' · ');
   return (
@@ -98,6 +101,20 @@ export function PersonPanel(props: { id: string }) {
       <Show when={docs.length}>
         <h3>{texts.person.documents}</h3>
         <div class="mini-docs"><For each={docs}>{(d, i) => <DocCard doc={d} index={i()} />}</For></div>
+      </Show>
+      <Show when={changes.length}>
+        <h3>{texts.person.history}</h3>
+        <ul class="p-history">
+          <For each={changes}>{c => (
+            <li>
+              <time datetime={c.date}>{fmtDate(c.date)}</time>{' '}
+              <Show when={c.added}>{c.first ? texts.person.historyFirst : texts.person.historyAdded}</Show>
+              <Show when={c.renamedFrom}>{from => <>{texts.person.renamedFrom(from())}{c.fields.length || c.sources.length ? '. ' : ''}</>}</Show>
+              <ChangeText fields={c.fields} sources={c.sources.filter(s => S.has(s))} />
+            </li>
+          )}</For>
+        </ul>
+        <p class="p-history-more"><a href={viewHash('news', props.id)}>{texts.person.historyMore} →</a></p>
       </Show>
     </>
   );

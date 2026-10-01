@@ -1,10 +1,10 @@
-/* HOME: introduction, constellation of the family, latest documents and what is pending review */
+/* HOME: introduction, constellation of the family, the documents added last and what is pending review */
 import * as d3 from 'd3';
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from 'solid-js';
 import { DocCard } from '../components/DocCard';
 import { Legend } from '../components/Legend';
 import { ReviewFlag } from '../components/ReviewFlag';
-import { AI, COMPILATION_TYPE, DATA, GENEALOGY, INCONSISTENCIES, P, PENDING, pendingDocs, PHOTO, REVISION } from '../data';
+import { AI, COMPILATION_TYPE, DATA, GENEALOGY, INCONSISTENCIES, P, PENDING, pendingDocs, PHOTO, REVISION, S } from '../data';
 import { ALL, SEVERAL } from '../family';
 import { texts } from '../i18n';
 import { ancestors } from '../kinship';
@@ -12,6 +12,7 @@ import { openPerson, openResearch, viewHash } from '../router';
 import { focus, kin } from '../state';
 import { T } from '../util';
 import { Constellation } from './Constellation';
+import { recentDocs } from './newsLayout';
 
 /** Number that counts up from 0 when it appears */
 function CountUp(props: { to: number }) {
@@ -45,8 +46,10 @@ export function Home() {
     [DATA.docs.filter(d => d.category === PHOTO).length, texts.home.stats.photos], [new Date().getFullYear() - minY, texts.home.stats.years],
     [places.size, texts.home.stats.places],
   ];
-  const recent = DATA.docs.filter(d => [GENEALOGY, PHOTO].includes(d.category) && d.thumb && d.type !== COMPILATION_TYPE)
-    .sort((a, b) => (b.year ?? 0) - (a.year ?? 0)).filter((_d, i) => i % 3 === 0).slice(0, 8);
+  // The documents added last (Git history of the data); without it, a sample of the documents by their own date
+  const recent = recentDocs(DATA.history, S, d => d.category !== AI && d.type !== COMPILATION_TYPE,
+    () => DATA.docs.filter(d => [GENEALOGY, PHOTO].includes(d.category) && d.thumb && d.type !== COMPILATION_TYPE)
+      .sort((a, b) => (b.year ?? 0) - (a.year ?? 0)).filter((_d, i) => i % 3 === 0));
   // Documents pending review, by family; those of several families open the revision with all of them
   const pendingIn = (f: string) => pendingDocs.filter(d => d.family === f).length;
   const split = [...DATA.families.map(f => [f.key, f.of]), [SEVERAL, texts.home.severalFamilies]]
@@ -85,8 +88,11 @@ export function Home() {
       <Legend id="legend-home" />
       <div class="home-grid">
         <div class="card-panel">
-          <h2>{texts.home.latestDocuments}</h2>
-          <div id="home-docs" class="mini-docs"><For each={recent}>{(d, i) => <DocCard doc={d} index={i()} />}</For></div>
+          <h2>{recent.added ? texts.home.latestAdded : texts.home.latestDocuments}</h2>
+          <div id="home-docs" class="mini-docs"><For each={recent.docs}>{(d, i) => <DocCard doc={d} index={i()} />}</For></div>
+          <Show when={DATA.history.length}>
+            <p class="home-news"><a href={viewHash('news')}>{texts.home.seeNews} →</a></p>
+          </Show>
         </div>
         {/* The public version of the site has no research documents */}
         <Show when={Object.keys(DATA.research).length}>

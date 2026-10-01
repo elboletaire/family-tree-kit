@@ -12,11 +12,12 @@ import { isFamily, setFamily } from './family';
 import { focus, setFocus, type Scope } from './state';
 import type { ResearchKey } from './types';
 
-export const VIEWS = ['home', 'tree', 'fan', 'timeline', 'voyage', 'map', 'documents'] as const;
+export const VIEWS = ['home', 'tree', 'fan', 'timeline', 'voyage', 'map', 'documents', 'news'] as const;
 export type ViewName = typeof VIEWS[number];
 /** Segment of each view in the hash */
 export const VIEW_SEGMENT: Record<ViewName, string> = {
   home: 'inicio', tree: 'arbol', fan: 'abanico', timeline: 'cronologia', voyage: 'viaje', map: 'mapa', documents: 'documentos',
+  news: 'novedades',
 };
 /** History state: `depth` is how many cards are open in a row (for the ← button) */
 export interface HistoryState { depth: number }

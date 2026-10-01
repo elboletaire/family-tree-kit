@@ -1,6 +1,6 @@
 /* Spanish texts of the interface: everything the family reads comes from here, so the code stays in English. The
    kinship names follow Spanish grammar (gender endings, «primo segundo»…), so their wording lives here too. */
-import type { Person } from '../types';
+import type { HistoryField, Person } from '../types';
 
 /** Masculine or feminine form, by the person's sex (masculine when unknown) */
 const gender = <T>(p: Person, m: T, f: T): T => p.sex === 'F' ? f : m;
@@ -63,7 +63,7 @@ export const es = {
   },
 
   /** Tabs of the views, in order, and the buttons of the person panel that open them */
-  views: { home: 'Inicio', tree: 'Árbol', fan: 'Abanico', timeline: 'Cronología', voyage: 'Viaje', map: 'Mapa', documents: 'Documentos' },
+  views: { home: 'Inicio', tree: 'Árbol', fan: 'Abanico', timeline: 'Cronología', voyage: 'Viaje', map: 'Mapa', documents: 'Documentos', news: 'Novedades' },
   viewsNav: 'Vistas',
 
   topbar: {
@@ -109,6 +109,11 @@ export const es = {
     siblings: 'Hermanos',
     stepSiblings: 'Hermanastros',
     documents: 'Documentos donde aparece',
+    history: 'Historial de la ficha',
+    historyAdded: 'Entra en el árbol',
+    historyFirst: 'En el árbol desde el principio',
+    renamedFrom: (name: string) => `Antes se llamaba «${name}»`,
+    historyMore: 'Ver todas las novedades',
   },
 
   doc: {
@@ -149,6 +154,8 @@ export const es = {
     seeTimeline: 'Recorrer la cronología',
     seeDocuments: 'Ver documentos',
     latestDocuments: 'Últimos documentos',
+    latestAdded: 'Documentos añadidos hace poco',
+    seeNews: 'Ver todas las novedades',
     pendingReview: 'Pendiente de revisar',
     pendingIntro: 'Datos que no cuadran entre el árbol y los documentos, y lo hallado por investigación automática.',
     inconsistencies: 'Ver incoherencias',
@@ -278,6 +285,47 @@ export const es = {
     originals: 'Los originales escaneados solo se ven con la contraseña de la familia.',
     seeOriginals: 'Entrar para verlos',
     loading: 'Cargando…',
+  },
+
+  news: {
+    title: 'Novedades',
+    intro: 'Lo que ha cambiado en el árbol, día a día: documentos nuevos, personas añadidas y datos corregidos. ' +
+      'Pulsa un nombre o un documento para ver su ficha.',
+    empty: 'Todavía no hay novedades.',
+    emptyFamily: 'No hay novedades de esta familia.',
+    first: 'Comienza el árbol',
+    summary: (docs: number, people: number, reviewed: number, changed: number): string => [
+      docs && plural(docs, 'documento nuevo', 'documentos nuevos'),
+      people && plural(people, 'persona nueva', 'personas nuevas'),
+      reviewed && plural(reviewed, 'documento revisado', 'documentos revisados'),
+      changed && plural(changed, 'ficha actualizada', 'fichas actualizadas'),
+    ].filter(Boolean).join(' · '),
+    docsAdded: 'Documentos nuevos',
+    docsReviewed: 'Documentos revisados por la familia',
+    docsUpdated: 'Documentos corregidos o ampliados',
+    docsRemoved: 'Documentos retirados',
+    peopleAdded: 'Personas nuevas',
+    peopleChanged: 'Datos nuevos o corregidos',
+    peopleTexts: 'Biografías y notas revisadas',
+    peopleRemoved: 'Personas retiradas del árbol',
+    peopleRenamed: 'Cambios de nombre',
+    renamedFrom: (name: string) => `antes «${name}»`,
+    research: 'Investigación',
+    researchItem: { opened: 'Nuevo', resolved: 'Resuelto' },
+    researchCount: (opened: number, resolved: number): string => [
+      opened && plural(opened, 'punto nuevo', 'puntos nuevos'), resolved && plural(resolved, 'resuelto', 'resueltos'),
+    ].filter(Boolean).join(' y '),
+    notes: { incoherencias: 'Incoherencias', pendientes: 'Pendientes' },
+    fields: {
+      name: 'nombre', aliases: 'otros nombres', sex: 'sexo', born: 'nacimiento', birthPlace: 'lugar de nacimiento',
+      died: 'defunción', deathPlace: 'lugar de defunción', occupation: 'ocupación', parents: 'padres', siblings: 'hermanos',
+      spouses: 'matrimonios', photo: 'retrato', biography: 'biografía', notes: 'notas de investigación',
+    } satisfies Record<HistoryField, string>,
+    /** «Nacimiento, lugar de nacimiento» */
+    fieldList: (labels: string[]): string => labels.join(', ').replace(/^./, c => c.toUpperCase()),
+    sources: (n: number) => n === 1 ? 'Nueva fuente:' : 'Nuevas fuentes:',
+    more: (n: number) => `Ver ${n} más`,
+    less: 'Ver menos',
   },
 
   documents: {

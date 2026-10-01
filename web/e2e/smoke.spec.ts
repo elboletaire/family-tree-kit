@@ -133,6 +133,53 @@ test('revision with the family selector, which is remembered', async ({ page }) 
   expect((await visible()).length).toBe(await sections.count());
 });
 
+test('novedades: the days of the history, with links to their documents and people', async ({ page }) => {
+  await page.goto(`${PAGE}#novedades`);
+  const days = page.locator('#news .news-day');
+  await expect(days.first()).toBeVisible();
+  // Newest first
+  const dates = await days.evaluateAll(els => els.map(e => e.getAttribute('data-date')!));
+  expect(dates).toEqual([...dates].sort().reverse());
+  const doc = page.locator('#news .news-doc').first();
+  const id = await doc.getAttribute('data-doc');
+  await doc.click();
+  await expect(drawer(page)).toHaveClass(/open/);
+  expect(await hash(page)).toMatch(new RegExp(`^#novedades/[^/]+/d:${id}$`));
+  // The home shows the documents added last, with a link here
+  await page.goto(`${PAGE}#inicio`);
+  await expect(page.locator('.home-grid h2').first()).toHaveText('Documentos añadidos hace poco');
+  await expect(page.locator('#home-docs .doc-card').first()).toBeVisible();
+  await page.locator('.home-news a').click();
+  await expect(page.locator('#view-news')).toHaveClass(/active/);
+});
+
+test('novedades: the family selector filters the days and is the same choice as the research documents', async ({ page }) => {
+  await page.goto(`${PAGE}#novedades`);
+  const switcher = page.locator('#view-news .family-switch');
+  const offered = await switcher.locator('button').evaluateAll(els => els.map(e => (e as HTMLElement).dataset.familyShow!));
+  test.skip(offered.length < 3, 'the history names fewer than two families');
+  const def = await page.evaluate(() => DATA.families.find(f => f.default)?.key ?? 'all');
+  await expect(switcher.locator('[aria-pressed="true"]')).toHaveAttribute('data-family-show', offered.includes(def) ? def : 'all');
+  const days = page.locator('#news .news-day');
+  // Each button shows the days of its family (no count on the buttons)
+  const shows = async (key: string) => {
+    await switcher.locator(`[data-family-show="${key}"]`).click();
+    await expect(switcher.locator('[aria-pressed="true"]')).toHaveAttribute('data-family-show', key);
+    await expect(days.first()).toBeVisible();
+    return days.count();
+  };
+  const all = await shows('all');
+  const other = offered.find(k => k !== 'all' && k !== def)!;
+  expect(await shows(other)).toBeLessThanOrEqual(all);
+  expect(await page.evaluate(() => localStorage.getItem('arbre-familia'))).toBe(other);
+  // The research documents open with the same family, if they have a section of it
+  const research = await page.evaluate(f => DATA.research.pendientes?.includes(`data-family="${f}"`), other);
+  if (research) {
+    await page.evaluate(() => { location.hash = '#novedades//r:pendientes'; });
+    await expect(page.locator('#drawer-body .family-switch [aria-pressed="true"]')).toHaveAttribute('data-family-show', other);
+  }
+});
+
 test.describe('mobile', () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   test('the card opens and the page does not overflow', async ({ page }) => {
@@ -145,6 +192,9 @@ test.describe('mobile', () => {
     await expect(drawer(page)).not.toHaveClass(/open/);
     await page.locator('.tabs a[data-view="documents"]').click();
     await expect(page.locator('#doc-grid .doc-card').first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    await page.locator('.tabs a[data-view="news"]').click();
+    await expect(page.locator('#news .news-day').first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
 });

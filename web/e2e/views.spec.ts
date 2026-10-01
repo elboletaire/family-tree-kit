@@ -60,7 +60,7 @@ for (const [name, viewport] of [['desktop', { width: 1400, height: 900 }], ['mob
   test.describe(name, () => {
     test.use({ viewport });
     // Each view with its segment in the hash
-    for (const [view, segment] of [['voyage', 'viaje'], ['tree', 'arbol'], ['fan', 'abanico'], ['timeline', 'cronologia'], ['map', 'mapa'], ['documents', 'documentos']]) {
+    for (const [view, segment] of [['voyage', 'viaje'], ['tree', 'arbol'], ['fan', 'abanico'], ['timeline', 'cronologia'], ['map', 'mapa'], ['documents', 'documentos'], ['news', 'novedades']]) {
       test(`${view}: the open card stays above the view`, async ({ page }) => {
         await blockTiles(page);
         await page.goto(`${PAGE}#${segment}`);

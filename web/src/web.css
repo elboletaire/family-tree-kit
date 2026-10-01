@@ -486,3 +486,25 @@ body.map-full .drawer { top: 0; }
 /* While the private data of a session load, before drawing anything */
 .loading { min-height: 100vh; margin: 0; display: grid; place-items: center; color: var(--muted); }
 .locked-note { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; font-size: .9rem; }
+
+/* NOVEDADES */
+/* The same selector at the head of «Novedades»: not sticky, it is not inside a drawer */
+.view-head .family-switch { position: static; margin: .8rem 0 0; padding: 0; background: none; }
+.news { display: grid; gap: 1rem; max-width: 900px; padding-bottom: 2rem; }
+.news-day header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .8rem; }
+.news-day h3 { margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: .5rem; }
+.news-day header p { margin: 0; font-size: .85rem; }
+.news-day h4 { margin: .9rem 0 .35rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-2); }
+.news-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }
+.news-list li { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .4rem; font-size: .9rem; min-width: 0; }
+.news-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .35rem; }
+.news-doc { overflow-wrap: anywhere; }
+.news-doc b { font-variant-numeric: tabular-nums; }
+.news-what { color: var(--muted); font-size: .85rem; }
+.news-removed { margin: 0; font-size: .9rem; color: var(--muted); }
+.news-research .badge.done { background: var(--line); }
+.news-more { margin-top: .45rem; cursor: pointer; font-size: .8rem; }
+.home-news { margin: .7rem 0 0; font-size: .9rem; }
+.p-history { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; font-size: .88rem; }
+.p-history time { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: .3rem; }
+.p-history-more { margin: .4rem 0 0; font-size: .85rem; }

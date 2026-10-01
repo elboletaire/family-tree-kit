@@ -16,6 +16,7 @@ import { Documents } from './views/Documents';
 import { Fan } from './views/Fan';
 import { Home } from './views/Home';
 import { MapView } from './views/Map';
+import { News } from './views/News';
 import { Timeline } from './views/Timeline';
 import { Tree } from './views/Tree';
 import { Voyage } from './views/Voyage';
@@ -46,6 +47,7 @@ function Site() {
         <Page name="voyage"><Voyage /></Page>
         <Page name="map"><MapView /></Page>
         <Page name="documents"><Documents /></Page>
+        <Page name="news"><News /></Page>
       </main>
       <Drawer />
       <Lightbox />

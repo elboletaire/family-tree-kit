@@ -3,15 +3,18 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { docImages } from '../src/components/DocCard';
 import { ScopeChips } from '../src/components/ScopeChips';
 import { buildIndex, Search, searchHits } from '../src/components/Search';
-import { initData, S } from '../src/data';
+import { DATA, initData, S } from '../src/data';
 import { PersonPanel, siblingsOf } from '../src/panels/PersonPanel';
 import { panel, resetRouter, route } from '../src/router';
 import { initFocus, setFocus } from '../src/state';
 import { Documents } from '../src/views/Documents';
+import { News } from '../src/views/News';
+import { ALL, family, setFamily } from '../src/family';
+import { addedDocIds, daySummary, familyHistory, type FamilyOf, knownHistory, newsFamilies, personHistory, recentDocs, splitChanges } from '../src/views/newsLayout';
 import { fanLabelTransform, fanRelation, fanSegments, fitText } from '../src/views/fanLayout';
 import { aliveIn, estimateBirths, lifeRows } from '../src/views/timelineLayout';
 import { century, eraSummary, voyageEvents } from '../src/views/voyageEvents';
-import { fixture } from './fixture';
+import { fixture, publicFixture } from './fixture';
 
 beforeEach(() => {
   localStorage.clear();
@@ -58,7 +61,7 @@ describe('person card', () => {
     const { container } = render(() => <PersonPanel id="yo" />);
     expect(container.querySelector('h2')!.textContent).toBe('Yo Prueba');
     expect([...container.querySelectorAll('h3')].map(h => h.textContent))
-      .toEqual(['Padres', 'Hermanos', 'Hermanastros', 'Documentos donde aparece']);
+      .toEqual(['Padres', 'Hermanos', 'Hermanastros', 'Documentos donde aparece', 'Historial de la ficha']);
     expect(container.querySelector('.kin')!.textContent).toBe('Para hermana: hermano');
     expect(container.querySelector('.review-flag')!.textContent).toBe('Contiene datos pendientes de revisar');
     expect([...container.querySelectorAll('.mini-docs .doc-card')].map(d => d.getAttribute('data-doc'))).toEqual(['F001']);
@@ -164,5 +167,118 @@ describe('documents', () => {
     expect(docImages(S.get('F002')!)).toEqual([{ thumb: 'media/F002/t.jpg', preview: 'media/F002/p.jpg', name: 'boda.jpg' }]);
     const pdf = { ...S.get('F001')!, files: [{ name: 'a.pdf', url: 'a.pdf', kind: 'pdf' as const, pageImages: [{ thumb: 't1', preview: 'p1' }, { thumb: 't2', preview: 'p2' }] }] };
     expect(docImages(pdf).map(i => i.name)).toEqual(['a.pdf · p. 1', 'a.pdf · p. 2']);
+  });
+});
+
+describe('novedades', () => {
+  const all = () => true;
+  beforeEach(() => setFamily(ALL));
+  it('the documents added last, newest first, and without history those of the fallback', () => {
+    expect(addedDocIds(DATA.history)).toEqual(['F002', 'F001']);
+    const byDate = () => [S.get('F001')!];
+    expect(recentDocs(DATA.history, S, all, byDate)).toEqual({ docs: [S.get('F002'), S.get('F001')], added: true });
+    // What `keep` leaves out does not count; if nothing is left, the fallback
+    expect(recentDocs(DATA.history, S, d => d.category !== 'foto', byDate).docs.map(d => d.id)).toEqual(['F001']);
+    expect(recentDocs(DATA.history, S, () => false, byDate)).toEqual({ docs: [S.get('F001')], added: false });
+    expect(recentDocs([], S, all, byDate, 1)).toEqual({ docs: [S.get('F001')], added: false });
+    // A document of the history the data do not have (the public version) is skipped
+    expect(recentDocs(publicFixture().history, new Map([['F002', S.get('F002')!]]), all, byDate).docs.map(d => d.id)).toEqual(['F002']);
+  });
+  it('the history of a person, newest first', () => {
+    expect(personHistory(DATA.history, 'abuelo')).toEqual([
+      { date: '2026-03-10', added: false, first: false, fields: ['died', 'deathPlace'], sources: ['F002'], renamedFrom: null },
+      { date: '2026-02-20', added: true, first: true, fields: [], sources: [], renamedFrom: null },
+    ]);
+    expect(personHistory(DATA.history, 'tia')[0]).toMatchObject({ renamedFrom: 'Tia Sin Apellidos', fields: ['biography', 'notes'] });
+    expect(personHistory(DATA.history, 'yo').map(e => [e.date, e.added])).toEqual([['2026-03-10', false], ['2026-03-02', true]]);
+    expect(personHistory(DATA.history, 'suelto1')).toEqual([]);
+  });
+  it('splits new facts from revised texts, counts a day and drops unknown ids', () => {
+    const { facts, texts } = splitChanges(DATA.history[0].peopleChanged);
+    expect([facts.map(c => c.id), texts.map(c => c.id)]).toEqual([['abuelo', 'yo'], ['tia']]);
+    expect(daySummary(DATA.history[0])).toEqual({ docs: 1, people: 0, reviewed: 1, changed: 3 });
+    const known = knownHistory(DATA.history, id => id !== 'yo', id => id !== 'F002');
+    expect(known[0].docsAdded).toEqual([]);
+    expect(known[0].peopleChanged.map(c => [c.id, c.sources])).toEqual([['abuelo', []], ['tia', []]]);
+    expect(known[1].peopleAdded).toEqual(['primo']);
+  });
+  it('the view lists each day with links to people and documents', () => {
+    const { container } = render(() => <News />);
+    const days = [...container.querySelectorAll('.news-day')];
+    expect(days.map(d => d.getAttribute('data-date'))).toEqual(['2026-03-10', '2026-03-02', '2026-02-20']);
+    expect(days[0].querySelector('header p')!.textContent).toBe('1 documento nuevo · 1 documento revisado · 3 fichas actualizadas');
+    expect([...days[0].querySelectorAll('h4')].map(h => h.textContent)).toEqual([
+      'Documentos nuevos', 'Documentos revisados por la familia', 'Datos nuevos o corregidos', 'Cambios de nombre',
+      'Biografías y notas revisadas', 'Personas retiradas del árbol', 'Documentos retirados', 'Investigación: 2 puntos nuevos y 1 resuelto',
+    ]);
+    const abuelo = [...days[0].querySelectorAll('.news-list li')].find(li => li.querySelector('[data-person="abuelo"]'))!;
+    expect(abuelo.textContent).toBe('Abuelo Prueba Defunción, lugar de defunción. Nueva fuente: F002');
+    expect(days[2].querySelector('.badge')!.textContent).toBe('Comienza el árbol');
+    fireEvent.click(days[0].querySelector('.news-doc')!);
+    expect(panel()).toBe('d:F002');
+    fireEvent.click(days[1].querySelector('[data-person="primo"]')!);
+    expect(panel()).toBe('p:primo');
+  });
+  it('filters each day by family: its own and the shared items, and the people of none', () => {
+    const of: FamilyOf = { person: id => DATA.people.find(p => p.id === id)?.families ?? [], doc: id => S.get(id)?.family };
+    expect(familyHistory(DATA.history, ALL, of)).toBe(DATA.history);
+    const roble = familyHistory(DATA.history, 'roble', of);
+    // The day of «yo» and F001 (both of Olmo) is left empty and dropped
+    expect(roble.map(e => e.date)).toEqual(['2026-03-10', '2026-02-20']);
+    expect(roble[0]).toMatchObject({ docsAdded: ['F002'], docsReviewed: [], peopleChanged: [], peopleRenamed: [],
+      peopleRemoved: ['Primo Duplicado'], docsRemoved: ['F009 — Copia repetida'] });
+    expect(roble[0].research.map(r => r.family)).toEqual(['roble', 'general']);
+    expect(daySummary(roble[0])).toEqual({ docs: 1, people: 0, reviewed: 0, changed: 0 });
+    expect(roble[1].peopleAdded).toEqual(['madre']);
+    const olmo = familyHistory(DATA.history, 'olmo', of);
+    expect(olmo[0].peopleChanged.map(c => c.id)).toEqual(['abuelo', 'yo', 'tia']);
+    expect(olmo[0].research.map(r => r.family)).toEqual(['olmo', 'general']);
+    // Pino is not named by the history: not offered
+    expect(newsFamilies(DATA.history, [['olmo', 'Olmo'], ['roble', 'Roble'], ['pino', 'Pino'], [ALL, 'Todo']], of))
+      .toEqual([{ key: 'olmo', label: 'Olmo' }, { key: 'roble', label: 'Roble' }, { key: ALL, label: 'Todo' }]);
+  });
+  it('the view has the family selector of the research documents, and the same choice', () => {
+    const { container } = render(() => <News />);
+    const buttons = [...container.querySelectorAll<HTMLButtonElement>('.view-head .family-switch button')];
+    expect(buttons.map(b => b.textContent)).toEqual(['Familia Olmo', 'Familia Roble', 'Todo']);
+    expect(container.querySelector('[aria-pressed="true"]')!.getAttribute('data-family-show')).toBe(ALL);
+    fireEvent.click(buttons[1]);
+    expect(family()).toBe('roble');
+    const days = [...container.querySelectorAll('.news-day')];
+    expect(days.map(d => d.getAttribute('data-date'))).toEqual(['2026-03-10', '2026-02-20']);
+    expect(days[0].querySelector('header p')!.textContent).toBe('1 documento nuevo');
+    expect(days[0].textContent).not.toContain('Abuelo Prueba');
+    // A family the history does not name shows everything
+    setFamily('pino');
+    expect(container.querySelectorAll('.news-day').length).toBe(3);
+  });
+  it('long lists show the first ones and the rest on demand', () => {
+    const many = Array.from({ length: 14 }, (_, i) => `p${i}`);
+    initData({ ...fixture(), people: [...fixture().people, ...many.map(id => ({ ...fixture().people[0], id, name: id }))],
+               history: [{ ...fixture().history[2], peopleAdded: many }] });
+    const { container } = render(() => <News />);
+    expect(container.querySelectorAll('.news-chips li').length).toBe(12);
+    fireEvent.click(screen.getByRole('button', { name: 'Ver 2 más' }));
+    expect(container.querySelectorAll('.news-chips li').length).toBe(14);
+  });
+  it('the person card has their history', () => {
+    const { container } = render(() => <PersonPanel id="tia" />);
+    expect([...container.querySelectorAll('.p-history li')].map(li => li.textContent)).toEqual([
+      '10 mar 2026 Antes se llamaba «Tia Sin Apellidos». Biografía, notas de investigación',
+      '20 feb 2026 En el árbol desde el principio',
+    ]);
+    const other = render(() => <PersonPanel id="suelto1" />);
+    expect(other.container.querySelector('.p-history')).toBeNull();
+  });
+  it('without history, a note', () => {
+    initData({ ...fixture(), history: [] });
+    render(() => <News />);
+    expect(screen.getByText('Todavía no hay novedades.')).toBeTruthy();
+  });
+  it('the public version has no research, removed nor renamed', () => {
+    initData(publicFixture());
+    const { container } = render(() => <News />);
+    const text = container.textContent!;
+    for (const word of ['Investigación', 'retirad', 'Cambios de nombre', 'Yo Prueba', 'F001', 'notas de investigación']) expect(text).not.toContain(word);
   });
 });

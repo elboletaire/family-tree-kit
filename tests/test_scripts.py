@@ -581,7 +581,7 @@ class History(unittest.TestCase):
                                                     encoding="utf-8")
         research.joinpath("pendientes.md").write_text(
             "# Pendientes\n\n## Ferrer family\n\n- [x] Nothing yet.\n- [ ] **Birth of Marc Ferrer Roca**: his "
-            "certificate.\n", encoding="utf-8")
+            "certificate.\n\n## General\n\n- [ ] **Ask the archive**: the parish books.\n", encoding="utf-8")
         run(root, "references")
         git(root, "add", "-A")
         git(root, "commit", "-qm", "a person", date=days[1])
@@ -629,9 +629,11 @@ class History(unittest.TestCase):
         self.assertEqual(changed["jaume-ferrer-soler"], {"id": "jaume-ferrer-soler", "fields": ["deathPlace"],
                                                          "sources": ["F004"]})
         self.assertEqual(changed["anna-ferrer-roca"]["fields"], ["occupation"])
+        # Each item with the family of its section
         self.assertEqual(second["research"], [
-            {"note": "pendientes", "text": "Birth of Marc Ferrer Roca", "resolved": False},
-            {"note": "pendientes", "text": "Nothing yet.", "resolved": True}])
+            {"note": "pendientes", "text": "Ask the archive", "family": "general", "resolved": False},
+            {"note": "pendientes", "text": "Birth of Marc Ferrer Roca", "family": "ferrer", "resolved": False},
+            {"note": "pendientes", "text": "Nothing yet.", "family": "ferrer", "resolved": True}])
         self.assertEqual(third["docsReviewed"], ["F002"])
         self.assertEqual(third["peopleRenamed"], [{"from": "Josep Puig", "to": "josep-puig-vidal"},
                                                   {"from": "Pere Soler", "to": "pere-soler-roca"}])
@@ -653,6 +655,40 @@ class History(unittest.TestCase):
             self.assertNotIn(word, text)
         for word in self.LIVING:
             self.assertNotIn(word, self.public_html.lower())
+
+    def test_people_families(self):
+        whole = {p["id"]: p["families"] for p in read_data(self.root / "build" / "web" / "index.html")[0]["people"]}
+        self.assertEqual((whole["jaume-ferrer-soler"], whole["anna-ferrer-roca"]), (["ferrer"], ["ferrer"]))
+        # The living of the public version are a «Persona viva» box: no family either
+        public = [p for p in self.public["people"] if p["living"]]
+        self.assertTrue(public)
+        self.assertEqual({tuple(p["families"]) for p in public}, {()})
+
+    def test_cache_version(self):
+        """The cache of the days is used while its version is the current one, and an older one is recomputed (its
+        research items had no family)."""
+        cache_path = self.root / "build" / "history-cache.json"
+        fresh = json.loads(cache_path.read_text(encoding="utf-8"))
+        out = self.root / "build" / "cache-web"
+
+        def build(version):
+            cache = json.loads(json.dumps(fresh))
+            cache["version"] = version
+            for raw in cache["days"].values():
+                for item in raw["researchOpened"]:
+                    item["text"] = "Stale item"
+                    if version != fresh["version"]:
+                        del item["family"]
+            cache_path.write_text(json.dumps(cache), encoding="utf-8")
+            result = run(self.root, "build_site", "--only", "local", "-o", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            return json.dumps(read_data(out / "index.html")[0]["history"])
+
+        self.assertIn("Stale item", build(fresh["version"]))
+        history = build(fresh["version"] - 1)
+        self.assertNotIn("Stale item", history)
+        self.assertIn('"family": "general"', history)
+        self.assertEqual(json.loads(cache_path.read_text(encoding="utf-8"))["version"], fresh["version"])
 
     def test_shallow_clone_and_no_history(self):
         clone = self.root / "build" / "clone"

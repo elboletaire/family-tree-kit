@@ -334,7 +334,7 @@ def build_payload(people, sources, main, media, view=None, changes=()):
                 "id": pid(slug), "name": i18n.LIVING_PERSON_NAME, "given": "", "surnames": "", "sex": "U",
                 "born": "", "died": "", "bornYear": None, "diedYear": None, "bornApprox": False, "birthPlace": "",
                 "deathPlace": "", "occupation": "", **links, "conf": "", "living": True, "photo": None,
-                "marriages": [], "sources": [], "review": "", "html": "",
+                "marriages": [], "sources": [], "review": "", "html": "", "families": [],
             })
             continue
         m = p.meta
@@ -370,6 +370,8 @@ def build_payload(people, sources, main, media, view=None, changes=()):
             "sources": own,
             "review": person_review(p, sources, doc_ids) or "",
             "html": text,
+            # Families of families.yml the person belongs to (arbre.person_families), for the selector of «Novedades»
+            "families": sorted(families.get(slug, ())),
         })
 
     def research_html(text):

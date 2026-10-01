@@ -11,7 +11,8 @@ two research documents with open items.
   added the same day with the same given name and surnames that extend each other) and, for the others, which
   facts changed (FIELDS: name, dates, places, parents, spouses, photo…; the biography and the research notes, without
   the generated «Referencias») and which sources they cite now that they did not.
-- Research: the open items (`- [ ]`) of incoherencias.md and pendientes.md that appeared or were closed.
+- Research: the open items (`- [ ]`) of incoherencias.md and pendientes.md that appeared or were closed, each with
+  the family of the `## ` section it is in (arbre.family_sections: a family key, `several` or `general`).
 
 The days are grouped along the first-parent line of the branch (the merges of the kit bring no data), bounded by
 `history_months` of families.yml (by default 6; 0 turns it off) and by MAX_DAYS. Each day's changes only
@@ -36,13 +37,14 @@ from pathlib import Path
 
 import yaml
 
-from arbre import (CONFIG, REVIEW_DONE, REVIEW_PENDING, ROOT, FrontmatterError, MD_LINK_RE, WIKI_LINK_RE,
-                   split_frontmatter, strip_refs_block)
+from arbre import (CONFIG, GENERAL, REVIEW_DONE, REVIEW_PENDING, ROOT, FrontmatterError, MD_LINK_RE, WIKI_LINK_RE,
+                   family_sections, split_frontmatter, strip_refs_block)
 from privacy import RESEARCH_HEADING_RE
 from textsearch import norm
 
 MAX_DAYS = 400
-CACHE_VERSION = 2
+# 3: the research items carry the family of their section
+CACHE_VERSION = 3
 # Research documents whose open items are followed (their names are also the `r:` panels of the web)
 RESEARCH_NOTES = ("incoherencias", "pendientes")
 # Facts of a person, by the key the web translates: the frontmatter keys each one is made of
@@ -154,22 +156,23 @@ def plain(text):
 
 
 def open_items(text):
-    """The open items (`- [ ] …`, with their indented lines) of a research document: each one by its bold title, or
-    its whole text, as plain text."""
-    items, cur = [], None
-    for line in (text or "").splitlines():
-        if m := ITEM_RE.match(line):
-            cur = {"open": m.group(1) == " ", "lines": [m.group(2)]}
-            items.append(cur)
-        elif cur and line.startswith("  ") and line.strip():
-            cur["lines"].append(line.strip())
-        else:
-            cur = None
-    out = set()
-    for item in items:
-        if item["open"]:
-            title = BOLD_RE.match(item["lines"][0])
-            out.add(plain(title.group(1) if title else " ".join(item["lines"])))
+    """{text: family} of the open items (`- [ ] …`, with their indented lines) of a research document: each one by its
+    bold title, or its whole text, as plain text; and the family of the section it is in (before any, `general`)."""
+    out = {}
+    for family, chunk in family_sections(text or ""):
+        items, cur = [], None
+        for line in chunk.splitlines():
+            if m := ITEM_RE.match(line):
+                cur = {"open": m.group(1) == " ", "lines": [m.group(2)]}
+                items.append(cur)
+            elif cur and line.startswith("  ") and line.strip():
+                cur["lines"].append(line.strip())
+            else:
+                cur = None
+        for item in items:
+            if item["open"]:
+                title = BOLD_RE.match(item["lines"][0])
+                out.setdefault(plain(title.group(1) if title else " ".join(item["lines"])), family or GENERAL)
     return out
 
 
@@ -314,10 +317,11 @@ def apply(raw, status, was, now, osha, nsha, text):
     role = (now or was)[0]
     if role == "research":
         name = (now or was)[1]
-        before = open_items(text(osha)) if status != "A" else set()
-        after = open_items(text(nsha)) if status != "D" else set()
-        raw["researchOpened"] += [{"note": name, "text": t} for t in sorted(after - before)]
-        raw["researchResolved"] += [{"note": name, "text": t} for t in sorted(before - after)]
+        before = open_items(text(osha)) if status != "A" else {}
+        after = open_items(text(nsha)) if status != "D" else {}
+        raw["researchOpened"] += [{"note": name, "text": t, "family": after[t]} for t in sorted(after.keys() - before)]
+        raw["researchResolved"] += [{"note": name, "text": t, "family": before[t]}
+                                    for t in sorted(before.keys() - after)]
     elif role == "sources":
         if status == "A":
             raw["docsAdded"].append(now[1])
@@ -426,8 +430,10 @@ def entries(raw_days, people, sources, view=None):
             "docsRemoved": [] if public else [f"{x['id']} — {x['title']}" if x["title"] else x["id"]
                                               for x in raw["docsRemoved"]],
             "research": [] if public else (
-                [{"note": x["note"], "text": x["text"], "resolved": False} for x in raw["researchOpened"]]
-                + [{"note": x["note"], "text": x["text"], "resolved": True} for x in raw["researchResolved"]]),
+                [{"note": x["note"], "text": x["text"], "family": x["family"], "resolved": False}
+                 for x in raw["researchOpened"]]
+                + [{"note": x["note"], "text": x["text"], "family": x["family"], "resolved": True}
+                   for x in raw["researchResolved"]]),
         }
         for r in raw["peopleRenamed"]:
             forward[r["from"]] = now(r["to"])

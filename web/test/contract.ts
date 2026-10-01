@@ -1,7 +1,10 @@
 /* Runtime check that a real DATA has the shape of src/types.ts.
    Each spec is a `Spec<T>`: TypeScript forces it to have exactly the keys of T, so if a field is added to or removed
    from types.ts without touching it, it does not compile; and if build_site.py changes, the test fails. */
-import type { Branch, Category, Data, Doc, DocFile, Family, HistoricEvent, Marriage, PageImage, Person, Place, ResearchKey } from '../src/types';
+import type {
+  Branch, Category, Data, Doc, DocFile, Family, HistoricEvent, HistoryEntry, HistoryField, Marriage, PageImage, Person, PersonChange,
+  Place, Rename, ResearchItem, ResearchKey,
+} from '../src/types';
 
 type Check = (v: unknown, path: string) => string[];
 type Spec<T> = { [K in keyof Required<T>]: Check };
@@ -48,6 +51,7 @@ const person: Spec<Person> = {
   father: nullable(str), mother: nullable(str), spouses: arrayOf(str), children: arrayOf(str), siblings: arrayOf(str),
   conf: oneOf<Person['conf']>('proven', 'probable', ''), living: bool, branch: str, gen: num, photo: nullable(str),
   marriages: arrayOf(object(marriage)), sources: arrayOf(str), review: oneOf<Person['review']>('new', 'partial', ''), html: str,
+  families: arrayOf(str),
 };
 const pageImage: Spec<PageImage> = { thumb: str, preview: str };
 const docFile: Spec<DocFile> = {
@@ -64,12 +68,22 @@ const family: Spec<Family> = { key: str, label: str, title: str, of: str, defaul
 const branch: Spec<Branch> = { key: str, label: str, color: str };
 const event: Spec<HistoricEvent> = { from: num, to: num, label: str };
 const place: Spec<Place> = { lat: num, lon: num, name: str };
+const FIELDS: HistoryField[] = ['name', 'aliases', 'sex', 'born', 'birthPlace', 'died', 'deathPlace', 'occupation', 'parents',
+  'siblings', 'spouses', 'photo', 'biography', 'notes'];
+const personChange: Spec<PersonChange> = { id: str, fields: arrayOf(oneOf(...FIELDS)), sources: arrayOf(str) };
+const rename: Spec<Rename> = { from: str, to: str };
+const researchItem: Spec<ResearchItem> = { note: oneOf<ResearchItem['note']>('incoherencias', 'pendientes'), text: str, family: str, resolved: bool };
+const historyEntry: Spec<HistoryEntry> = {
+  date: str, first: bool, docsAdded: arrayOf(str), docsReviewed: arrayOf(str), docsUpdated: arrayOf(str),
+  peopleAdded: arrayOf(str), peopleChanged: arrayOf(object(personChange)), peopleRemoved: arrayOf(str),
+  peopleRenamed: arrayOf(object(rename)), docsRemoved: arrayOf(str), research: arrayOf(object(researchItem)),
+};
 const data: Spec<Data> = {
   people: arrayOf(object(person)), docs: arrayOf(object(doc)), branches: arrayOf(object(branch)),
   events: arrayOf(object(event)), categories: record(CATEGORIES, str), research: record(RESEARCH, str, true),
   places: dict(object(place)),
   families: arrayOf(object(family)), otherBranch: str, main: str, access: oneOf<Data['access']>('full', 'public', 'private'),
-  publicIds: dict(str),
+  publicIds: dict(str), history: arrayOf(object(historyEntry)),
 };
 
 /** List of mismatches between `value` and the Data type (empty if it matches) */
