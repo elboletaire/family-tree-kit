@@ -16,6 +16,7 @@ Usage: uv run tests/test_scripts.py
 """
 
 import base64
+import datetime as dt
 import json
 import os
 import shutil
@@ -182,6 +183,8 @@ class ConfiguredFolders(unittest.TestCase):
         self.assertEqual(pau["photo"], "media/portraits/pau-ferrer-puig.jpg")
         self.assertTrue((out / pau["photo"]).is_file())
         self.assertIn('data-doc="F001"', data["research"]["incoherencias"])
+        # Not a Git repository: no history, and no error
+        self.assertEqual(data["history"], [])
 
     def test_config_prints_the_folders(self):
         result = run(self.root, "config", "paths.sources")
@@ -510,6 +513,11 @@ class InvalidConfig(unittest.TestCase):
         self.check("link_preview: expected true or false", extra_config="link_preview: maybe\n")
         self.check("share_image names a missing person: nobody", extra_config="share_image: [nobody]\n")
 
+    def test_history_months(self):
+        self.check("history_months: expected a whole number of months, from 0 (no history) to 120",
+                   extra_config="history_months: -1\n")
+        self.check("history_months: expected a whole number", extra_config="history_months: yes\n")
+
     def test_two_roles_in_one_folder(self):
         self.check("paths: two roles share the same folder", research="sources")
 
@@ -520,6 +528,152 @@ class InvalidConfig(unittest.TestCase):
             result = run(Path(tmp), "validate")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("families.example.yml", result.stderr)
+
+
+def git(root, *args, date=None):
+    """A git command in the fictional tree, with a fixed author and, with `date`, that day as its date."""
+    env = {**os.environ, "GIT_AUTHOR_NAME": "Test", "GIT_AUTHOR_EMAIL": "test@example.org",
+           "GIT_COMMITTER_NAME": "Test", "GIT_COMMITTER_EMAIL": "test@example.org"}
+    if date:
+        env["GIT_AUTHOR_DATE"] = env["GIT_COMMITTER_DATE"] = f"{date.isoformat()}T12:00:00"
+    return subprocess.run(["git", "-c", "init.defaultBranch=main", "-c", "commit.gpgsign=false", *args], cwd=root,
+                          env=env, capture_output=True, text=True, check=True).stdout
+
+
+class History(unittest.TestCase):
+    """«Novedades» (scripts/history.py): the changes of the data, day by day, from the Git history of a fictional tree
+    whose main person is living; and that the public version has nothing of the living nor of the private documents."""
+
+    LIVING = PublicSite.LIVING + ["diploma", "farera", "birth of marc"]
+
+    @classmethod
+    def setUpClass(cls):
+        if not shutil.which("git"):
+            raise unittest.SkipTest("git is not installed")
+        if not (CODE / "web" / "dist" / "web.js").is_file():
+            raise unittest.SkipTest("the interface is not compiled: run `make web`")
+        cls.tmp = tempfile.TemporaryDirectory()
+        root = cls.root = Path(cls.tmp.name)
+        today = dt.date.today()
+        cls.days = [(today - dt.timedelta(days=n)).isoformat() for n in (5, 3, 1)]
+        days = [dt.date.fromisoformat(d) for d in cls.days]
+        make_tree(root, main="anna-ferrer-roca", living=True)
+        (root / ".gitignore").write_text("build/\n", encoding="utf-8")
+        run(root, "references")
+        git(root, "init", "-q")
+        git(root, "add", "-A")
+        git(root, "commit", "-qm", "start", date=days[0])
+        # Day 2, in two commits: a public document (1910) cited by Jaume, who gets his death place; a private one
+        # cited by Anna, who gets an occupation; a new person; and the research documents change
+        people, sources, research = root / "people", root / "sources", root / "research"
+        sources.joinpath("F004.md").write_text(source("F004", "Death record of Jaume", date=1910), encoding="utf-8")
+        sources.joinpath("F005.md").write_text(source("F005", "Diploma of the granddaughter", date=1985),
+                                               encoding="utf-8")
+        edit(people / "jaume-ferrer-soler.md", ("sex: M\n", "sex: M\ndeath_place: Puerto Bajo\n"),
+             ('"[[F001]]"]', '"[[F001]]", "[[F004]]"]'))
+        edit(people / "anna-ferrer-roca.md", ("sex: F\n", "sex: F\noccupation: Farera\n"),
+             ('"[[F003]]"]', '"[[F003]]", "[[F005]]"]'))
+        git(root, "add", "-A")
+        git(root, "commit", "-qm", "two documents", date=days[1])
+        people.joinpath("josep-puig.md").write_text(person("Josep", "Puig", "M", 1880, ["F001"], died=1950),
+                                                    encoding="utf-8")
+        people.joinpath("pere-soler.md").write_text(person("Pere", "Soler", "M", 1850, ["F001"], died=1910),
+                                                    encoding="utf-8")
+        research.joinpath("pendientes.md").write_text(
+            "# Pendientes\n\n## Ferrer family\n\n- [x] Nothing yet.\n- [ ] **Birth of Marc Ferrer Roca**: his "
+            "certificate.\n", encoding="utf-8")
+        run(root, "references")
+        git(root, "add", "-A")
+        git(root, "commit", "-qm", "a person", date=days[1])
+        # Day 3: F002 approved, and Josep renamed with his second surname
+        edit(sources / "F002.md", ("review: pendiente", "review: revisada"))
+        git(root, "mv", "people/josep-puig.md", "people/josep-puig-vidal.md")
+        edit(people / "josep-puig-vidal.md", ("surnames: Puig\n", "surnames: Puig Vidal\n"))
+        # Pere's note is rewritten under his full name: too different for Git, the same person by his name
+        (people / "pere-soler.md").unlink()
+        people.joinpath("pere-soler-roca.md").write_text(person(
+            "Pere", "Soler Roca", "M", "c. 1851", ["F001", "F004"], died=1911,
+            body="\n".join(f"Line {n} of a biography written anew." for n in range(40))), encoding="utf-8")
+        run(root, "references")
+        git(root, "add", "-A")
+        git(root, "commit", "-qm", "review", date=days[2])
+        cls.build = run(root, "build_site")
+        cls.whole = read_data(root / "build" / "web" / "index.html")[0]["history"]
+        cls.public, cls.public_html = read_data(root / "build" / "public" / "index.html")
+        cls.private = json.loads((root / "build" / "private" / "data.json").read_text(encoding="utf-8"))["history"]
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def day(self, history, n):
+        return next(e for e in history if e["date"] == self.days[n])
+
+    def test_built(self):
+        self.assertEqual(self.build.returncode, 0, self.build.stdout + self.build.stderr)
+        self.assertIn("history: 3 days with changes", self.build.stdout)
+        self.assertIn("leak check: 0 leaks", self.build.stdout)
+        self.assertTrue((self.root / "build" / "history-cache.json").is_file())
+
+    def test_whole_history(self):
+        self.assertEqual([e["date"] for e in self.whole], self.days[::-1])
+        first, second, third = (self.day(self.whole, n) for n in range(3))
+        self.assertTrue(first["first"])
+        self.assertEqual(first["peopleAdded"], ["anna-ferrer-roca", "jaume-ferrer-soler", "marc-ferrer-roca",
+                                                "pau-ferrer-puig", "rosa-puig-vidal"])
+        self.assertEqual(first["docsAdded"], ["F001", "F002", "F003"])
+        self.assertEqual(second["docsAdded"], ["F004", "F005"])
+        # Josep was added that day, with the slug he has now
+        self.assertEqual(second["peopleAdded"], ["josep-puig-vidal", "pere-soler-roca"])
+        changed = {c["id"]: c for c in second["peopleChanged"]}
+        self.assertEqual(changed["jaume-ferrer-soler"], {"id": "jaume-ferrer-soler", "fields": ["deathPlace"],
+                                                         "sources": ["F004"]})
+        self.assertEqual(changed["anna-ferrer-roca"]["fields"], ["occupation"])
+        self.assertEqual(second["research"], [
+            {"note": "pendientes", "text": "Birth of Marc Ferrer Roca", "resolved": False},
+            {"note": "pendientes", "text": "Nothing yet.", "resolved": True}])
+        self.assertEqual(third["docsReviewed"], ["F002"])
+        self.assertEqual(third["peopleRenamed"], [{"from": "Josep Puig", "to": "josep-puig-vidal"},
+                                                  {"from": "Pere Soler", "to": "pere-soler-roca"}])
+        self.assertEqual(third["peopleChanged"], [
+            {"id": "josep-puig-vidal", "fields": ["name"], "sources": []},
+            {"id": "pere-soler-roca", "fields": ["name", "born", "died", "biography"], "sources": ["F004"]}])
+        self.assertEqual((third["peopleAdded"], third["peopleRemoved"]), ([], []))
+        self.assertEqual(self.private, self.whole)
+
+    def test_public_history(self):
+        history = self.public["history"]
+        second, third = self.day(history, 1), self.day(history, 2)
+        self.assertEqual(second["docsAdded"], ["F004"])
+        self.assertEqual([c["id"] for c in second["peopleChanged"]], ["jaume-ferrer-soler"])
+        self.assertEqual((second["research"], third["peopleRenamed"]), ([], []))
+        self.assertNotIn("anna-ferrer-roca", self.day(history, 0)["peopleAdded"])
+        text = json.dumps(history, ensure_ascii=False).lower()
+        for word in [*self.LIVING, "f005", "f003", "nothing yet", "josep puig\""]:
+            self.assertNotIn(word, text)
+        for word in self.LIVING:
+            self.assertNotIn(word, self.public_html.lower())
+
+    def test_shallow_clone_and_no_history(self):
+        clone = self.root / "build" / "clone"
+        subprocess.run(["git", "clone", "-q", "--depth", "1", f"file://{self.root}", str(clone)], check=True)
+        result = run(clone, "build_site", "--only", "local", "-o", str(clone / "build" / "web"))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(read_data(clone / "build" / "web" / "index.html")[0]["history"], [])
+        families = clone / "families.yml"
+        families.write_text(families.read_text(encoding="utf-8") + "history_months: 0\n", encoding="utf-8")
+        shutil.rmtree(clone / ".git")
+        result = run(clone, "build_site", "--only", "local", "-o", str(clone / "build" / "web"))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("history: no Git history", result.stdout)
+
+
+def edit(path, *replacements):
+    text = path.read_text(encoding="utf-8")
+    for old, new in replacements:
+        assert old in text, (path, old)
+        text = text.replace(old, new, 1)
+    path.write_text(text, encoding="utf-8")
 
 
 class DemoTree(unittest.TestCase):

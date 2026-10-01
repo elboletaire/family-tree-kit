@@ -320,6 +320,8 @@ DEFAULT_LANGUAGE = "es"
 # as `../<folder>/<name>.md`
 DEFAULT_PATHS = {"people": "people", "sources": "sources", "research": "research", "portraits": "portraits"}
 FOLDER_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]*$")
+# `history_months`: how far back «Novedades» goes, at most
+MAX_HISTORY_MONTHS = 120
 
 
 class ConfigError(ValueError):
@@ -364,6 +366,7 @@ class Config:
     site_url: str = ""  # public address of the site, for the preview image of shared links
     share_image: tuple = ()  # slugs of the deceased in that image; empty: the main person's closest ancestors
     link_preview: bool = True  # `false` opts out of the preview image (and of its exception in the closed mode)
+    history_months: int = 6  # months of «Novedades» read from the Git history (scripts/history.py); 0 turns it off
 
     @property
     def default_family(self):
@@ -462,8 +465,12 @@ def load_config(path=CONFIG_PATH):
     preview = raw.get("link_preview", True)
     if not isinstance(preview, bool):
         raise ConfigError("link_preview: expected true or false")
+    months = raw.get("history_months", Config.history_months)
+    if not isinstance(months, int) or isinstance(months, bool) or not 0 <= months <= MAX_HISTORY_MONTHS:
+        raise ConfigError(f"history_months: expected a whole number of months, from 0 (no history) to "
+                          f"{MAX_HISTORY_MONTHS}")
     return Config(text(raw, "main", path.name), families, branches, other, tuple(groups), language, Paths(**folders),
-                  site_url.strip().rstrip("/"), tuple(share), preview)
+                  site_url.strip().rstrip("/"), tuple(share), preview, months)
 
 
 try:

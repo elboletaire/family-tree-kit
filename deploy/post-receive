@@ -10,7 +10,8 @@
 #   3. replaces each LFS pointer with a hard link to the object in lfs/objects (it takes no space);
 #   4. regenerates the site with `docker compose run --rm build` (which also compiles the interface of web/, with Node):
 #      build/public, the public version, and build/private, served only with a session; and, if the container is
-#      already running, updates it. If the leak check finds a living person's data in the public version, the build
+#      already running, updates it. The checkout has no .git: this bare repository is mounted read-only in the build
+#      container (ARBRE_GIT_DIR, ARBRE_GIT_REF), so that «Novedades» is read from its history (scripts/history.py). If the leak check finds a living person's data in the public version, the build
 #      fails, the previous version stays and the hook stops here.
 #
 # Variables: ARBRE_WEB_DIR, ARBRE_BRANCH (main), ARBRE_BUILD (1; 0 not to regenerate the web). SOURCES_DIR, the folder
@@ -76,7 +77,8 @@ if [ "${ARBRE_BUILD:-1}" = 1 ] && command -v docker >/dev/null; then
     SOURCES_DIR=$(docker compose run --rm -T build uv run --quiet scripts/config.py paths.sources)
     export SOURCES_DIR
     log "compiling the interface and generating build/public and build/private (originals in $SOURCES_DIR/)"
-    if ! docker compose run --rm build; then
+    # The history of the data for «Novedades»: this repository, read-only, and the deployed branch
+    if ! docker compose run --rm -v "$GIT_DIR:/repo.git:ro" -e ARBRE_GIT_DIR=/repo.git -e ARBRE_GIT_REF="$BRANCH" build; then
         log "ERROR: the site could not be generated (see above: a leak of the public version?); the previous one stays"
         exit 1
     fi

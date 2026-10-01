@@ -36,6 +36,7 @@ import markdown
 import pymupdf
 from PIL import Image, ImageOps
 
+import history
 import leak_check
 import share_image
 from arbre import (BRANCHES, CODE_ROOT, COMPILATION_TYPE, CONFIG, DEFAULT_CATEGORY, IMAGE_EXT, OTHER_BRANCH, PLACES_PATH,
@@ -272,8 +273,9 @@ def document_files(sid, meta, media):
     return files, thumb
 
 
-def build_payload(people, sources, main, media, view=None):
-    """DATA of the web: the whole tree or, with `view` (privacy.PublicView), only what the public version shows."""
+def build_payload(people, sources, main, media, view=None, changes=()):
+    """DATA of the web: the whole tree or, with `view` (privacy.PublicView), only what the public version shows.
+    `changes` are the raw days of history.raw_history(), for «Novedades»."""
     public = view is not None
     families = person_families(people)
     doc_ids = view.public_docs if public else set(sources)
@@ -416,6 +418,9 @@ def build_payload(people, sources, main, media, view=None):
         "main": view.main if public else main,
         "access": ACCESS_PUBLIC if public else ACCESS_FULL,
         "publicIds": {},
+        # What changed in the data, day by day (Git history): in the public version, only deceased people and public
+        # documents
+        "history": history.entries(changes, people, sources, view),
     }
 
 
@@ -475,7 +480,10 @@ def main(argv):
     main_slug = args.main if args.main in people else sorted(people)[0]
     cache = BUILD / "media-cache"
     media = Media(cache)
-    whole = build_payload(people, sources, main_slug, media)
+    changes = history.raw_history()
+    print(f"history: {len(changes)} days with changes in the data" if changes else
+          "history: no Git history of the data (no repository, a shallow clone or `history_months: 0`)")
+    whole = build_payload(people, sources, main_slug, media, changes=changes)
     people_n, docs_n = len(whole["people"]), len(whole["docs"])
 
     if args.only != ONLY_SITE:
@@ -499,7 +507,7 @@ def main(argv):
     private.write(PRIVATE_DATA, json.dumps(data, ensure_ascii=False))
 
     public = Output(args.public, cache, opaque=True)
-    shown = build_payload(people, sources, main_slug, media, view)
+    shown = build_payload(people, sources, main_slug, media, view, changes)
     preview = link_preview(people, main_slug, view)
     tags = ""
     if preview:

@@ -30,6 +30,10 @@ paths:
 # share_image: [jaume-ferrer-soler, rosa-puig-vidal]
 # link_preview: false
 
+# Optional: how many months back «Novedades» goes (the web's view of what changed in the tree, day by day, read from
+# the Git history of the data folders). 6 by default; 0 turns it off.
+# history_months: 6
+
 # Person through whose eyes the web opens (slug of a person)
 main: anna-ferrer-puig
 
