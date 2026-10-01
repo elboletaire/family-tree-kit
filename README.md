@@ -167,7 +167,7 @@ docker compose run --rm build      # builds build/public and build/private (or `
 docker compose up -d --build
 ```
 
-The password (`SITE_PASSWORD`) gives a signed cookie valid for `SESSION_DAYS` days; changing it (or `SESSION_SECRET`)
+The password (`SITE_PASSWORD`) gives a signed cookie valid for `SESSION_DAYS` days from the last visit; changing it (or `SESSION_SECRET`)
 closes every session. After 5 failed attempts from an IP, each attempt waits twice as long, and there is an hourly
 limit. The site asks search engines not to index it. To update the website, build `build/public` and `build/private`
 again: the container reads `build/` mounted, without rebuilding.

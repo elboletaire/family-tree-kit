@@ -156,13 +156,29 @@ class SiteServer(unittest.TestCase):
                     self.assertIn(status, (401, 403, 404))
                     self.assertNotIn(b"never served", body)
 
+    def test_session_renewed_on_the_page(self):
+        """Opening the page with a session older than a day gives a fresh one; a newer one, or no session, gives none."""
+        old = "arbre_session=" + self.module.new_token(time.time() - 2 * 86400)
+        status, headers, _ = self.get("/", old)
+        self.assertEqual(status, 200)
+        renewed = [c for c in headers.get_all("Set-Cookie") or [] if c.startswith("arbre_session=")]
+        self.assertEqual(len(renewed), 1)
+        token = renewed[0].split(";")[0].split("=", 1)[1]
+        self.assertTrue(self.module.valid(token))
+        self.assertGreater(int(token.split(".")[0]), time.time() + 29 * 86400)
+        fresh = "arbre_session=" + self.module.new_token()
+        self.assertIsNone(self.get("/", fresh)[1].get_all("Set-Cookie"))
+        self.assertIsNone(self.get("/", None)[1].get_all("Set-Cookie"))
+        # Only the page: files and data keep the cookie as it is
+        self.assertIsNone(self.get("/private/data.json", old)[1].get_all("Set-Cookie"))
+
     def test_login_and_logout(self):
         self.assertEqual(self.server.login("wrong", ip="10.0.2.1")[:3:2], (401, b""))
         status, headers, body = self.server.login(ip="10.0.2.1")
         self.assertEqual((status, body), (204, b""))
         cookies = headers.get_all("Set-Cookie")
         session = next(c for c in cookies if c.startswith("arbre_session="))
-        for attr in ("HttpOnly", "Secure", "SameSite=Strict", "Path=/"):
+        for attr in ("HttpOnly", "Secure", "SameSite=Lax", "Path=/", "Max-Age=2592000", "Expires="):
             self.assertIn(attr, session)
         self.assertTrue(any(c.startswith("arbre_hint=1;") and "HttpOnly" not in c for c in cookies))
         cookie = session.split(";")[0]

@@ -169,7 +169,7 @@ docker compose run --rm build      # genera build/public y build/private (o `mak
 docker compose up -d --build
 ```
 
-La contraseña (`SITE_PASSWORD`) da una cookie firmada válida `SESSION_DAYS` días; cambiarla (o `SESSION_SECRET`)
+La contraseña (`SITE_PASSWORD`) da una cookie firmada válida `SESSION_DAYS` días desde la última visita; cambiarla (o `SESSION_SECRET`)
 cierra todas las sesiones. Tras 5 intentos fallidos desde una IP, cada intento espera el doble, y hay un límite por
 hora. El sitio no se deja indexar por los buscadores. Para actualizar la web basta con volver a generar `build/public`
 y `build/private`: el contenedor lee `build/` montada, sin reconstruir.

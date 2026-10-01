@@ -21,8 +21,10 @@ The last two need a session: without it they answer 401 with no content (in the 
 whatever the file.
 
 POST /login (JSON {"password": …} or a form) checks the password and gives a signed session cookie (HttpOnly, Secure,
-SameSite=Strict) that lasts SESSION_DAYS days, and a readable one (arbre_hint) that only tells the web there may be a
-session. POST /logout removes both. Changing the password (or SESSION_SECRET) invalidates every session. Each IP gets
+SameSite=Lax, so that it also arrives when the site is opened from a link in another app) that lasts SESSION_DAYS
+days from the last visit (opening the page renews it once a day), and a readable one (arbre_hint) that only tells
+the web there may be a session. POST /logout removes both. Changing the password (or SESSION_SECRET) invalidates
+every session. Each IP gets
 LOGIN_FREE_ATTEMPTS failures, and then waits 2^(failures - LOGIN_FREE_ATTEMPTS) seconds (at most 15 minutes) between
 attempts; and with more than LOGIN_GLOBAL_LIMIT failures in an hour, from anywhere, nobody can try until they fall
 below. While waiting the password is not even checked, and the answers say nothing but their status.
@@ -46,6 +48,7 @@ import secrets
 import threading
 import time
 from collections import deque
+from email.utils import formatdate
 from http import HTTPStatus
 from http.cookies import CookieError, SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -213,12 +216,24 @@ class Handler(BaseHTTPRequestHandler):
         fwd = self.headers.get("X-Forwarded-For", "") if TRUST_PROXY else ""
         return fwd.split(",")[-1].strip() or self.client_address[0]
 
-    def authed(self) -> bool:
+    def session(self) -> str | None:
+        """The valid session token of the request, if any."""
         try:
             jar = SimpleCookie(self.headers.get("Cookie", ""))
         except CookieError:
-            return False
-        return COOKIE in jar and valid(jar[COOKIE].value)
+            return None
+        return jar[COOKIE].value if COOKIE in jar and valid(jar[COOKIE].value) else None
+
+    def authed(self) -> bool:
+        return self.session() is not None
+
+    def renewal(self):
+        """Set-Cookie headers of a fresh session when the page is opened with one older than a day: the session lasts
+        SESSION_DAYS from the last visit, not from the login."""
+        token = self.session()
+        if not token or int(token.split(".")[0]) - time.time() > (SESSION_DAYS - 1) * 86400:
+            return []
+        return self.cookies(new_token())
 
     def reply(self, status, body: bytes = b"", ctype="text/plain; charset=utf-8", headers=(), private=True):
         self.send_response(status)
@@ -237,7 +252,10 @@ class Handler(BaseHTTPRequestHandler):
     def cookies(self, token: str | None):
         """Set-Cookie headers of a new session (or, with None, those that remove it)."""
         age = SESSION_DAYS * 86400 if token else 0
-        attrs = f"Path=/; Max-Age={age}; Secure; SameSite=Strict"
+        # Expires as well as Max-Age: some WebKit browsers (Firefox for iOS) keep a cookie with only Max-Age as a
+        # session cookie, and forget it when the app is closed
+        expires = formatdate(time.time() + age if token else 0, usegmt=True)
+        attrs = f"Path=/; Max-Age={age}; Expires={expires}; Secure; SameSite=Lax"
         return [("Set-Cookie", f"{COOKIE}={token or ''}; {attrs}; HttpOnly"),
                 ("Set-Cookie", f"{HINT}={'1' if token else ''}; {attrs}")]
 
@@ -272,7 +290,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not self.authed():
                     return self.reply(HTTPStatus.UNAUTHORIZED)
                 return self.serve_file(root, path[len(prefix):], private=True)
-        self.serve_file(PUBLIC, path, private=False)
+        self.serve_file(PUBLIC, path, private=False, headers=self.renewal() if path in PAGE_PATHS else ())
 
     do_HEAD = do_GET
 
@@ -325,7 +343,7 @@ class Handler(BaseHTTPRequestHandler):
         # With no-referrer the browser would send the form with «Origin: null», which same_origin refuses
         self.reply(status, body.encode(), "text/html; charset=utf-8", headers=[("Referrer-Policy", "same-origin")])
 
-    def serve_file(self, root: Path, rel: str, private: bool):
+    def serve_file(self, root: Path, rel: str, private: bool, headers=()):
         try:
             base = root.resolve()
             target = (base / rel.lstrip("/")).resolve()
@@ -359,7 +377,7 @@ class Handler(BaseHTTPRequestHandler):
         # In the closed mode the public version is behind the session too: no cache in between keeps it
         media, page = ("public, max-age=3600", "no-cache") if PUBLIC_SITE else ("private, max-age=3600", "private, no-cache")
         self.send_header("Cache-Control", "no-store" if private else media if rel.startswith("/media/") else page)
-        for k, v in COMMON_HEADERS:
+        for k, v in (*COMMON_HEADERS, *headers):
             self.send_header(k, v)
         self.end_headers()
         if self.command == "HEAD":
