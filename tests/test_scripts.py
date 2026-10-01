@@ -762,15 +762,16 @@ def edit(path, *replacements):
 
 
 class DemoTree(unittest.TestCase):
-    """The fictional tree of scripts/demo.py (`make demo`): always the same, it validates without errors or warnings,
-    and its whole web, public version and leak check included, is built."""
+    """The fictional tree of scripts/demo.py (`make demo`): always the same (its Git history included), it validates
+    without errors or warnings, and its whole web, public version, history and leak check included, is built."""
 
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
         cls.root = Path(cls.tmp.name) / "demo"
-        cls.made = subprocess.run(["uv", "run", "--quiet", str(CODE / "scripts" / "demo.py"), str(cls.root)],
-                                  capture_output=True, text=True)
+        cls.today = dt.date.today().isoformat()
+        cls.made = subprocess.run(["uv", "run", "--quiet", str(CODE / "scripts" / "demo.py"), str(cls.root),
+                                   "--today", cls.today], capture_output=True, text=True)
         cls.refs = run(cls.root, "references")
 
     @classmethod
@@ -785,14 +786,23 @@ class DemoTree(unittest.TestCase):
 
     def test_deterministic(self):
         again = Path(self.tmp.name) / "again"
-        result = subprocess.run(["uv", "run", "--quiet", str(CODE / "scripts" / "demo.py"), str(again)],
-                                capture_output=True, text=True)
+        result = subprocess.run(["uv", "run", "--quiet", str(CODE / "scripts" / "demo.py"), str(again),
+                                 "--today", self.today], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         run(again, "references")
-        files = sorted(f.relative_to(self.root) for f in self.root.rglob("*") if f.is_file() and "build" not in f.parts)
-        self.assertEqual(files, sorted(f.relative_to(again) for f in again.rglob("*") if f.is_file()))
+
+        def tree(root):
+            return sorted(f.relative_to(root) for f in root.rglob("*")
+                          if f.is_file() and not {"build", ".git"} & set(f.relative_to(root).parts))
+        files = tree(self.root)
+        self.assertEqual(files, tree(again))
         for f in files:
             self.assertEqual((self.root / f).read_bytes(), (again / f).read_bytes(), f)
+        # The same commits, with the same dates and author: the same hashes
+        head = [subprocess.run(["git", "-C", str(r), "rev-parse", "HEAD"], capture_output=True, text=True).stdout
+                for r in (self.root, again)]
+        self.assertTrue(head[0].strip())
+        self.assertEqual(head[0], head[1])
 
     def test_refuses_a_folder_it_did_not_write(self):
         other = Path(self.tmp.name) / "other"
@@ -823,6 +833,16 @@ class DemoTree(unittest.TestCase):
         self.assertEqual(places - set(data["places"]), set())
         public, _ = read_data(out / "public" / "index.html")
         self.assertTrue(any(p["living"] for p in public["people"]))
+        # Portraits of the dead only, and a history with every kind of change
+        self.assertTrue(10 <= sum(1 for p in data["people"] if p["photo"]))
+        self.assertFalse([p["id"] for p in public["people"] if p["photo"] and p["living"]])
+        history = data["history"]
+        self.assertEqual(len(history), 8)
+        self.assertTrue(history[-1]["first"])
+        for key in ("docsAdded", "docsReviewed", "docsUpdated", "peopleAdded", "peopleChanged", "peopleRenamed"):
+            self.assertTrue(any(e[key] for e in history[:-1]), key)
+        research = [r for e in history for r in e["research"]]
+        self.assertTrue(any(r["resolved"] for r in research) and any(not r["resolved"] for r in research))
 
 
 if __name__ == "__main__":

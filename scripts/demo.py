@@ -10,31 +10,41 @@ sources and research folders with their default names. Two families of Spanish v
 over six generations (from the 1830s to the 1980s): dates, occupations, marriages, a widower who marries a widow
 with a child (step-siblings and half-siblings), living people (for the public version), proven and probable
 parentage, sources with transcriptions and generated scans (two of them found by automated research, pending
-review), and the research documents with a few items by family and branch.
+review), the research documents with a few items by family and branch, and portraits of some of the dead.
+
+The folder is a Git repository with the history of how the tree grew (STAGES): eight days over twelve weeks, with
+documents and people added, facts corrected, a person renamed, a document approved, portraits added and research
+items opened and closed, so that «Novedades» (scripts/history.py) has something to show. The commits have a fixed
+author and dates counted back from the day it runs (or --today), and do not depend on the user's Git configuration.
 
 The names come from Faker (es_ES) with a fixed seed, and the pinned versions of Faker and Pillow keep the output the
 same byte for byte. The places are real towns, with their coordinates, so that the map works. Nobody of the tree is
-real: it is not a family's data.
+real: it is not a family's data. The portraits are not photos of anybody either: they are drawn here (`portrait`),
+stylised heads and shoulders in the manner of an old studio portrait.
 
 The notes are written without their generated sections: `scripts/references.py` adds them (`make demo` does).
 
-Usage: uv run scripts/demo.py [folder]
+Usage: uv run scripts/demo.py [folder] [--today YYYY-MM-DD]
 """
 
 import argparse
+import datetime as dt
 import json
+import os
 import math
 import random
 import re
 import shutil
+import subprocess
 import sys
 import textwrap
 import unicodedata
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from faker import Faker
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
 
 CODE_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = CODE_ROOT / "build" / "demo-tree"
@@ -81,6 +91,21 @@ TRADES = {
            ("enfermero", "enfermera"), ("funcionario", "funcionaria"), ("arquitecto", "arquitecta"),
            ("electricista", None), ("administrativo", "administrativa")],
 }
+# How the tree grew, for the Git history of the demo (scripts/history.py, «Novedades»): (days before the day it is
+# built, message) of each day with changes; `stage` of people and sources and Demo.before say what each day brought.
+# The dates are counted back from the day it is built (the --today option fixes it), so that they always fall inside
+# `history_months` and the published demo never shows a stale history; the content of the notes does not depend on it.
+STAGES = [
+    (84, "Árbol inicial: los árboles de la familia, dos conversaciones y las primeras partidas"),
+    (77, "Padrón de 1900, un pasaje a Cuba y la foto de una boda"),
+    (63, "Testamento, defunción y libro de familia; más hermanos del árbol manuscrito"),
+    (49, "Esquela hallada en una hemeroteca, por revisar, y retratos del álbum de A Coruña"),
+    (35, "Partidas de la familia de Úbeda y una foto de familia; más personas de la relación"),
+    (21, "Hoja de servicios de Melilla; segundo apellido de una tía; quién sale en la foto de la boda"),
+    (9, "Esquela revisada y fecha de defunción corregida; retratos de la familia de Jaén"),
+    (3, "Correcciones: una fecha de nacimiento y una biografía"),
+]
+DEMO_AUTHOR = ("Demo", "demo@example.org")
 BRANCH_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#b0489c", "#c9a227"]
 OTHER_BRANCH = {"key": "otras", "label": "Otras familias", "color": "#9a958c"}
 
@@ -142,10 +167,11 @@ class Person:
     sources: list = field(default_factory=list)
     cites: dict = field(default_factory=dict)  # {fact: source id}: the citation of each fact of the biography
     story: list = field(default_factory=list)  # sentences of the biography besides the facts
-    biography: str = ""
     notes: list = field(default_factory=list)
     tags: set = field(default_factory=set)
     infant: bool = False
+    photo: str | None = None
+    stage: int = 0  # the day of the history (STAGES) the person comes into the tree
 
     @property
     def slug(self):
@@ -181,6 +207,7 @@ class Source:
     review: str | None = None
     reviewed_by: str | None = None
     files: list = field(default_factory=list)  # [(file name, function that draws it)]
+    stage: int = 0  # the day of the history (STAGES) the document comes into the tree
 
     @property
     def cite(self):
@@ -196,7 +223,11 @@ class Demo:
         self.sources = []
         self.surnames = set()
         self.families = []  # [(key, founder surname, [(branch surname, founder)])]
-        self.research = {"incoherencias": [], "pendientes": []}  # [(family key or None, branch key or None, text)]
+        self.seed = seed
+        # {note: [{family key or None, branch key or None, text, day opened, day closed or None, resolution}]}
+        self.research = {"incoherencias": [], "pendientes": []}
+        self.overrides = []  # [(day, person or source, {attribute: value it had before that day})]
+        self.links = []  # [(final link, link of the day)] of the people renamed later (see `on`)
 
     # --- people ---------------------------------------------------------------
 
@@ -314,7 +345,50 @@ class Demo:
         self.deaths()
         self.tag()
         self.cite_all()
+        self.schedule()
         return self
+
+    def item(self, note, family, branch, text, opened=0, closed=None, resolution=""):
+        """An item of a research document, open from the day `opened` of the history and closed on `closed`."""
+        self.research[note].append(dict(family=family, branch=branch, text=text, opened=opened, closed=closed,
+                                        resolution=resolution))
+
+    def before(self, day, obj, **attrs):
+        """What a person or a source said before the day `day` of the history (a fact corrected, a photo added…)."""
+        self.overrides.append((day, obj, attrs))
+
+    def schedule(self):
+        """How the tree grew (STAGES): which people and documents came in later, and what changed on the way. The
+        documents already carry their day (`stage`); this adds the people transcribed later, the corrections, a
+        rename, an approval and the portraits."""
+        n = self.n
+        by_id = {s.sid: s for s in self.sources}
+        texts = " ".join([*(s.intro + s.text + s.notes for s in self.sources),
+                          *(i["text"] for items in self.research.values() for i in items),
+                          *(x for p in self.people for x in p.story)])
+        # People without descendants nor spouses that only the family's compilations name: transcribed later
+        late = [p for p in self.people if p.died and not p.children and not p.spouses and not p.siblings
+                and all(by_id[s].category == "arbol" or by_id[s].type == "Testimonio oral" for s in p.sources)
+                and p.link not in texts]
+        for family, day in (("north", 2), ("south", 4)):
+            for p in [p for p in late if p.family == family][:2]:
+                p.stage = day
+        # Facts that were corrected or completed on the way
+        x3, z3w, sis, x4, o4 = (n[k] for k in ("x3", "z3w", "sis", "x4", "o4"))
+        self.before(1, x3, occupation="labrador", aliases=[], story=[])
+        self.before(4, n["z2"], conf="probable")
+        self.before(4, n["w2"], conf="probable")
+        self.before(5, sis, surnames=sis.surnames[:1])  # her second surname came later: a rename
+        self.before(6, x4, died=str(year(x4.died)))
+        self.before(7, o4, story=[])
+        self.before(7, z3w, born=f"c. {z3w.year}")
+        # Portraits of the dead, from the family's albums: a few at the start, the rest on two later days
+        for day, keys in ((0, ("x1", "z1")), (3, ("x2", "y2", "x3", "v3", "x4", "o4", "p4")),
+                          (6, ("z2", "w2", "z3", "z3w", "z4", "z4w"))):
+            for p in (n[k] for k in keys):
+                if p.died and not p.living:
+                    p.photo = f"{PATHS['portraits']}/{p.slug}.jpg"
+                    self.before(day, p, photo=None)
 
     def north(self):
         """The family of the north (Lugo and A Coruña): branches of the two founders and of a third one that joins
@@ -527,7 +601,7 @@ class Demo:
         home = [x2, y2, *(k for k in n["k2"] if k.year <= 1900 and (not k.died or year(k.died) > 1900))]
         census_age = 1900 - x2.year + 2  # the padrón makes him two years older than his baptism
         census = self.source(
-            home, [], title="Padrón municipal de Ribadeo, 1900", type="Padrón", category="genealogia",
+            home, [], title="Padrón municipal de Ribadeo, 1900", type="Padrón", category="genealogia", stage=1,
             date="1900-12-31", place="Ribadeo, Lugo", issuer="Ayuntamiento de Ribadeo", status="documentado",
             origin="Hoja de la familia, fotografiada en el archivo municipal",
             intro=f"La hoja del padrón de 1900 con la casa de {x2.link} y {y2.link}.",
@@ -538,14 +612,14 @@ class Demo:
             notes=f"Da a {x2.given} {census_age} años, dos más de los que tenía según su partida de bautismo.")
         census.files = [("hoja.png", scan_writer("PADRÓN MUNICIPAL DE RIBADEO · 1900", "Distrito 1.º, hoja 57",
                                                  census.text, self.rng))]
-        self.research["incoherencias"].append((
-            "north", slugify(x1.surnames[0]),
+        self.item("incoherencias", "north", slugify(x1.surnames[0]),
             f"**Año de nacimiento de {x2.link}**: su partida de bautismo {bapt.cite} dice {x2.year}; el padrón de "
             f"1900 {census.cite} le da {census_age} años (nacido hacia {1900 - census_age}). Se sigue la partida, "
-            "más cercana al hecho."))
+            "más cercana al hecho.", opened=1)
         sail = x3.year + 18
         ship = self.source(
             [x3], [], title=f"Pasaje de {x3.name} a La Habana", type="Registro de pasajeros", category="genealogia",
+            stage=1,
             date=f"{sail}-04-12", place="A Coruña", issuer="Registro de pasajeros del puerto de A Coruña",
             status="indicio", review="pendiente",
             origin="Hallado por investigación automática en un índice de pasajeros en línea",
@@ -558,7 +632,7 @@ class Demo:
         x3.cites["story"] = ship.sid
         photo = self.source(
             [x3, v3, v2], [], title=f"Fotografía de la boda de {x3.name} y {v3.name}", type="Fotografía",
-            category="foto", date=n["wed3"], place="Viveiro, Lugo", issuer="Estudio fotográfico de Viveiro",
+            category="foto", date=n["wed3"], place="Viveiro, Lugo", issuer="Estudio fotográfico de Viveiro", stage=1,
             origin="Álbum de la familia",
             intro=f"Retrato de grupo el día de la boda de {x3.link} y {v3.link}.",
             text=f"Copia en papel, pegada sobre cartón. En el reverso, a lápiz: «Boda de {x3.given} y {v3.given}, "
@@ -567,15 +641,20 @@ class Demo:
             files=[("boda.jpg", lambda path: group_photo(path, 7, self.rng))])
         for p, fact in wedding(x3, v3):
             p.cites[fact] = photo.sid
-        self.research["incoherencias"].append((
-            "north", slugify(v2.surnames[0]),
+        self.item("incoherencias", "north", slugify(v2.surnames[0]),
             f"**Lugar de nacimiento de {v3.link}**: el árbol manuscrito {tree_n.cite} la hace nacer en Ribadeo; la "
-            f"familia de su padre era de Viveiro, donde se casó {photo.cite}. Falta su partida de bautismo."))
+            f"familia de su padre era de Viveiro, donde se casó {photo.cite}. Falta su partida de bautismo.",
+            opened=1)
+        self.item("pendientes", "north", slugify(v2.surnames[0]),
+                  f"**Quién es quién en la fotografía de la boda** {photo.cite}: solo están identificados los novios.",
+                  opened=1, closed=5, resolution=f"Al reverso, la letra de {x4.link} identifica a {v2.link}.")
+        # Before that, the note only knew the couple
+        self.before(5, photo, text=photo.text.rsplit(" Los novios", 1)[0])
         notary = self.stranger()
         will_date = self.date(min(year(x2.died) - 1, 1930))
         heirs = [k for k in n["k2"] if not k.died or year(k.died) > year(will_date)]
         will = self.source(
-            [x2, *heirs], [], title=f"Testamento de {x2.name}", type="Testamento", category="patrimonio",
+            [x2, *heirs], [], title=f"Testamento de {x2.name}", type="Testamento", category="patrimonio", stage=2,
             date=will_date, place="Ribadeo, Lugo", issuer=f"Notario {notary}, Ribadeo",
             origin="Copia simple guardada en la casa",
             intro=f"Testamento abierto de {x2.link}, que nombra a sus hijos vivos.",
@@ -588,6 +667,7 @@ class Demo:
         self.source(
             [o4, x4], [(o4, "died")], title=f"Inscripción de defunción de {o4.name}", type="Inscripción de defunción",
             category="genealogia", date=o4.died, place="Lugo", issuer="Registro Civil de Lugo, tomo 94, folio 17",
+            stage=2,
             origin="Certificado literal pedido al Registro Civil",
             intro=f"La muerte de {o4.link}, primera mujer de {x4.link}.",
             text=f"> En Lugo, a {spoken(o4.died)[3:]}, se inscribe la defunción de doña {o4.name}, de "
@@ -596,7 +676,7 @@ class Demo:
         self.source(
             [x4, p4, *n["k5"]], wedding(x4, p4), title=f"Libro de familia de {x4.name} y "
             f"{p4.name}", type="Libro de familia", category="genealogia", date=n["wed4"], place="A Coruña",
-            issuer="Registro Civil de A Coruña", origin="Original en casa de la familia",
+            issuer="Registro Civil de A Coruña", origin="Original en casa de la familia", stage=2,
             intro=f"El segundo matrimonio de {x4.link}, viudo, con {p4.link}, viuda de {q4.link}, y los hijos de "
                   "ambos.",
             text=f"- Matrimonio: A Coruña, {spoken(n['wed4'])[3:]}. Él, viudo de {o4.name}; ella, viuda de "
@@ -605,7 +685,8 @@ class Demo:
         obit_people = [x4, p4, *n["k4"], *n["kq"], *n["k5"]]
         obit = self.source(
             obit_people, [(x4, "died")], title=f"Esquela de {x4.name}", type="Esquela", category="contexto",
-            date=x4.died, place="A Coruña", issuer="Prensa de A Coruña", status="indicio", review="pendiente",
+            date=x4.died, place="A Coruña", issuer="Prensa de A Coruña", stage=3,
+            status="documentado", review="revisada", reviewed_by=x5.name,
             origin="Hallada por investigación automática en una hemeroteca digital",
             intro=f"La esquela de {x4.link}, con su familia.",
             text=f"> **{x4.name.upper()}** falleció en A Coruña {spoken(x4.died)}, a los {year(x4.died) - x4.year} "
@@ -613,26 +694,27 @@ class Demo:
                                                                                 n["kq"] + n["k5"]) +
                  ", y demás familia ruegan una oración por su alma.",
             notes="Confirma que la familia contaba como hijos de los dos a los tres de la casa.")
-        self.research["pendientes"].append((
-            "north", slugify(x1.surnames[0]),
+        # Found by automated research, it came in pending review; a person of the family approved it later
+        self.before(6, obit, status="indicio", review="pendiente", reviewed_by=None)
+        self.item("pendientes", "north", slugify(x1.surnames[0]),
             f"**Partidas de bautismo de los hermanos de {x2.link}**, en el archivo parroquial de Mondoñedo: hoy su "
-            f"filiación solo consta en el árbol manuscrito {tree_n.cite}."))
-        self.research["pendientes"].append((
-            "north", slugify(x1.surnames[0]),
+            f"filiación solo consta en el árbol manuscrito {tree_n.cite}.")
+        self.item("pendientes", "north", slugify(x1.surnames[0]),
             f"**Revisar el pasaje de {x3.link} a La Habana** {ship.cite}: buscar en el mismo índice el viaje de "
-            "vuelta."))
-        self.research["pendientes"].append((
-            "north", slugify(y1.surnames[0]),
-            f"**Defunción de {y1.link}**, en Vilalba: la fecha del árbol {tree_n.cite} es de memoria."))
-        self.research["pendientes"].append((
-            "north", slugify(v2.surnames[0]),
-            f"**Partida de bautismo de {v3.link}** (Viveiro o Ribadeo), para aclarar dónde nació."))
+            "vuelta.", opened=1)
+        self.item("pendientes", "north", slugify(y1.surnames[0]),
+            f"**Defunción de {y1.link}**, en Vilalba: la fecha del árbol {tree_n.cite} es de memoria.")
+        self.item("pendientes", "north", slugify(v2.surnames[0]),
+            f"**Partida de bautismo de {v3.link}** (Viveiro o Ribadeo), para aclarar dónde nació.", opened=1)
+        self.item("pendientes", "north", slugify(x1.surnames[0]),
+                  f"**Revisar la esquela de {x4.link}** {obit.cite}, hallada por investigación automática.",
+                  opened=3, closed=6, resolution=f"Revisada por {x5.link}: coincide con lo que recuerda la familia.")
 
         # Documents of the south
         priest = self.cleric()
         bapt_s = self.source(
             [z2, z1, z1w], [(z2, "born")], title=f"Partida de bautismo de {z2.name}", type="Partida de bautismo",
-            category="genealogia", date=z2.born, place="Úbeda, Jaén",
+            category="genealogia", date=z2.born, place="Úbeda, Jaén", stage=4,
             issuer="Parroquia de San Pablo de Úbeda, libro 31 de bautismos, folio 208",
             origin="Copia sacada del archivo parroquial",
             intro=f"Bautismo de {z2.link}, hijo de {z1.link} y {z1w.link}.",
@@ -642,9 +724,13 @@ class Demo:
         bapt_s.files = [("partida.png", scan_writer("PARROQUIA DE SAN PABLO DE ÚBEDA", "Libro 31 de bautismos, "
                                                     "folio 208", bapt_s.text, self.rng))]
         z2.conf = "proven"
+        self.item("pendientes", "south", slugify(z1.surnames[0]),
+                  f"**Filiación de {z2.link}**: solo consta en la relación de la familia {tree_s.cite}.",
+                  closed=4, resolution=f"Probada por su partida de bautismo {bapt_s.cite}.")
         self.source(
             [z2, w2, w1, w1w], wedding(z2, w2), title=f"Partida de matrimonio de {z2.name} y "
             f"{w2.name}", type="Partida de matrimonio", category="genealogia", date=n["wed2s"], place="Baeza, Jaén",
+            stage=4,
             issuer="Parroquia de Santa María de Baeza, libro 14 de matrimonios, folio 76",
             origin="Copia sacada del archivo parroquial",
             intro=f"Matrimonio de {z2.link} y {w2.link}.",
@@ -654,7 +740,7 @@ class Demo:
         self.source(
             [z2, w2, *(k for k in n["k2s"] if not k.infant)], [], title=f"Fotografía de la familia {z2.surnames[0]} "
             "en Úbeda", type="Fotografía", category="foto", date="c. 1912", place="Úbeda, Jaén",
-            issuer="Fotógrafo ambulante", origin="Álbum de la familia",
+            issuer="Fotógrafo ambulante", origin="Álbum de la familia", stage=4,
             intro=f"{z2.link} y {w2.link} con sus hijos, delante de su casa.",
             text="Copia pequeña, muy clara, con el borde dentado. Sin nada escrito: los nombres los puso "
                  f"{z5.given} al verla.",
@@ -662,7 +748,7 @@ class Demo:
         service = f"{z3.year + 20}-{self.rng.randint(1, 12):02d}-{self.rng.randint(1, 28):02d}"
         mil = self.source(
             [z3], [], title=f"Hoja de servicios de {z3.name}", type="Hoja de servicios", category="genealogia",
-            date=service, place="Melilla", issuer="Archivo General Militar de Guadalajara", status="documentado",
+            date=service, place="Melilla", issuer="Archivo General Militar de Guadalajara", stage=5,
             origin="Copia pedida al archivo",
             intro=f"El servicio militar de {z3.link} en Melilla.",
             text=f"> {z3.name}, hijo de {z2.given} y de {w2.given}, natural de Úbeda, de oficio "
@@ -672,38 +758,34 @@ class Demo:
         z3.cites["story"] = mil.sid
         mil.files = [("hoja.png", scan_writer("HOJA DE SERVICIOS", "Regimiento de Infantería de Melilla",
                                               mil.text, self.rng))]
-        self.research["incoherencias"].append((
-            "south", slugify(z1.surnames[0]),
+        self.item("incoherencias", "south", slugify(z1.surnames[0]),
             f"**Año de nacimiento de {z3.link}**: la hoja de servicios {mil.cite} dice {z3.year - 1}; la relación "
-            f"de la familia {tree_s.cite}, {z3.year}. Hace falta su partida de bautismo."))
-        self.research["pendientes"].append((
-            "south", slugify(z1.surnames[0]),
-            f"**Partida de bautismo de {z3.link}** en Úbeda, para fijar el año."))
-        self.research["pendientes"].append((
-            "south", slugify(w1.surnames[0]),
+            f"de la familia {tree_s.cite}, {z3.year}. Hace falta su partida de bautismo.", opened=5)
+        self.item("pendientes", "south", slugify(z1.surnames[0]),
+            f"**Partida de bautismo de {z3.link}** en Úbeda, para fijar el año.", opened=5)
+        self.item("pendientes", "south", slugify(w1.surnames[0]),
             f"**Padres de {w1.link}**: la relación {tree_s.cite} empieza en él. Buscar su bautismo en Baeza hacia "
-            f"{w1.year}."))
-        self.research["pendientes"].append((
-            "south", None,
+            f"{w1.year}.")
+        self.item("pendientes", "south", None,
             f"**Padres de {z3w.link} y {sis.link}**: preguntar a {z5.link}, y buscar en el archivo parroquial de "
-            "Cazorla."))
-        self.research["pendientes"].append((
-            None, None,
-            f"**Revisar los documentos hallados por investigación automática**: {ship.cite} y {obit.cite}."))
-        self.research["incoherencias"].append((
-            None, None,
+            "Cazorla.")
+        self.item("pendientes", None, None,
+            f"**Revisar los documentos hallados por investigación automática**: {ship.cite}.", opened=1)
+        self.item("incoherencias", None, None,
             f"**Fecha de la boda de {x5.link} y {z5.link}**: los dos la recuerdan en {year(x5.marriages[0][1])}, "
-            "pero no hay documento: pedir su certificado de matrimonio."))
+            "pero no hay documento: pedir su certificado de matrimonio.")
 
+        self.fallback = {"north": tree_n.sid, "south": tree_s.sid}
         for p in self.people:
             if not p.sources:
-                p.sources.append(tree_n.sid if p.family == "north" else tree_s.sid)
-            self.biography(p)
+                p.sources.append(self.fallback[p.family])
 
-    def biography(self, p):
+    def biography(self, p, shown=lambda x: True):
+        """(biography, research notes) of a person, with only what `shown` (a person or a source id) accepts: the
+        notes are written again for each day of the history."""
         def cite(fact):
             sid = p.cites.get(fact)
-            return f" ([{sid}](../sources/{sid}.md))" if sid else ""
+            return f" ([{sid}](../sources/{sid}.md))" if sid and shown(sid) else ""
 
         parents = [x for x in (p.father, p.mother) if x]
         s = f"Nació en {town(p.birth_place)} {spoken(p.born)}{cite('born')}"
@@ -712,46 +794,98 @@ class Demo:
         text = [s + "."]
         if p.infant:
             text.append(f"Murió de niño {spoken(p.died)}{cite('died')}.")
-            p.biography = " ".join(text)
-            return
+            return " ".join(text), []
         if p.occupation:
             text.append(("Fue " if p.died else "Es ") + p.occupation + "." if p.occupation != "sus labores"
                         else "Se ocupó de su casa.")
         for other, when, place in p.marriages:
             text.append(f"Se casó en {town(place)} {spoken(when)}{cite(('married', id(other)))} con {other.link}.")
-        kids = p.children
+        kids = [k for k in p.children if shown(k)]
         if kids:
             text.append(f"Tuvo {len(kids)} {'hijo' if len(kids) == 1 else 'hijos'}: " +
                         ", ".join(k.link for k in sorted(kids, key=lambda k: k.born)) + ".")
-        story = [x + (cite("story") if i == 0 else "") for i, x in enumerate(p.story)]
+        story = [self.relink(x) + (cite("story") if i == 0 else "") for i, x in enumerate(p.story)]
         text += story
         if p.died:
             text.append(f"Murió en {town(p.death_place)} {spoken(p.died)}{cite('died')}.")
-        p.biography = " ".join(text)
+        notes = list(p.notes)
         if p.conf == "probable" and parents:
-            p.notes.append("La filiación solo consta en la recopilación de la familia: falta la partida de "
-                           "bautismo que la pruebe.")
+            notes.append("La filiación solo consta en la recopilación de la familia: falta la partida de "
+                         "bautismo que la pruebe.")
+        return " ".join(text), notes
 
     # --- writing ------------------------------------------------------------------
 
-    def write(self, out):
-        people, sources, research = (out / PATHS[k] for k in ("people", "sources", "research"))
-        for d in (people, sources, research):
-            d.mkdir(parents=True)
+    def write(self, out, today):
+        """Writes the tree day by day (STAGES), committing each day into a Git repository with its date, so that the
+        web has a history («Novedades»). Without Git, only the tree as it ends."""
+        out.mkdir(parents=True, exist_ok=True)
+        for d in PATHS.values():
+            (out / d).mkdir(exist_ok=True)
         (out / MARKER).write_text("Written by scripts/demo.py: a new run replaces this folder.\n", encoding="utf-8")
+        (out / ".gitignore").write_text("build/\n", encoding="utf-8")
         (out / "families.yml").write_text(self.config(), encoding="utf-8")
         (out / "places.yml").write_text(self.places(), encoding="utf-8")
-        for p in self.people:
-            (people / f"{p.slug}.md").write_text(self.person_note(p), encoding="utf-8")
-        for s in self.sources:
-            (sources / f"{s.sid}.md").write_text(self.source_note(s), encoding="utf-8")
-            for name, draw in s.files:
-                (sources / s.sid).mkdir(exist_ok=True)
-                draw(sources / s.sid / name)
-        for name, title, intro in (
-                ("incoherencias", "Incoherencias", "Contradicciones entre documentos, y cuál se sigue."),
-                ("pendientes", "Líneas de investigación pendientes", "Lo que falta por buscar o preguntar.")):
-            (research / f"{name}.md").write_text(self.research_note(name, title, intro), encoding="utf-8")
+        repo = Repo(out) if shutil.which("git") else None
+        for day, (ago, message) in enumerate(STAGES):
+            if repo is None and day < len(STAGES) - 1:
+                continue
+            sync(out, self.files(day))
+            if repo:
+                repo.commit(message, today - dt.timedelta(days=ago), day)
+        return repo is not None
+
+    @contextmanager
+    def on(self, day):
+        """The people and sources as they were on the day `day` of the history (see `before`)."""
+        saved, renamed = [], []
+        for when, obj, attrs in sorted(self.overrides, key=lambda o: -o[0]):  # the earliest day wins
+            if day < when:
+                link = getattr(obj, "link", None)
+                saved.append((obj, {k: getattr(obj, k) for k in attrs}))
+                for k, v in attrs.items():
+                    setattr(obj, k, v)
+                if getattr(obj, "link", None) != link:
+                    renamed.append((link, obj))
+        # The texts written once with the final link of a renamed person get the one of that day (see `relink`)
+        self.links = [(old, p.link) for old, p in renamed]
+        try:
+            yield
+        finally:
+            self.links = []
+            for obj, attrs in reversed(saved):
+                for k, v in attrs.items():
+                    setattr(obj, k, v)
+
+    def relink(self, text):
+        for old, new in self.links:
+            text = text.replace(old, new)
+        return text
+
+    def files(self, day):
+        """{path in the tree: text, or a function that draws the file} of the data folders on the day `day`."""
+        sids = {s.sid for s in self.sources if s.stage <= day}
+
+        def shown(x):
+            return x in sids if isinstance(x, str) else x.stage <= day
+
+        out = {}
+        with self.on(day):
+            for p in self.people:
+                if shown(p):
+                    out[f"{PATHS['people']}/{p.slug}.md"] = self.person_note(p, shown)
+                    if p.photo:
+                        out[p.photo] = lambda path, p=p: portrait(path, p, random.Random(f"{self.seed}-{p.slug}"))
+            for s in self.sources:
+                if shown(s.sid):
+                    out[f"{PATHS['sources']}/{s.sid}.md"] = self.source_note(s)
+                    for name, draw in s.files:
+                        out[f"{PATHS['sources']}/{s.sid}/{name}"] = draw
+            for name, title, intro in (
+                    ("incoherencias", "Incoherencias", "Contradicciones entre documentos, y cuál se sigue."),
+                    ("pendientes", "Líneas de investigación pendientes", "Lo que falta por buscar o preguntar.")):
+                out[f"{PATHS['research']}/{name}.md"] = self.research_note(name, title, intro, day)
+        return out
 
     def config(self):
         branches = [(fam, key, f) for fam, _, bs in self.families for key, f in bs]
@@ -787,7 +921,7 @@ class Demo:
             lines.append(f"{q(place)}: {{lat: {lat}, lon: {lon}, name: {q(name)}}}")
         return "\n".join(lines) + "\n"
 
-    def person_note(self, p):
+    def person_note(self, p, shown=lambda x: True):
         fm = [f"given_name: {q(p.given)}", f"surnames: {q(' '.join(p.surnames))}"]
         if p.aliases:
             fm.append("aliases: [" + ", ".join(q(a) for a in p.aliases) + "]")
@@ -812,9 +946,13 @@ class Demo:
             fm.append("living: false")
         if p.tags:
             fm.append("tags: [" + ", ".join(f"rama/{t}" for t in sorted(p.tags)) + "]")
-        fm.append("sources: [" + ", ".join(f'"[[{s}]]"' for s in p.sources) + "]")
-        notes = "\n\n".join(p.notes)
-        return ("---\n" + "\n".join(fm) + f"\n---\n# {p.name}\n\n## Biografía\n\n{fill(p.biography)}\n\n"
+        sources = [s for s in p.sources if shown(s)] or [self.fallback[p.family]]
+        fm.append("sources: [" + ", ".join(f'"[[{s}]]"' for s in sources) + "]")
+        if p.photo:
+            fm.append(f"photo: {p.photo}")
+        biography, notes = self.biography(p, shown)
+        notes = "\n\n".join(notes)
+        return ("---\n" + "\n".join(fm) + f"\n---\n# {p.name}\n\n## Biografía\n\n{fill(biography)}\n\n"
                 f"## Notas de investigación\n\n{fill(notes) + chr(10) if notes else ''}")
 
     def source_note(self, s):
@@ -823,29 +961,38 @@ class Demo:
               f"origin: {q(s.origin)}"]
         if s.review:
             fm.append(f"review: {s.review}")
+        if s.reviewed_by:
+            fm.append(f"reviewed_by: {q(s.reviewed_by)}")
         if s.files:
             fm.append("files:")
             fm += [f"  - {q(f'{s.sid}/{name}')}" for name, _ in s.files]
-        body = f"# {s.sid} — {s.title}\n\n{fill(s.intro)}\n\n## Transcripción y descripción\n\n{s.text}\n"
+        body = (f"# {s.sid} — {s.title}\n\n{fill(self.relink(s.intro))}\n\n## Transcripción y descripción\n\n"
+                f"{self.relink(s.text)}\n")
         if s.notes:
-            body += f"\n## Notas de investigación\n\n{fill(s.notes)}\n"
+            body += f"\n## Notas de investigación\n\n{fill(self.relink(s.notes))}\n"
         return "---\n" + "\n".join(fm) + "\n---\n" + body
 
-    def research_note(self, name, title, intro):
-        items = self.research[name]
+    def research_note(self, name, title, intro, day):
+        """A research document on the day `day`: the items opened by then, those closed by then checked."""
+        def line(i):
+            if i["closed"] is not None and i["closed"] <= day:
+                return fill(self.relink(f"- [x] {i['text']} {i['resolution']}".rstrip()), indent="  ")
+            return fill(self.relink(f"- [ ] {i['text']}"), indent="  ")
+
+        items = [i for i in self.research[name] if i["opened"] <= day]
         by_id = {id(p): p for p in self.people}
         out = [f"# {title}", "", intro, ""]
         for key, surname, bs in self.families:
             joined = " y ".join(by_id[f].surnames[0] for _, f in bs[:2])
             out += [f"## Familia {surname} ({joined})", ""]
             for bkey, f in [*bs, (None, None)]:
-                mine = [t for fam, b, t in items if fam == key and b == bkey]
+                mine = [i for i in items if i["family"] == key and i["branch"] == bkey]
                 if not mine:
                     continue
                 out += [f"### {by_id[f].surnames[0] if f else 'Varias ramas'}", ""]
-                out += [fill(f"- [ ] {t}", indent="  ") for t in mine] + [""]
+                out += [line(i) for i in mine] + [""]
         out += ["## General", ""]
-        out += [fill(f"- [ ] {t}", indent="  ") for fam, _, t in items if fam is None] + [""]
+        out += [line(i) for i in items if i["family"] is None] + [""]
         return "\n".join(out)
 
 
@@ -987,18 +1134,163 @@ def tree_sketch(path, root, rng):
     img.save(path, optimize=True)
 
 
+def portrait(path, p, rng):
+    """A made-up studio portrait of a deceased person of the demo (nobody real): a stylised head and shoulders under
+    an oval mount, with the hair, clothes and tones drawn from `rng`; sepia until the 1950s and faded colour after."""
+    w, h = 400, 500
+    age = rng.randint(24, 46)
+    taken = max(1862, min(p.year + age, year(p.died)))
+    age = taken - p.year
+    colour = taken >= 1955
+    img = Image.new("RGB", (w, h))
+    d = ImageDraw.Draw(img)
+    back = rng.choice([(150, 170, 192), (196, 176, 146), (150, 160, 140)] if colour else
+                      [(150, 150, 140), (120, 128, 136), (160, 146, 120), (110, 118, 104)])
+    for y in range(h):  # the studio's backdrop, lit from above
+        t = y / h
+        d.line([0, y, w, y], fill=tuple(int(c * (1.15 - .45 * t)) for c in back))
+    cx = w / 2 + rng.randint(-14, 14)
+    hy = 205 + rng.randint(-12, 12)  # centre of the head
+    rx, ry = rng.randint(46, 54), rng.randint(60, 68)
+    skin = rng.choice([(226, 194, 164), (214, 178, 146), (198, 160, 124), (230, 204, 178)])
+    grey = age > 52
+    hair = (150, 148, 144) if grey else rng.choice([(40, 30, 24), (70, 50, 34), (104, 74, 46), (24, 22, 20)])
+    dark = rng.choice([(36, 36, 44), (50, 42, 36), (28, 32, 30), (70, 58, 48)])
+    cloth = dark if p.sex == "M" or not colour else rng.choice([(110, 60, 64), (60, 84, 110), (96, 104, 70)])
+    if p.sex == "F" and rng.random() < .5:  # long hair or a bun, behind the head
+        d.rounded_rectangle([cx - rx - 14, hy - ry, cx + rx + 14, hy + ry + 40], radius=50, fill=hair)
+    elif p.sex == "F":
+        d.ellipse([cx - 34, hy - ry - 34, cx + 34, hy - ry + 22], fill=hair)
+    shoulders = hy + ry + 34
+    d.ellipse([cx - 165, shoulders, cx + 165, shoulders + 300], fill=cloth)
+    d.rectangle([cx - 22, hy + ry - 20, cx + 22, shoulders + 30], fill=skin)
+    if p.sex == "M":
+        d.polygon([(cx - 34, shoulders + 4), (cx + 34, shoulders + 4), (cx, shoulders + 92)], fill=(232, 228, 216))
+        d.polygon([(cx - 9, shoulders + 12), (cx + 9, shoulders + 12), (cx + 6, shoulders + 80), (cx - 6, shoulders + 80)],
+                  fill=tuple(max(0, c - 14) for c in dark))
+        for side in (-1, 1):  # lapels
+            d.line([(cx + side * 34, shoulders + 4), (cx + side * 4, shoulders + 100)], fill=(16, 16, 18), width=3)
+    elif taken < 1930:  # a high collar and a brooch
+        d.rounded_rectangle([cx - 26, hy + ry - 8, cx + 26, shoulders + 14], radius=8, fill=cloth)
+        d.ellipse([cx - 7, shoulders + 18, cx + 7, shoulders + 32], fill=(214, 196, 150))
+    else:  # a round white collar
+        for side in (-1, 1):
+            x0, x1 = sorted([cx + side * 2, cx + side * 40])
+            d.ellipse([x0, shoulders - 4, x1, shoulders + 20], fill=(236, 232, 222))
+    # The hair covers the head, and the face, lower, leaves a rounded hairline
+    d.ellipse([cx - rx - 4, hy - ry - 6, cx + rx + 4, hy + ry * (.2 if p.sex == "M" else .45)], fill=hair)
+    d.chord([cx - rx, hy - ry, cx + rx, hy + ry], 0, 180, fill=skin)
+    d.ellipse([cx - rx * .86, hy - ry * (.62 if p.sex == "M" else .5), cx + rx * .86, hy + ry * .7], fill=skin)
+    d.ellipse([cx - rx * .6 - 8, hy - ry * .4, cx + rx * .3, hy + ry * .6],  # the light from one side
+              fill=tuple(min(255, c + 12) for c in skin))
+    shade = tuple(max(0, c - 46) for c in skin)
+    for side in (-1, 1):  # soft shadows of the eyes and the mouth, nothing more
+        ex = cx + side * rx * .38
+        d.ellipse([ex - 8, hy - 2, ex + 8, hy + 6], fill=shade)
+    d.line([cx - 10, hy + ry * .5, cx + 10, hy + ry * .5], fill=shade, width=3)
+    if p.sex == "M" and taken < 1935 and rng.random() < .6:  # a moustache, and maybe a beard
+        d.ellipse([cx - 22, hy + 24, cx + 22, hy + 36], fill=hair)
+        if rng.random() < .4:
+            d.chord([cx - rx + 2, hy - 10, cx + rx - 2, hy + ry + 14], 0, 180, fill=hair)
+    img = img.filter(ImageFilter.GaussianBlur(2.2))
+    # Paper: a soft mottle and a fine grain, both from `rng` (Pillow's own noise is not seeded)
+    mottle = Image.frombytes("L", (w // 20, h // 20), rng.randbytes((w // 20) * (h // 20)))
+    mottle = mottle.resize((w, h), Image.BICUBIC).point(lambda v: 226 + v * 29 // 255)
+    grain = Image.frombytes("L", (w, h), rng.randbytes(w * h)).point(lambda v: 236 + v * 19 // 255)
+    img = ImageChops.multiply(img, Image.merge("RGB", [ImageChops.multiply(mottle, grain)] * 3))
+    if colour:  # a print of the 1950s-70s: faded, warm, with low contrast
+        img = ImageEnhance.Color(img).enhance(.55)
+        img = Image.blend(img, Image.new("RGB", (w, h), (232, 196, 170)), .18)
+        img = ImageEnhance.Contrast(img).enhance(.85)
+        mount = (244, 240, 230)
+    else:  # sepia
+        img = ImageOps.colorize(ImageOps.autocontrast(img.convert("L"), cutoff=1), black=(46, 30, 18),
+                                white=(244, 228, 196), mid=(150, 112, 76))
+        mount = (226, 214, 188)
+    mask = Image.new("L", (w, h), 0)
+    margin = 26 if colour else 34
+    shape = ImageDraw.Draw(mask)
+    if colour:
+        shape.rounded_rectangle([margin, margin, w - margin, h - margin - 30], radius=14, fill=255)
+    else:
+        shape.ellipse([margin, margin, w - margin, h - margin], fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(3 if colour else 14))
+    card = Image.new("RGB", (w, h), mount)
+    d = ImageDraw.Draw(card)
+    if not colour:  # the card's printed border and a few foxing spots
+        d.rectangle([12, 12, w - 13, h - 13], outline=(176, 150, 112), width=2)
+    for _ in range(rng.randint(2, 6)):
+        x, y, r = rng.randint(0, w), rng.randint(0, h), rng.randint(2, 7)
+        d.ellipse([x - r, y - r, x + r, y + r], fill=(196, 170, 130) if not colour else (222, 214, 196))
+    card.paste(img, (0, 0), mask)
+    card.save(path, "JPEG", quality=80, optimize=True)
+
+
+class Repo:
+    """The demo tree's own Git repository, independent of the user's Git configuration: no global or system config,
+    no hooks, no signing, a fixed author and the dates of STAGES."""
+
+    def __init__(self, path):
+        self.path = path
+        self.env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        self.env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1", LC_ALL="C",
+                        GIT_AUTHOR_NAME=DEMO_AUTHOR[0], GIT_AUTHOR_EMAIL=DEMO_AUTHOR[1],
+                        GIT_COMMITTER_NAME=DEMO_AUTHOR[0], GIT_COMMITTER_EMAIL=DEMO_AUTHOR[1])
+        self.git("init", "--quiet", "--template=", "--initial-branch=main")
+        for key, value in (("user.name", DEMO_AUTHOR[0]), ("user.email", DEMO_AUTHOR[1]),
+                           ("commit.gpgsign", "false"), ("core.hooksPath", ".git/no-hooks"),
+                           ("core.autocrlf", "false"), ("gc.auto", "0")):
+            self.git("config", key, value)
+
+    def git(self, *args, env=None):
+        subprocess.run(["git", "-C", str(self.path), *args], check=True, env={**self.env, **(env or {})},
+                       stdout=subprocess.DEVNULL)
+
+    def commit(self, message, date, n):
+        when = f"{date.isoformat()}T{19 + n % 3}:{(n * 17) % 60:02d}:00+00:00"
+        self.git("add", "--all")
+        self.git("commit", "--quiet", "--no-verify", "--no-gpg-sign", "-m", message,
+                 env={"GIT_AUTHOR_DATE": when, "GIT_COMMITTER_DATE": when})
+
+
+def sync(out, files):
+    """Leaves the data folders with exactly `files` ({path: text or a function that draws it}): the notes are written
+    when they change, the images only once (they never change)."""
+    for folder in PATHS.values():
+        for f in sorted((out / folder).rglob("*"), reverse=True):
+            rel = f.relative_to(out).as_posix()
+            if f.is_file() and rel not in files:
+                f.unlink()
+            elif f.is_dir() and not any(f.iterdir()):
+                f.rmdir()
+    for rel, content in files.items():
+        path = out / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if callable(content):
+            if not path.is_file():
+                content(path)
+        elif not path.is_file() or path.read_text(encoding="utf-8") != content:
+            path.write_text(content, encoding="utf-8")
+
+
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("folder", nargs="?", default=str(DEFAULT_OUT), help="where to write the tree")
-    out = Path(ap.parse_args(argv).folder).resolve()
+    ap.add_argument("--today", type=dt.date.fromisoformat, default=dt.date.today(),
+                    help="the day the history is counted back from (YYYY-MM-DD; by default, today)")
+    args = ap.parse_args(argv)
+    out = Path(args.folder).resolve()
     if out.exists() and any(out.iterdir()):
         if not (out / MARKER).is_file():
             sys.exit(f"{out} is not empty and was not written by this script: choose another folder")
         shutil.rmtree(out)
     demo = Demo().build()
-    demo.write(out)
+    history = demo.write(out, args.today)
     living = sum(1 for p in demo.people if not p.died)
-    print(f"{out}: {len(demo.people)} people ({living} without a death), {len(demo.sources)} sources")
+    photos = sum(1 for p in demo.people if p.photo)
+    print(f"{out}: {len(demo.people)} people ({living} without a death, {photos} with a portrait), "
+          f"{len(demo.sources)} sources, " + (f"a Git history of {len(STAGES)} days" if history else
+                                               "no Git history (git is not installed)"))
 
 
 if __name__ == "__main__":

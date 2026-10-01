@@ -35,7 +35,8 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   `references.py` regenerates the generated sections and `report.py` makes the report; `geocode.py` fills in
   `places.yml`; `folders.py` creates the data folders of `paths`; `config.py` prints a value of `families.yml` for the shell scripts; `check_template.py` checks that
   no name of the family is in the engine's files (see "Engine and data"); `demo.py` writes the fictional demo tree
-  (Faker with a fixed seed; real towns, so that its map works).
+  (Faker with a fixed seed; real towns, so that its map works; portraits drawn with Pillow, never real photos; and a
+  Git repository with a few weeks of history, dated back from the day it runs, for «Novedades»).
 - `web/` — the website's interface in TypeScript with Solid (JSX; pnpm, vite, vitest): `src/main.tsx` (entry),
   `App.tsx`, `router.ts` (hash `#view/focus[/p:slug|d:F0xx|r:name]` and history, with signals; the views' segments
   are in Spanish, `#arbol`, `#abanico`…, and `VIEW_SEGMENT` translates them to the internal names), `state.ts` (focused
