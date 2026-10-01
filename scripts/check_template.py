@@ -55,6 +55,7 @@ MIN_SURNAME = 4
 COMMON = {
     "costa": "Spanish and Catalan word: coast",
     "fuentes": "Spanish word: sources (the data values and texts use it)",
+    "font": "CSS and typography word (font-family) and a common Catalan surname",
     "garcia": "one of the commonest Spanish surnames (fictional people of the tests)",
     "guerra": "Spanish word: war",
     "nieto": "Spanish word: grandson",
