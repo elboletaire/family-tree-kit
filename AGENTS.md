@@ -302,7 +302,13 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
   `make report` filter by them (if one is renamed, its `title` in `families.yml` is changed at the same time).
 - Every source found by automated or AI research (newspaper archives, gazettes, archive indexes) comes in with
   `review: pendiente`, and only a person of the family changes it to `revisada`. The data that only come from pending
-  sources are provisional.
+  sources are provisional. A pending source may **fill a gap** (a missing date, spouse or child, cited inline), but it
+  **never overwrites** what the tree already has: if it differs (a surname, a date, a place), the current value stays,
+  the document's form goes to `aliases` if it is a name variant and to «Notas de investigación» with its citation, and
+  the difference to `research/incoherencias.md`; it is changed only once a person of the family has reviewed the source.
+- Online indexes and transcriptions (FamilySearch, archive catalogues, transcribed censuses) are third-party readings,
+  not the document: transcribe from the image of the original whenever it can be seen, and note where the index
+  differs; a source taken only from an index says so and comes in as `status: indicio`.
 - No ID numbers, current addresses nor bank data of living people are copied.
 - Archives and institutions are always named in full («National Archives», not «NA»): the family reads the website.
   Acronyms only stay inside call numbers.
