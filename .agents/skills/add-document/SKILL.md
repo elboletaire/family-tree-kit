@@ -66,6 +66,14 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   lossless. Never keep an unredacted copy anywhere in the repo, including git history.
 - Store files in `<sources>/F0xx/` (Git LFS) with descriptive names, and list them in `files`. Originals in the
   sources folder are never edited afterwards.
+- **Newspaper notices and other pages taken from an online archive**: read and transcribe from the page image,
+  never from the archive's OCR alone (the OCR mixes columns and misreads names). Store a colour crop of the notice
+  and, when the portal lets you download the whole issue, its pages too: other people of the tree may turn up in the
+  same issue, and searching a local copy is easier than searching online. A whole issue is often a heavy PDF (tens of
+  MB); keep its pages as 1-bit PNG at full resolution (median filter, autocontrast, a threshold around 140: about
+  1 MB per broadsheet page, sharp enough to run OCR again), and put the link to the original in colour in `origin`
+  and in the transcription. If no image can be had, say so in `origin` and add an item to `pendientes.md` to get
+  it.
 - A portrait for a person's `photo` is a derived crop in `<portraits>/<slug>.jpg`, documented with a row in
   `<portraits>/README.md` (source and crop box).
 

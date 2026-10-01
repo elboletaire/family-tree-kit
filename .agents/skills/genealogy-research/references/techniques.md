@@ -71,6 +71,10 @@ protected.
   Tables in scanned gazettes are misread (a digit in a year, rows shifted across pages); cross-check with another
   column (age) or another document.
 - Many newspaper PDFs are image-only: render the page and read it visually.
+- Viewers built on pdf.js or similar often have no visible download button that works headless, but the page source
+  carries the URL of the whole issue: grep the viewer's HTML for `.pdf`, `download`, `fullpdf` or `manifest`
+  (sometimes in a JSON blob, sometimes on another host) and fetch it with curl. Then `pdftotext -bbox` gives the
+  coordinates of a word, so the crop of the notice can be cut from the page image (`pdfimages -j`) without guessing.
 - When a date is known but full-text search fails, download all pages of the relevant issues (e.g. the last pages of
   each issue, where obituaries go) and read them.
 - Large harvests: dump every hit (date + snippet) to a file and filter locally by dates and keywords.
