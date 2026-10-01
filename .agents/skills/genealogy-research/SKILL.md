@@ -1,6 +1,6 @@
 ---
 name: genealogy-research
-description: Research ancestors and relatives online — newspaper archives and obituaries, official gazettes, archive catalogues, church-record indexes, military and political sources, social media — and record the findings as pending sources without polluting the tree. Use when the user asks to find more about someone, fill a gap (death date, parents, marriage, career), check a lead, or "search sites like …". Strongest coverage for Spain (Catalonia, Asturias, Castile), with references for France and Argentina and techniques that work for any country.
+description: Research ancestors and relatives online — newspaper archives and obituaries, official gazettes, archive catalogues, church-record indexes, military and political sources, social media — and record the findings as pending sources without polluting the tree. Use when the user asks to find more about someone, fill a gap (death date, parents, marriage, career), check a lead, or "search sites like …". Strongest coverage for Spain (Catalonia, Asturias, Castile, the Basque Country), with references for France and Argentina and techniques that work for any country.
 ---
 
 # Genealogy research
