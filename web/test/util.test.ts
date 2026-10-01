@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { esc, fmtDate, hash, initials, lifespan, lightColor, norm, years, yearAt } from '../src/util';
+import { esc, fmtDate, hash, initials, lifespan, lightColor, norm, splitUrls, years, yearAt } from '../src/util';
 import { fixture } from './fixture';
 
 const people = new Map(fixture().people.map(p => [p.id, p]));
@@ -48,5 +48,36 @@ describe('helpers', () => {
   });
   it('norm removes accents and capitals', () => {
     expect(norm('José NÚÑEZ Àlex')).toBe('jose nunez alex');
+  });
+});
+
+describe('splitUrls', () => {
+  const urls = (s: string) => splitUrls(s).filter(p => p.url).map(p => p.url);
+  it('keeps a text without addresses as it is', () => {
+    expect(splitUrls('Archivo parroquial de Villaficticia')).toEqual([{ text: 'Archivo parroquial de Villaficticia' }]);
+    expect(splitUrls('')).toEqual([{ text: '' }]);
+    expect(urls('ftp://example.org y www.example.org y https://')).toEqual([]);
+  });
+  it('splits text and addresses, and joins back to the same text', () => {
+    const text = 'Copia en https://example.org/a?b=1&c=2 y en http://example.com/x.';
+    const parts = splitUrls(text);
+    expect(parts.map(p => p.text).join('')).toBe(text);
+    expect(parts).toEqual([
+      { text: 'Copia en ' }, { text: 'https://example.org/a?b=1&c=2', url: 'https://example.org/a?b=1&c=2' },
+      { text: ' y en ' }, { text: 'http://example.com/x', url: 'http://example.com/x' }, { text: '.' },
+    ]);
+  });
+  it('trims the punctuation that closes the sentence', () => {
+    expect(urls('Ver https://example.org/a, https://example.org/b; https://example.org/c: fin')).toEqual(
+      ['https://example.org/a', 'https://example.org/b', 'https://example.org/c']);
+    expect(urls('¿https://example.org/q?')).toEqual(['https://example.org/q']);
+    expect(urls('"https://example.org/d".')).toEqual(['https://example.org/d']);
+  });
+  it('handles brackets and «» quotes', () => {
+    expect(urls('(copia: https://example.org/e)')).toEqual(['https://example.org/e']);
+    expect(urls('https://example.org/wiki/Villa_(Ficticia)')).toEqual(['https://example.org/wiki/Villa_(Ficticia)']);
+    expect(urls('[https://example.org/f]')).toEqual(['https://example.org/f']);
+    const parts = splitUrls('«https://example.org/g»');
+    expect(parts).toEqual([{ text: '«' }, { text: 'https://example.org/g', url: 'https://example.org/g' }, { text: '»' }]);
   });
 });

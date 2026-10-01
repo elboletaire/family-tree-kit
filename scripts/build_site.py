@@ -30,9 +30,13 @@ import os
 import re
 import shutil
 import sys
+import xml.etree.ElementTree as etree
 from pathlib import Path
 
 import markdown
+from markdown.extensions import Extension
+from markdown.treeprocessors import Treeprocessor
+from markdown.util import AtomicString
 import pymupdf
 from PIL import Image, ImageOps
 
@@ -197,12 +201,91 @@ def year_of(value):
     return d.year if d and d.year else None
 
 
-URL_RE = re.compile(r"(?<!\]\()(?<![<\"'=\w/`])(https?://[^\s<>()\]`]+[^\s<>()\]`.,;:!?»])")
+# An address runs until a space or a character that cannot be in it; the punctuation that closes the sentence around
+# it (and a bracket opened before it) is trimmed afterwards. The same rule as `splitUrls` in web/src/util.ts
+URL_RE = re.compile(r"https?://[^\s<>\"«»`\x00-\x1f\x7f]+")
+URL_TRAILING = ".,;:!?'\"’”"
+URL_HOST_RE = re.compile(r"^https?://[^/?#]")
+# Inside them the text is not linked: links, code and the markdown's own placeholders
+NO_AUTOLINK = {"a", "code", "pre", "script", "style"}
 
 
-def autolink(text):
-    """Turns the URLs written as plain text into links (`<url>` for markdown)."""
-    return URL_RE.sub(r"<\1>", text)
+def trim_url(url):
+    while url:
+        last = url[-1]
+        opener = {")": "(", "]": "["}.get(last)
+        if last in URL_TRAILING or (opener and url.count(opener) < url.count(last)):
+            url = url[:-1]
+        else:
+            break
+    return url
+
+
+def split_urls(text):
+    """Splits a plain text into (text, url) pieces: url is None for the text between the http(s) addresses."""
+    parts, at = [], 0
+    for m in URL_RE.finditer(text):
+        url = trim_url(m.group(0))
+        if not URL_HOST_RE.match(url):
+            continue
+        if m.start() > at:
+            parts.append((text[at:m.start()], None))
+        parts.append((url, url))
+        at = m.start() + len(url)
+    if at < len(text):
+        parts.append((text[at:], None))
+    return parts
+
+
+class AutolinkProcessor(Treeprocessor):
+    """Turns the http(s) addresses written as plain text into links, once the markdown is parsed: never inside an
+    existing link nor in code."""
+    def run(self, root):
+        self.walk(root)
+
+    def walk(self, el):
+        if el.tag in NO_AUTOLINK:
+            return
+        children = list(el)
+        if el.text:
+            links = self.links(el.text)
+            if links:
+                el.text, first = links[0], links[1:]
+                for i, a in enumerate(first):
+                    el.insert(i, a)
+        for child in children:
+            self.walk(child)
+            if child.tail:
+                links = self.links(child.tail)
+                if links:
+                    child.tail = links[0]
+                    at = list(el).index(child) + 1
+                    for i, a in enumerate(links[1:]):
+                        el.insert(at + i, a)
+
+    @staticmethod
+    def links(text):
+        """None if there is no address; if there is, the leading text and the <a> elements (with their tails)."""
+        parts = split_urls(text)
+        if not any(url for _, url in parts):
+            return None
+        lead, out = "", []
+        for chunk, url in parts:
+            if url:
+                a = etree.Element("a", {"href": url})
+                a.text = AtomicString(chunk)
+                out.append(a)
+            elif out:
+                out[-1].tail = chunk
+            else:
+                lead = chunk
+        return [lead, *out]
+
+
+class Autolink(Extension):
+    def extendMarkdown(self, md):
+        # After the inline patterns (20), so that links, code and emphasis are already elements
+        md.treeprocessors.register(AutolinkProcessor(md), "autolink", 5)
 
 
 def generations(people, main):
@@ -238,9 +321,9 @@ def markdown_renderer(people, sources, doc_ids):
                            if is_pending(target, sources) else "")
                 return f'<a href="#" data-doc="{target}"{pending}>{html.escape(label or target)}</a>'
             return html.escape(label or target)
-        body = markdown.markdown(autolink(sub_links(text, repl)), extensions=["tables"])
+        body = markdown.markdown(sub_links(text, repl), extensions=["tables", Autolink()])
         # External links open in another tab so the web is not lost
-        return body.replace('<a href="http', '<a target="_blank" rel="noopener" href="http')
+        return body.replace('<a href="http', '<a target="_blank" rel="noopener noreferrer" href="http')
     return md
 
 

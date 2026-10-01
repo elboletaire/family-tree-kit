@@ -2,6 +2,7 @@
 import { For, Show } from 'solid-js';
 import { docImages } from '../components/DocCard';
 import { Html } from '../components/Html';
+import { Linked } from '../components/Linked';
 import { openLightbox } from '../components/Lightbox';
 import { PeopleChips } from '../components/PersonChip';
 import { ReviewFlag } from '../components/ReviewFlag';
@@ -34,7 +35,7 @@ export function DocPanel(props: { id: string }) {
       </Show>
       <table class="facts">
         <tbody>
-          <For each={rows.filter(([, v]) => v)}>{([k, v]) => <tr><th>{k}</th><td>{v}</td></tr>}</For>
+          <For each={rows.filter(([, v]) => v)}>{([k, v]) => <tr><th>{k}</th><td><Linked text={v} /></td></tr>}</For>
         </tbody>
       </table>
       <Show when={d.people.length}><h3>{texts.doc.people}</h3><PeopleChips ids={d.people} /></Show>

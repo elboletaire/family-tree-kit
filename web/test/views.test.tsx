@@ -4,6 +4,7 @@ import { docImages } from '../src/components/DocCard';
 import { ScopeChips } from '../src/components/ScopeChips';
 import { buildIndex, Search, searchHits } from '../src/components/Search';
 import { DATA, initData, S } from '../src/data';
+import { DocPanel } from '../src/panels/DocPanel';
 import { PersonPanel, siblingsOf } from '../src/panels/PersonPanel';
 import { panel, resetRouter, route } from '../src/router';
 import { initFocus, setFocus } from '../src/state';
@@ -70,6 +71,19 @@ describe('person card', () => {
     expect(container.querySelector('.kin')!.textContent).toBe('Para abuelo: nieto');
     fireEvent.click(container.querySelector('.people-chips .pchip')!);
     expect(panel()).toBe('p:padre');
+  });
+});
+
+describe('document card', () => {
+  it('shows the addresses of its fields as links that open in another tab', () => {
+    const data = fixture();
+    data.docs[0].origin = 'Archivo de Villaficticia (copia en https://example.org/f001?p=2).';
+    initData(data);
+    const { container } = render(() => <DocPanel id={data.docs[0].id} />);
+    const links = [...container.querySelectorAll<HTMLAnchorElement>('.facts a')];
+    expect(links.map(a => [a.getAttribute('href'), a.textContent, a.target, a.rel]))
+      .toEqual([['https://example.org/f001?p=2', 'https://example.org/f001?p=2', '_blank', 'noopener noreferrer']]);
+    expect(links[0].closest('td')!.textContent).toBe(data.docs[0].origin);
   });
 });
 

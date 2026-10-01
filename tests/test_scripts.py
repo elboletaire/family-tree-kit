@@ -493,6 +493,55 @@ class Folders(unittest.TestCase):
             self.assertEqual(run(root, "folders").stdout, "")
 
 
+class Autolink(unittest.TestCase):
+    """The addresses written as plain text in the markdown of the notes become links (build_site.markdown_renderer),
+    never inside a link nor in code, without the punctuation around them."""
+
+    CASES = {
+        "See https://example.org/a.": '<p>See <a {ext} href="https://example.org/a">https://example.org/a</a>.</p>',
+        "Two: https://example.org/a, and (http://example.com/b?x=1&y=2).":
+            '<p>Two: <a {ext} href="https://example.org/a">https://example.org/a</a>, and '
+            '(<a {ext} href="http://example.com/b?x=1&amp;y=2">http://example.com/b?x=1&amp;y=2</a>).</p>',
+        "«https://example.org/wiki/Villa_(Ficticia)»":
+            '<p>«<a {ext} href="https://example.org/wiki/Villa_(Ficticia)">'
+            'https://example.org/wiki/Villa_(Ficticia)</a>»</p>',
+        "**https://example.org/c**": '<p><strong><a {ext} href="https://example.org/c">https://example.org/c</a>'
+                                     '</strong></p>',
+        "[https://example.org/d](https://example.org/d)":
+            '<p><a {ext} href="https://example.org/d">https://example.org/d</a></p>',
+        "[see https://example.org/e here](https://example.org/f)":
+            '<p><a {ext} href="https://example.org/f">see https://example.org/e here</a></p>',
+        "`https://example.org/g`": "<p><code>https://example.org/g</code></p>",
+        "<https://example.org/h>": '<p><a {ext} href="https://example.org/h">https://example.org/h</a></p>',
+        "ftp://example.org and www.example.org and https://": "<p>ftp://example.org and www.example.org and https://</p>",
+        "[Jaume](../people/jaume-ferrer-soler.md) https://example.org/i":
+            '<p><a href="#" data-person="jaume-ferrer-soler">Jaume</a> '
+            '<a {ext} href="https://example.org/i">https://example.org/i</a></p>',
+    }
+
+    def test_bare_addresses_become_links(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_tree(root)
+            # A script with the dependencies of build_site, which renders each case
+            header = (CODE / "scripts" / "build_site.py").read_text(encoding="utf-8").split("# ///\n")[0] + "# ///\n"
+            (root / "render.py").write_text(header + f"""
+import json, sys
+sys.path.insert(0, {str(CODE / "scripts")!r})
+import arbre, build_site
+people, _ = arbre.load_people()
+md = build_site.markdown_renderer(people, {{}}, set())
+print(json.dumps([md(t) for t in json.loads(sys.stdin.read())]))
+""", encoding="utf-8")
+            env = {**os.environ, "ARBRE_ROOT": str(root)}
+            result = subprocess.run(["uv", "run", "--quiet", "--script", str(root / "render.py")], cwd=root, env=env,
+                                    input=json.dumps(list(self.CASES)), capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        ext = 'target="_blank" rel="noopener noreferrer"'
+        for (text, expected), got in zip(self.CASES.items(), json.loads(result.stdout)):
+            self.assertEqual(got, expected.format(ext=ext), text)
+
+
 class InvalidConfig(unittest.TestCase):
     def check(self, message, **tree):
         with tempfile.TemporaryDirectory() as tmp:

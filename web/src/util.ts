@@ -38,3 +38,35 @@ export const store = {
   get: (k: string): string | null => { try { return localStorage.getItem(k); } catch { return null; } },
   set: (k: string, v: string): void => { try { localStorage.setItem(k, v); } catch { /* no storage */ } },
 };
+
+/** A piece of a plain text: text, or an http(s) address written in it. */
+export type TextPart = { text: string; url?: string };
+
+// An address runs until a space or a character that cannot be in it; the punctuation that closes the sentence
+// around it (and a bracket opened before it) is trimmed afterwards. The same rule as `autolink` in build_site.py
+const URL_RE = /https?:\/\/[^\s<>"«»`\u0000-\u001f\u007f]+/g;
+const TRAILING = '.,;:!?\'"’”';
+
+function trimUrl(url: string): string {
+  for (;;) {
+    const last = url.slice(-1);
+    const open = last === ')' ? '(' : last === ']' ? '[' : '';
+    if (TRAILING.includes(last) || (open && url.split(open).length < url.split(last).length)) url = url.slice(0, -1);
+    else return url;
+  }
+}
+
+/** Splits a plain text into text and the http(s) addresses written in it, to show them as links. */
+export function splitUrls(text: string): TextPart[] {
+  const parts: TextPart[] = [];
+  let at = 0;
+  for (const m of text.matchAll(URL_RE)) {
+    const url = trimUrl(m[0]);
+    if (!/^https?:\/\/[^/?#]/.test(url)) continue;
+    if (m.index > at) parts.push({ text: text.slice(at, m.index) });
+    parts.push({ text: url, url });
+    at = m.index + url.length;
+  }
+  if (at < text.length || !parts.length) parts.push({ text: text.slice(at) });
+  return parts;
+}

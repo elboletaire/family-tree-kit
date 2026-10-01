@@ -2,6 +2,7 @@
 import { createMemo, For, Show, type JSX } from 'solid-js';
 import { DocCard } from '../components/DocCard';
 import { Html } from '../components/Html';
+import { Linked } from '../components/Linked';
 import { openLightbox } from '../components/Lightbox';
 import { PeopleChips } from '../components/PersonChip';
 import { ReviewFlag } from '../components/ReviewFlag';
@@ -79,12 +80,12 @@ export function PersonPanel(props: { id: string }) {
       </div>
       <table class="facts">
         <tbody>
-          <Row label={texts.person.birth} when={born}>{born}</Row>
-          <Row label={texts.person.death} when={died}>{died}</Row>
-          <Row label={texts.person.occupation} when={p.occupation}>{p.occupation}</Row>
+          <Row label={texts.person.birth} when={born}><Linked text={born} /></Row>
+          <Row label={texts.person.death} when={died}><Linked text={died} /></Row>
+          <Row label={texts.person.occupation} when={p.occupation}><Linked text={p.occupation} /></Row>
           <Row label={texts.person.marriage} when={marriages.length}>
             <For each={marriages}>{(m, i) => (
-              <>{i() > 0 && <br />}{texts.person.marriedTo(P.get(m.spouse)!.name)}{[m.date, m.place].filter(Boolean).join(', ')}</>
+              <>{i() > 0 && <br />}{texts.person.marriedTo(P.get(m.spouse)!.name)}<Linked text={[m.date, m.place].filter(Boolean).join(', ')} /></>
             )}</For>
           </Row>
         </tbody>
