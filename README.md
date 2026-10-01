@@ -97,6 +97,7 @@ otherwise, work inside WSL, or copy `.agents/skills` to `.claude/skills`.
 
 | Command | What it does |
 |---------|--------------|
+| `make folders` | Creates the data folders named in `families.yml` (`paths`) |
 | `make validate` | Regenerates the generated sections and checks links, dates, spouses, files and cycles |
 | `make html` | The whole website in `build/web/index.html` (opens without a server) and the site, `build/public/` and `build/private/` |
 | `make gedcom` | `build/arbre.ged`, to import in Gramps, MyHeritage, FamilySearch… |

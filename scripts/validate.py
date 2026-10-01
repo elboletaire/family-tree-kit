@@ -38,7 +38,7 @@ def main(argv):
     # The data folders of families.yml (`paths`); the portraits one is optional
     for role, folder in (("people", PEOPLE_DIR), ("sources", SOURCES_DIR), ("research", RESEARCH_DIR)):
         if not folder.is_dir():
-            err(CONFIG_PATH.name, f"paths.{role}: the folder «{folder.name}» does not exist")
+            err(CONFIG_PATH.name, f"paths.{role}: the folder «{folder.name}» does not exist (`make folders` creates it)")
 
     for slug, p in people.items():
         m = p.meta

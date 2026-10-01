@@ -28,7 +28,8 @@ Then create `families.yml` from `families.example.yml` (copy it; do not edit the
 
 - `language`: the answer above (`es` by default).
 - `paths`: keep the defaults (`people`, `sources`, `research`, `portraits`) unless the user wants other folder names.
-  Create those folders.
+  The template has no data folders: once `families.yml` has its `paths`, run `make folders`, which creates them
+  (with a `.gitkeep` in each, so that Git keeps the empty ones).
 - `main`: the user's slug, once you know their full name (step 2).
 - Replace the fictional family, branches and groups of the example with the real ones as you learn them (step 5).
 

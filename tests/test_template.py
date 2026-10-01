@@ -206,9 +206,10 @@ IN_NAMES = "has names of the family in its engine files or commit messages"
 
 
 class PrePush(unittest.TestCase):
-    """The pre-push hook in a template repository (the engine and the empty default data folders) with a second
-    worktree holding the family's tree, as the family's repository keeps its template branch. The family's people
-    folder has another name (`gente`), so the hook must read it from its families.yml."""
+    """The pre-push hook in a template repository (the engine; its history once had the empty default data folders,
+    with a .gitkeep, and then removed them) with a second worktree holding the family's tree, as the family's
+    repository keeps its template branch. The family's people folder has another name (`gente`), so the hook must
+    read it from its families.yml."""
 
     @classmethod
     def setUpClass(cls):
@@ -219,7 +220,9 @@ class PrePush(unittest.TestCase):
         for folder in ("people", "sources", "research", "portraits"):
             (cls.repo / folder).mkdir()
             (cls.repo / folder / ".gitkeep").touch()
-        cls.clean = commit(cls.repo, "Initial commit")
+        commit(cls.repo, "Initial commit")
+        git(cls.repo, "rm", "-q", "-r", "people", "sources", "research", "portraits")
+        cls.clean = commit(cls.repo, "no data folders")
         git(cls.repo, "worktree", "add", "-q", "-b", "family", str(base / "family"))
         write_family(base / "family", people="gente")
         hooks = Path(git(cls.repo, "rev-parse", "--path-format=absolute", "--git-path", "hooks").stdout.strip())

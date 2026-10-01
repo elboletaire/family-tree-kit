@@ -97,6 +97,7 @@ consola de administrador); si no, trabaja dentro de WSL, o copia `.agents/skills
 
 | Orden | Qué hace |
 |-------|----------|
+| `make folders` | Crea las carpetas de datos que nombra `families.yml` (`paths`) |
 | `make validate` | Regenera las secciones generadas y comprueba enlaces, fechas, cónyuges, ficheros y ciclos |
 | `make html` | La web completa en `build/web/index.html` (se abre sin servidor) y el sitio, `build/public/` y `build/private/` |
 | `make gedcom` | `build/arbre.ged`, para importar en Gramps, MyHeritage, FamilySearch… |

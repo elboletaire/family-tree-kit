@@ -23,7 +23,7 @@ if [ "$remote" = github ] || [ "$remote" = kit ]; then
   while read -r local_ref local_sha remote_ref remote_sha; do
     case "$local_sha" in *[!0]*) ;; *) continue ;; esac  # a deletion: nothing is sent
     # shellcheck disable=SC2086  # the paths are folder names without spaces
-    # (the .gitkeep of the template's empty data folders are not data)
+    # (a .gitkeep is not data: the template's history has them in the empty data folders it used to carry)
     touched=$(git rev-list -n 1 "$local_sha" -- $paths ':(exclude,glob)**/.gitkeep')
     if [ -n "$touched" ]; then
       echo "pre-push: $local_ref has commits that touch the family's data (e.g. $touched): not pushed to $remote" >&2

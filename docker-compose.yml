@@ -25,7 +25,7 @@ services:
     # person's data it fails, the previous version stays in place and the post-receive hook stops
     command: >-
       sh -c "cd web && pnpm install --frozen-lockfile && pnpm build && cd ..
-      && uv run scripts/validate.py && uv run scripts/build_site.py --only site"
+      && uv run scripts/folders.py && uv run scripts/validate.py && uv run scripts/build_site.py --only site"
 
   web:
     build: ./deploy

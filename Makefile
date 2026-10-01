@@ -1,9 +1,14 @@
-.PHONY: all references validate gedcom places web html test e2e public report check-template hooks demo screenshots clean refs \
+.PHONY: all folders references validate gedcom places web html test e2e public report check-template hooks demo screenshots clean refs \
 	informe
 
 all: validate gedcom html
 
-references:
+# The data folders of families.yml (`paths`), with a .gitkeep in the new ones: the template has none, since their names
+# are the tree's. Every target that reads the data runs it first, so a folder Git dropped (empty) comes back
+folders:
+	uv run scripts/folders.py
+
+references: folders
 	uv run scripts/references.py
 
 validate: references

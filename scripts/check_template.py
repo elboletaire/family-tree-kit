@@ -153,7 +153,7 @@ def check(rev, wanted):
     found, unclassified = [], []
     for path, content in files(rev):
         if not under(path, engine):
-            # .gitkeep: the empty data folders of the template
+            # .gitkeep: the empty data folders the template used to carry, and that a tree may still have
             if not under(path, family) and not path.endswith("/.gitkeep"):
                 unclassified.append(path)
             continue

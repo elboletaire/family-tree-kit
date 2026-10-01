@@ -470,6 +470,26 @@ class LinkPreview(unittest.TestCase):
         self.assertTrue(next((root / "build" / "public" / "share").glob("og-*.jpg")).is_file())
 
 
+class Folders(unittest.TestCase):
+    """`make folders` on a tree with only its families.yml: the data folders of `paths`, with a .gitkeep."""
+
+    def test_creates_the_configured_folders(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_tree(root, people="gente", sources="fuentes")
+            for name in ("gente", "fuentes", "research", "portraits"):
+                shutil.rmtree(root / name)
+            missing = run(root, "validate")
+            self.assertIn("paths.people: the folder «gente» does not exist (`make folders` creates it)",
+                          missing.stdout + missing.stderr)
+            result = run(root, "folders")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            for name in ("gente", "fuentes", "research", "portraits"):
+                self.assertTrue((root / name / ".gitkeep").is_file(), name)
+            self.assertFalse((root / "people").exists())
+            self.assertEqual(run(root, "folders").stdout, "")
+
+
 class InvalidConfig(unittest.TestCase):
     def check(self, message, **tree):
         with tempfile.TemporaryDirectory() as tmp:

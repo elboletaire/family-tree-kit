@@ -33,7 +33,7 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   `build/private/` (see "Public version"); `privacy.py` decides what is public and `leak_check.py` is the leak check; `share_image.py` makes the collage of the
   link preview (see "Public version");
   `references.py` regenerates the generated sections and `report.py` makes the report; `geocode.py` fills in
-  `places.yml`; `config.py` prints a value of `families.yml` for the shell scripts; `check_template.py` checks that
+  `places.yml`; `folders.py` creates the data folders of `paths`; `config.py` prints a value of `families.yml` for the shell scripts; `check_template.py` checks that
   no name of the family is in the engine's files (see "Engine and data"); `demo.py` writes the fictional demo tree
   (Faker with a fixed seed; real towns, so that its map works).
 - `web/` — the website's interface in TypeScript with Solid (JSX; pnpm, vite, vitest): `src/main.tsx` (entry),
@@ -65,6 +65,8 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
 
 ## Commands
 
+- `make folders` — creates the data folders of `paths` that do not exist yet, with a `.gitkeep` (the template has
+  none: their names are the tree's); `make references`, and so every target that reads the data, runs it first.
 - `make references` (or `make refs`) — regenerates the «Referencias» / «Personas mencionadas» sections and
   `research/revision.md`.
 - `make validate` — runs `refs` and checks links, dates, reciprocity of spouses, files and cycles; warns (without
@@ -242,9 +244,9 @@ Two optional keys of `families.yml`, which `load_config` checks:
   (`VIEW_SEGMENT` in `web/src/router.ts`), the data values (`pendiente`, `revisada`, `genealogia`, `rama/`…) and the
   date qualifiers stay in Spanish.
 - `paths`: the name of each data folder by its role: `people`, `sources`, `research` and `portraits` (by default,
-  those same names). They are folders at the root, different from each other; the links generated
-  (`../<sources>/F0xx.md`), the scripts, the website and the deploy come from here, and no code has the name of a data
-  folder written in it. Changing them in an existing tree means moving the folders and rewriting the links in the body
+  those same names). They are folders at the root, different from each other, and `make folders` creates them; the
+  links generated (`../<sources>/F0xx.md`), the scripts, the website and the deploy come from here, and no code has
+  the name of a data folder written in it. Changing them in an existing tree means moving the folders and rewriting the links in the body
   of the notes and the `photo` field (`.gitattributes` does not depend on them).
 
 ## Families and branches
