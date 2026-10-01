@@ -17,6 +17,7 @@ marriages:
 living: false
 tags: [rama/ramirez]
 sources: ["[[F003]]", "[[F015]]", "[[F016]]"]
+photo: portraits/ascension-ramirez-jaen.jpg
 ---
 # Ascensión Ramírez Jaén
 

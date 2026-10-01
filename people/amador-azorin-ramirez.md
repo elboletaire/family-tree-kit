@@ -17,6 +17,7 @@ marriages:
 living: false
 tags: [rama/azorin, rama/ramirez]
 sources: ["[[F003]]", "[[F016]]", "[[F017]]"]
+photo: portraits/amador-azorin-ramirez.jpg
 ---
 # Amador Azorin Ramírez
 

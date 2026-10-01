@@ -12,6 +12,7 @@ marriages:
   - {spouse: samuel-azorin-bautista, date: 1953-09-02, place: "Granada"}
 living: false
 sources: ["[[F003]]", "[[F004]]"]
+photo: portraits/roxana-torrent-beltran.jpg
 ---
 # Roxana Torrent Beltran
 

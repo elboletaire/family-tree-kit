@@ -13,6 +13,7 @@ marriages:
   - {spouse: amador-azorin-ramirez, date: 1925-01-03, place: "Cazorla, Jaén"}
 living: false
 sources: ["[[F003]]", "[[F004]]"]
+photo: portraits/malena-bautista-checa.jpg
 ---
 # Malena Bautista Checa
 

@@ -4,7 +4,7 @@ surnames: "Barón Cantón"
 sex: M
 born: 1915-06-18
 birth_place: "Lugo"
-died: 1994
+died: 1994-08-15
 death_place: "A Coruña"
 occupation: "comerciante"
 birth_order: 1
@@ -31,7 +31,8 @@ Giner](../people/maria-pilar-escalona-giner.md). Se casó en A Coruña el 1 de m
 con [Montserrat Maldonado Román](../people/montserrat-maldonado-roman.md). Tuvo 4 hijos: [Florencio Barón
 Escalona](../people/florencio-baron-escalona.md), [Claudio Barón Escalona](../people/claudio-baron-escalona.md),
 [Obdulia Barón Maldonado](../people/obdulia-baron-maldonado.md), [Jonatan Barón
-Maldonado](../people/jonatan-baron-maldonado.md). Murió en A Coruña en 1994 ([F013](../sources/F013.md)).
+Maldonado](../people/jonatan-baron-maldonado.md). Murió en A Coruña el 15 de agosto de 1994
+([F013](../sources/F013.md)).
 
 ## Notas de investigación
 

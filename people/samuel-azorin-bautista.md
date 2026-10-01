@@ -17,6 +17,7 @@ marriages:
 living: false
 tags: [rama/azorin, rama/ramirez]
 sources: ["[[F003]]", "[[F004]]"]
+photo: portraits/samuel-azorin-bautista.jpg
 ---
 # Samuel Azorin Bautista
 

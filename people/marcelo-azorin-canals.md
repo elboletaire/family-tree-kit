@@ -17,6 +17,7 @@ marriages:
 living: false
 tags: [rama/azorin]
 sources: ["[[F003]]", "[[F014]]", "[[F015]]", "[[F016]]"]
+photo: portraits/marcelo-azorin-canals.jpg
 ---
 # Marcelo Azorin Canals
 
