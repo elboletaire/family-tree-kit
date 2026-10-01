@@ -79,6 +79,8 @@ protected.
 
 - X/Twitter: `https://api.fxtwitter.com/<user>/status/<id>` (JSON with text, date, media) or
   `https://cdn.syndication.twimg.com/tweet-result?id=<id>&token=a`; media at original size with `?name=orig`.
+- A municipal or institutional page that has disappeared: the Wayback Machine, `https://web.archive.org/web/<year>/<url>`
+  redirects to the nearest snapshot (checked); `https://archive.org/wayback/available?url=<url>` says whether there is one.
 - Whole threads or accounts: Wayback Machine CDX,
   `https://web.archive.org/cdx/search/cdx?url=twitter.com/<user>/status/*&output=json&fl=original,timestamp&collapse=urlkey`
   (also `x.com/…`), then fetch each id.

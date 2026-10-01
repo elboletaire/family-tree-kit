@@ -15,6 +15,11 @@ occupation. Then grade:
 - **discarded**: an anchor contradicts (wrong age, other parents, other spouse, died while the person was alive). Write
   down why, so nobody attaches it later.
 
+To tell how rare a surname really is, the INE's «Apellidos y nombres más frecuentes» tool (`ine.es/apellidos`) gives
+the number of people with it and, reported by other trees, its distribution by province and municipality of birth
+(the page is reachable; the municipal breakdown was not checked). A surname held by a few hundred people, all from one
+comarca, makes a match on name plus place a much stronger lead than a common one.
+
 A rare-looking name is not proof: in small regions the same full name repeats across cousins and generations
 (grandfather and grandson, uncle and nephew). Typical traps seen in real research:
 

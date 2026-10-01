@@ -35,7 +35,9 @@ Schema and rules are in `AGENTS.md` (sources, dates, confidence, privacy), and t
 4. Ask for spellings of names and places (accents, local forms), and for surnames of in-laws and grandparents,
    which are the usual gaps.
 5. Ask about documents and photos they keep (certificates, funeral cards, family books, photos with names on the
-   back).
+   back). The papers families usually still have, worth naming one by one: the *libro de familia*, military service
+   booklets (cartillas militares, with the recruitment office, *caja de recluta*, and its number), social security and
+   pension papers, municipal certificates and court judgments, newspaper clippings, and the funeral cards.
 6. Tell them, at the top of the list, how the answers are used: only what they know or want to say; doubts are
    recorded as doubts; no addresses, phones or ID numbers; they can ask to leave someone or something out; the living
    are only seen with the password. Do **not** ask them whether they agree to appear in the tree: they cannot consent

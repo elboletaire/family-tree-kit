@@ -20,6 +20,9 @@ the next step is an email request with parish, type, approximate date and names.
   values. Each entry gives parish, book and folio and an index id. Book images need a registered user; literal copies
   are requested by email (a few per week) quoting book, folio and index id. Validate the index against one certificate
   the family already has before trusting it.
+- *Reported by other trees, not checked:* sacramental indexes of the Diocese of Almería and of the Diocese of
+  Orihuela-Alicante (the latter through `arxparrvalencia.org`, which answers 403 to plain curl: ask the user to search
+  it by hand or use technique "challenge pages").
 - Look for similar indexes per diocese; volunteer blogs often inventory which parish books survive per village
   (including parish household censuses).
 
@@ -49,8 +52,10 @@ Nacional, Centro Documental de la Memoria Histórica, Archivo General de Indias�
 
 **Censo-Guía de Archivos de España** — which archive holds a given fonds (e.g. the papers of a charitable foundation).
 
-**Military archives** — Archivo General Militar (Ávila, Guadalajara, Segovia) hold service files; not online,
-request by email.
+**Military archives** — Archivo General Militar (Ávila, Guadalajara, Segovia) hold service files; the files are not
+online, request them by email. *Reported, not checked:* the Ministry of Defence's cultural heritage website
+(Patrimonio Cultural de Defensa) publishes indexes of some of these fonds, including Guadalajara's: search the index
+before writing the request.
 
 **Archivos históricos de protocolos** (notarial, per province) — wills and deeds; request with notary and year.
 
@@ -76,6 +81,15 @@ request by email.
   reference), the "Cementiris de Catalunya" photographic survey (photos of every cemetery, niches and gravestones
   included, often restricted) and county photographic fonds (group photos with names identified by the archive).
   The Arxiu Nacional de Catalunya military-trials search shows a reCAPTCHA: leave it to the user.
+- *DARA — Documentos y Archivos de Aragón* (`dara.aragon.es`, checked: reachable) — catalogue of the provincial
+  historical archives of Huesca, Zaragoza and Teruel and other Aragonese archives. Reported useful, not checked: electoral
+  rolls of Aragon (1890–1955).
+- *Provincial gazette portals* — reported by other trees: the Diputación de Jaén's historical BOP
+  (`bophistorico.dipujaen.es`, checked: reachable), the Diputación de Granada's archive (BOP 1833–2002) and the
+  Diputación de Almería's Pandora. Try them when the Biblioteca Virtual de Prensa Histórica lacks an issue.
+- Reported, not checked: the Archivo de la Real Chancillería de Granada (lists of cases of the Audiencia Territorial),
+  the Archivo Histórico Provincial de Almería (fonds of the provincial Treasury delegation) and the Archivo Histórico
+  Municipal de Úbeda (padrones online).
 - University repositories (doctoral theses as open PDFs) often transcribe archive series in full: download, run
   `pdftotext`, grep for surnames.
 
@@ -151,6 +165,10 @@ bunny.net challenge: technique "challenge pages" (load `index.vm?lang=ca&view=he
 **XAC Premsa** (Xarxa d'Arxius Comarcals, `xacpremsa.cultura.gencat.cat/pandora/`) — same software (`view=premsa`,
 needs `g=p&c=1` to list hits); local and county press of Catalonia from the 19th century.
 
+**Other press archives** — reported by other trees, not checked: the Diputación de Jaén's digital newspaper library
+(with the Instituto de Estudios Giennenses), the Biblioteca Hemeroteca Municipal de Tarragona (through Pandora) and
+the archives of El Periódico de Catalunya.
+
 **Premsa Digitalitzada de la Biblioteca de Catalunya**, **Trencadís** (Diputació de Barcelona local magazines), **RACO**
 (Catalan journals) — worth a try for local magazines; JS-heavy.
 
@@ -158,8 +176,9 @@ needs `g=p&c=1` to list hits); local and county press of Catalonia from the 19th
 `…/necrologiques/pagina-<n>/` (download all, grep); older archive is paid. Funeral homes sometimes re-host the printed
 obituary page as a PDF: search the funeral home's site.
 
-**Obituary aggregators** — esquelasdeasturias.com (archive only from 2024; old ids return 410), rememori (Cloudflare),
-others unreliable. Use them to discard homonyms rather than as the main route.
+**Obituary aggregators** — esquelasdeasturias.com (archive only from 2024; old ids return 410), rememori
+(Cloudflare), others unreliable. Reported by other trees, not checked: tanatorio.pro, esquelas.es and the funeral-home
+directories. Use them to discard homonyms rather than as the main route.
 
 Paid or offline archives (La Nueva España, El Comercio, El 9 Nou…): tell the user where the paper copies are (regional
 library, the paper's own archive).

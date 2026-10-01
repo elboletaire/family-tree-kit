@@ -1,6 +1,6 @@
 ---
 name: genealogy-research
-description: Research ancestors and relatives online — newspaper archives and obituaries, official gazettes, archive catalogues, church-record indexes, military and political sources, social media — and record the findings as pending sources without polluting the tree. Use when the user asks to find more about someone, fill a gap (death date, parents, marriage, career), check a lead, or "search sites like …". Strongest coverage for Spain (Catalonia, Asturias, Castile), with techniques that work for any country.
+description: Research ancestors and relatives online — newspaper archives and obituaries, official gazettes, archive catalogues, church-record indexes, military and political sources, social media — and record the findings as pending sources without polluting the tree. Use when the user asks to find more about someone, fill a gap (death date, parents, marriage, career), check a lead, or "search sites like …". Strongest coverage for Spain (Catalonia, Asturias, Castile), with references for France and Argentina and techniques that work for any country.
 ---
 
 # Genealogy research
@@ -23,6 +23,10 @@ are the main risk. This skill covers both.
 Reference files (read the one you need, not all):
 
 - `references/resources-spain.md` — where to look in Spain, by record type and region, with URL patterns.
+- `references/resources-france.md` — where to look in France (deaths since 1970, censuses, departmental archives), for
+  branches that emigrated or went into exile there. Kept apart from Spain on purpose.
+- `references/resources-argentina.md` — where to look in Argentina (arrivals at the port of Buenos Aires, national archive,
+  FamilySearch), for branches that emigrated there.
 - `references/techniques.md` — how to get past JS apps, challenges and broken search forms; OCR and download tricks;
   sites that are blocked and what to do instead.
 - `references/identification.md` — homonyms, weak vs strong identifications, conflicting dates, error patterns seen
