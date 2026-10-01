@@ -104,7 +104,8 @@ Only after grading, and following the `add-document` skill:
   date, a place), keep the current value, add the variant to `aliases` if it is a name, explain it in
   `## Notas de investigación` and record it in `<research>/incoherencias.md`. The change is made only after a family
   member reviews the source (`AGENTS.md` → "Rules").
-- Link the source from every person it names.
+- Link the source from every person it names. In the biography, only the facts (cited); how the record was found and
+  matched goes to `## Notas de investigación` (`AGENTS.md` → "People", Body).
 - Leads that are not evidence (possible relatives, weak matches) go to `## Notas de investigación` and
   `<research>/pendientes.md`, never to frontmatter fields. Every question a search opens, and a search that found
   nothing (with the queries tried), is written in `pendientes.md`.

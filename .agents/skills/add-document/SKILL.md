@@ -72,7 +72,8 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
 ## 4. Update the people
 
 - For each person named: add the source to `sources`, the facts to the frontmatter and the biography, each cited
-  inline `([F0xx](../<sources>/F0xx.md))`.
+  inline `([F0xx](../<sources>/F0xx.md))`. The biography tells the life, not the research: where the document came
+  from, who identified whom and any correction go to `## Notas de investigación` (`AGENTS.md` → "People", Body).
 - A document outranks the family tree and memory — once it is trusted: a source with `review: pendiente` fills gaps
   but never overwrites existing data; its differences go to the notes and `<research>/incoherencias.md` until a family
   member reviews it (`AGENTS.md` → "Rules"). If it contradicts another document, keep the one closest to the

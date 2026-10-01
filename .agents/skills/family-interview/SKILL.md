@@ -66,7 +66,8 @@ Answers come back numbered, often in fragments, sometimes corrected minutes late
 
 - Update each person: dates in the formats of `AGENTS.md` (`"¿1970-05-29?"` when doubtful, `"c. 1947"` when
   approximate), places, parents, spouses (both sides, identical `marriages`), `sources` and inline citations in the
-  biography.
+  biography. The biography states the facts plainly; who said what, and a fact the relative corrected, go to
+  `## Notas de investigación` (`AGENTS.md` → "People", Body).
 - Create new people named in the answers (great-grandparents, siblings, in-laws) with what is known;
   `parents_confidence: probable` when only oral testimony supports the relation.
 - Rename slugs when a surname becomes known or its spelling is corrected; update every `"[[slug]]"` and markdown
