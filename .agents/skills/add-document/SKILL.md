@@ -76,10 +76,12 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   never from the archive's OCR alone (the OCR mixes columns and misreads names). Store a colour crop of the notice
   and, when the portal lets you download the whole issue, its pages too: other people of the tree may turn up in the
   same issue, and searching a local copy is easier than searching online. A whole issue is often a heavy PDF (tens of
-  MB); keep its pages as 1-bit PNG at full resolution (median filter, autocontrast, a threshold around 140: about
-  1 MB per broadsheet page, sharp enough to run OCR again), and put the link to the original in colour in `origin`
-  and in the transcription. If no image can be had, say so in `origin` and add an item to `pendientes.md` to get
-  it.
+  MB), which is not stored as it is; keep each page twice: the original in colour as JPEG at about 200 dpi and
+  quality ~75 (2-3 MB per broadsheet page: the paper and its tone as the archive scanned them, and enough to derive
+  any other copy), and a reading copy as 1-bit PNG (median filter, autocontrast, a threshold around 140: about 1 MB
+  per page, sharp enough to run OCR again). Name them alike (`…-p1.jpg`, `…-p1.png`), and put the link to the
+  original in `origin` and in the transcription. If no image can be had, say so in `origin` and add an item to
+  `pendientes.md` to get it.
 - A portrait for a person's `photo` is a derived crop in `<portraits>/<slug>.jpg`, documented with a row in
   `<portraits>/README.md` (source and crop box).
 
