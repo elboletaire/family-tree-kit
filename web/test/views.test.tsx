@@ -96,22 +96,35 @@ describe('scope selector and documents', () => {
     fireEvent.click(screen.getAllByRole('button')[2]);
     expect(picked).toBe('direct');
   });
-  it('Documents filters by category, by review and by family of the focused person', () => {
+  it('Documents filters by category, by status, by review and by family of the focused person', () => {
     const { container } = render(() => <Documents />);
     const cards = () => [...container.querySelectorAll('#doc-grid .doc-card')].map(d => d.getAttribute('data-doc'));
     const chip = (sel: string) => container.querySelector<HTMLElement>(sel)!;
     expect(cards()).toEqual(['F002', 'F001']);  // by year
     expect([...container.querySelectorAll('#doc-filters .chip')].map(b => b.textContent))
-      .toEqual(['Todos (2)', 'Genealogía (1)', 'Fotografías (1)', 'Pendientes de revisar (1)']);
+      .toEqual(['Todos (2)', 'Genealogía (1)', 'Fotografías (1)', 'Indicios (1)', 'Pendientes de revisar (1)']);
     fireEvent.click(chip('[data-f="foto"]'));
     expect(cards()).toEqual(['F002']);
     expect(chip('[data-f="foto"]').getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(chip('[data-f="status:indicio"]'));
+    expect(cards()).toEqual(['F002']);
     fireEvent.click(chip('[data-f="review"]'));
     expect(cards()).toEqual(['F001']);
     fireEvent.click(chip('[data-f="all"]'));
     setFocus('tio');
     fireEvent.click(chip('#doc-scope [data-s="direct"]'));
     expect(cards()).toEqual([]);
+  });
+  it('Documents lists the documents nobody cites, and hides that chip when there are none', () => {
+    expect(render(() => <Documents />).container.querySelector('[data-f="unreferenced"]')).toBeNull();
+    const data = fixture();
+    data.docs.push({ ...data.docs[0], id: 'F003', people: [], review: '' });
+    initData(data);
+    const { container } = render(() => <Documents />);
+    const chip = container.querySelector<HTMLElement>('[data-f="unreferenced"]')!;
+    expect(chip.textContent).toBe('Sin referencias (1)');
+    fireEvent.click(chip);
+    expect([...container.querySelectorAll('#doc-grid .doc-card')].map(d => d.getAttribute('data-doc'))).toEqual(['F003']);
   });
 });
 

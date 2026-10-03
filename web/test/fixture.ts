@@ -58,7 +58,7 @@ export function fixture(): Data {
     people,
     docs: [
       doc('F001', { title: 'Partida de bautismo de Yo', people: ['yo', 'padre'], review: 'pendiente', year: 1960, date: '1960-01-20', place: 'Puerto Bajo' }),
-      doc('F002', { title: 'Foto de la boda', category: 'foto', people: ['padre', 'madre'], family: 'roble', year: 1955,
+      doc('F002', { title: 'Foto de la boda', category: 'foto', status: 'indicio', people: ['padre', 'madre'], family: 'roble', year: 1955,
         files: [{ name: 'boda.jpg', url: '../sources/F002/boda.jpg', kind: 'image', thumb: 'media/F002/t.jpg', preview: 'media/F002/p.jpg' }] }),
     ],
     branches: [

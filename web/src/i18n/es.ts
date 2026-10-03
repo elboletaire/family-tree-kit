@@ -335,5 +335,8 @@ export const es = {
     all: (n: number) => `Todos (${n})`,
     category: (label: string, n: number) => `${label} (${n})`,
     pending: (n: number) => `Pendientes de revisar (${n})`,
+    unreferenced: (n: number) => `Sin referencias (${n})`,
+    /** Chip of each `status` of STATUS_FILTERS (data.ts) */
+    status: { indicio: 'Indicios', 'en-investigacion': 'En investigación', pendiente: 'Por conseguir', 'no-fiable': 'No fiables' } as Record<string, string>,
   },
 };

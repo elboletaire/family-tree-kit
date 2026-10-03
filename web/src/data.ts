@@ -10,6 +10,8 @@ export const CATEGORIES: Category[] = ['genealogia', 'foto', 'arbol', 'contexto'
 export const GENEALOGY: Category = 'genealogia';
 export const PHOTO: Category = 'foto';
 export const AI: Category = 'ia';
+/** `status` values the documents view filters by: all but `documentado`, the usual one */
+export const STATUS_FILTERS = ['indicio', 'en-investigacion', 'pendiente', 'no-fiable'];
 /** `type` of the compilations: sources that group several documents */
 export const COMPILATION_TYPE = 'Recopilación';
 /** Research documents (`<name>.md` in the research folder, `paths.research`); the names are also the `r:` panels of the hash */
