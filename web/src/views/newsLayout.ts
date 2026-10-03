@@ -1,6 +1,6 @@
 /* «Novedades» without the DOM: the documents added lately, the history of one person and how a day's changes are
    split for the view. DATA.history comes from scripts/history.py, newest day first. */
-import { ALL, type FamilyChoice, sectionVisible } from '../family';
+import { ALL, type FamilyChoice, GENERAL, sectionVisible } from '../family';
 import type { Doc, HistoryEntry, HistoryField, PersonChange } from '../types';
 
 /** Facts that are the text of the note: a change of only these is a revised biography, not new data */
@@ -80,17 +80,19 @@ const personIn = (of: FamilyOf, id: string, fam: FamilyChoice): boolean => {
   const fams = of.person(id);
   return !fams.length || fams.includes(fam);
 };
+/** Does the document belong to `fam`? Those of several families, yes; those of none (`general`: nobody cites them),
+ *  only under «All» */
 const docIn = (of: FamilyOf, id: string, fam: FamilyChoice): boolean => {
   const f = of.doc(id);
-  return f === undefined || sectionVisible(f, fam);
+  return f === undefined || (f !== GENERAL && sectionVisible(f, fam));
 };
 
 /** Has the day anything to show? */
 const hasNews = (e: HistoryEntry): boolean => [e.docsAdded, e.docsReviewed, e.docsUpdated, e.peopleAdded, e.peopleChanged,
   e.peopleRemoved, e.peopleRenamed, e.docsRemoved, e.research].some(list => list.length > 0);
 
-/** The history of the family `fam` (or all of it, with ALL): the documents of that family or shared (`several`,
- *  `general`), the people of that family or of none and the research items of its section or a shared one; the
+/** The history of the family `fam` (or all of it, with ALL): the documents of that family or of several (`several`;
+ *  not those of none, `general`), the people of that family or of none and the research items of its section or a shared one; the
  *  removed people and documents, whose family is no longer known, always. The days left empty are dropped */
 export function familyHistory(history: HistoryEntry[], fam: FamilyChoice, of: FamilyOf): HistoryEntry[] {
   if (fam === ALL) return history;
