@@ -62,6 +62,20 @@ test('person → document → person, ← button, back, forward and Escape', asy
   expect(await hash(page)).toBe(`#inicio/${main}`);
 });
 
+test('the search results show over an open card', async ({ page }) => {
+  await page.goto(PAGE);
+  await page.locator('#focus .pchip').click();
+  await expect(drawer(page)).toHaveClass(/open/);
+  const name = await page.evaluate(() => DATA.people.find(p => p.id === DATA.main)!.name);
+  await page.locator('#search').fill(name.slice(0, 4));
+  const first = page.locator('#search-results li').first();
+  await expect(first).toBeVisible();
+  // The point under the middle of the first result is the result itself, not the card
+  const box = (await first.boundingBox())!;
+  expect(await page.evaluate(([x, y]) => !!document.elementFromPoint(x, y)?.closest('#search-results'),
+    [box.x + box.width / 2, box.y + box.height / 2])).toBe(true);
+});
+
 test('direct link to a view, a person and a document', async ({ page }) => {
   // A person who is not the main one and one of their documents, taken from the web's data
   await page.goto(PAGE);

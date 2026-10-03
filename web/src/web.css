@@ -48,6 +48,9 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -.01em
 .search { position: relative; width: min(320px, 40vw); }
 .search input { width: 100%; padding: .45rem .8rem; border: 1px solid var(--line); border-radius: 999px;
                 background: var(--card); font: inherit; }
+/* The results live in the bar's stacking context (30): while open, the bar goes over the side card (40), still under
+   the lightbox (50); not always, so that the full-screen map and voyage (35) keep covering it */
+.topbar:has(.search-results:not([hidden])) { z-index: 45; }
 .search-results { position: absolute; top: 110%; left: 0; right: 0; margin: 0; padding: .3rem; list-style: none;
                   background: var(--card); border: 1px solid var(--line); border-radius: 10px;
                   box-shadow: var(--shadow); max-height: 60vh; overflow: auto; }
