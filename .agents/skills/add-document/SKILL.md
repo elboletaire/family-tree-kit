@@ -63,7 +63,13 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   a zoomed preview of each redacted area and check it yourself: boxes are easy to misplace by a line. Iterate until
   the ID numbers and addresses are fully covered and nothing else is.
 - Convert to JPEG (quality ~90), keep the original resolution; convert BMP to PNG losslessly if it must stay
-  lossless. Never keep an unredacted copy anywhere in the repo, including git history.
+  lossless. Never keep an unredacted copy in the working tree: the website and the sources served with a session
+  are built from it.
+- **Git history** of a private repository may keep the unredacted version: when redacting a file that was already
+  committed, commit the redacted one over it and do not rewrite history, so that the original can be restored
+  (`git checkout <sha> -- <file>`) once the person has died. A new document is redacted before its first commit;
+  its unredacted original stays where it came from (the shared folder, the relative who sent it). If the repository
+  is or becomes public, its history must not hold unredacted copies.
 - Store files in `<sources>/F0xx/` (Git LFS) with descriptive names, and list them in `files`. Originals in the
   sources folder are never edited afterwards.
 - **Newspaper notices and other pages taken from an online archive**: read and transcribe from the page image,
