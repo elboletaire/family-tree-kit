@@ -283,14 +283,12 @@ body.voyage-full .voyage-bar { bottom: calc(1rem + env(safe-area-inset-bottom));
 .p-head .review-link { display: table; }
 .review-note { margin: -.3rem 0 1rem; font-size: .85rem; color: var(--ink-2); }
 .review-note .review-link { margin: 0 .3rem .2rem 0; vertical-align: middle; }
-.review-count { margin: .2rem 0 0; }
-.review-count a { text-decoration: none; }
 /* Same button as the research documents' ones, with the review mark in front */
 .btn-review { display: inline-flex; align-items: center; gap: .5rem; }
 .btn-review i { width: 9px; height: 9px; border-radius: 50%; flex: none;
                 background: repeating-linear-gradient(45deg, var(--review) 0 2px, transparent 2px 3px);
                 box-shadow: 0 0 0 1.5px var(--review); }
-.review-split { display: block; margin-top: .45rem; font-size: .85rem; color: var(--muted); }
+.review-split { margin: -.4rem 0 0; font-size: .85rem; color: var(--muted); }
 .review-split a { color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--line);
                   text-underline-offset: 3px; }
 .review-split a:hover { color: var(--accent); text-decoration-color: currentColor; }

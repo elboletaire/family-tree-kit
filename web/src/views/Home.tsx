@@ -99,18 +99,15 @@ export function Home() {
           <h2>{texts.home.pendingReview}</h2>
           <p class="muted">{texts.home.pendingIntro}</p>
           <p><ResearchLink class="btn" name={INCONSISTENCIES}>{texts.home.inconsistencies}</ResearchLink>{' '}
-             <ResearchLink class="btn" name={PENDING}>{texts.home.pendingLines}</ResearchLink>{' '}
-             <ResearchLink class="btn" name={REVISION}>{texts.home.revision}</ResearchLink></p>
-          <Show when={pendingDocs.length}>
-            <p class="review-count" id="home-review">
-              <ResearchLink class="btn btn-review" name={REVISION}>
-                <i aria-hidden="true" />{texts.review.pendingDocs(pendingDocs.length)}
-              </ResearchLink>
-              <Show when={split.length}>
-                <span class="review-split">
-                  <For each={split}>{(s, i) => <>{i() > 0 && ' · '}<ResearchLink name={REVISION} family={s.family}>{s.text}</ResearchLink></>}</For>
-                </span>
-              </Show>
+             <ResearchLink class="btn" name={PENDING}>{texts.home.pendingLines}</ResearchLink>
+             <Show when={pendingDocs.length}>
+               {' '}<ResearchLink class="btn btn-review" name={REVISION}>
+                 <i aria-hidden="true" />{texts.review.pendingDocs(pendingDocs.length)}
+               </ResearchLink>
+             </Show></p>
+          <Show when={pendingDocs.length && split.length}>
+            <p class="review-split">
+              <For each={split}>{(s, i) => <>{i() > 0 && ' · '}<ResearchLink name={REVISION} family={s.family}>{s.text}</ResearchLink></>}</For>
             </p>
           </Show>
         </div>

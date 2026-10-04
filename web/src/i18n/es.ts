@@ -160,7 +160,6 @@ export const es = {
     pendingIntro: 'Datos que no cuadran entre el árbol y los documentos, y lo hallado por investigación automática.',
     inconsistencies: 'Ver incoherencias',
     pendingLines: 'Líneas pendientes',
-    revision: 'Revisión',
     severalFamilies: 'de varias familias',
     constellation: {
       label: 'Todas las personas del árbol y sus relaciones',
