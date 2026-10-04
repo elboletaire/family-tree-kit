@@ -75,9 +75,13 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
 - Store files in `<sources>/F0xx/` (Git LFS) with descriptive names, and list them in `files`. Originals in the
   sources folder are never edited afterwards.
 - **Newspaper notices and other pages taken from an online archive**: read and transcribe from the page image, never
-  from the archive's OCR alone (the OCR mixes columns and misreads names). Store a colour crop of the notice and, when
-  the portal lets you download the whole issue, its pages too: other people of the tree may turn up in the same issue,
-  and searching a local copy is easier than searching online. **One crop per notice, readable on its own**: a notice
+  from the archive's OCR alone (the OCR mixes columns and misreads names). **Always store both**: the whole page the
+  notice is on and a colour crop of the notice. The crop is what the website shows and what a reader reads; the page is
+  the evidence of where it was printed (the masthead, the date, the neighbouring notices) and lets anyone crop it again
+  or read what was next to it. A source with only the crop, or only the page, is unfinished. When the portal lets you
+  download the whole issue, keep its other pages too: other people of the tree may turn up in the same issue, and
+  searching a local copy is easier than searching online. The same goes for a register or an index page (a civil
+  registry book, a printed list): the page and a crop of the entry. **One crop per notice, readable on its own**: a notice
   often breaks across columns (the heading — a town's name, a party, an «obituaries» section header — at the foot of
   one column and its text at the top of the next, or a long list continuing in the next column). Crop each piece and
   stack them top to bottom, left-aligned, into a single image; never store a piece that only holds a heading, which on

@@ -73,7 +73,8 @@ Start from the tree, not from the web:
   filtering locally beats reading pages of results.
 - For an event with a known date (a death), review the issues of the following days page by page — obituaries are
   often image-only and invisible to full-text search.
-- Always read the notice on the page image, not only the OCR, and save a crop as evidence. A finding recorded from
+- Always read the notice on the page image, not only the OCR, and save both the whole page and a crop of the notice
+  (the `add-document` skill says how). A finding recorded from
   the OCR text alone is not finished: look for the image or the issue's PDF first (viewers often hide a download link
   in the page source; see `references/techniques.md`), and store it as the `add-document` skill says.
 - Follow the family network: an obituary lists spouse, children and their spouses, grandchildren — it tells you who

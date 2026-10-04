@@ -67,7 +67,8 @@ protected.
 
 - `pdftotext -layout` + `grep -i`; search with regexes that tolerate OCR errors (`rodr.gu.z`, optional accents, hyphenated
   line breaks `Gar-\s*cía`).
-- OCR text is a finder, not evidence: open the page image, read the notice, crop it with Pillow and keep the crop.
+- OCR text is a finder, not evidence: open the page image, read the notice, crop it with Pillow and keep the crop and
+  the page.
   Tables in scanned gazettes are misread (a digit in a year, rows shifted across pages); cross-check with another
   column (age) or another document.
 - Many newspaper PDFs are image-only: render the page and read it visually.
