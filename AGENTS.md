@@ -334,11 +334,12 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
   affects; only what touches several goes in «General». The family `##` titles are not renamed: the website and
   `make report` filter by them (if one is renamed, its `title` in `families.yml` is changed at the same time).
 - Every source found by automated or AI research (newspaper archives, gazettes, archive indexes) comes in with
-  `review: pendiente`, and only a person of the family changes it to `revisada`. The data that only come from pending
-  sources are provisional. A pending source may **fill a gap** (a missing date, spouse or child, cited inline), but it
-  **never overwrites** what the tree already has: if it differs (a surname, a date, a place), the current value stays,
-  the document's form goes to `aliases` if it is a name variant and to «Notas de investigación» with its citation, and
-  the difference to `research/incoherencias.md`; it is changed only once a person of the family has reviewed the source.
+  `review: pendiente`, and only a person of the family changes it to `revisada`. What only a pending source says is
+  **not a fact of the tree yet**: it goes only to «Notas de investigación», with its citation, and the source to
+  `sources`; never to the other frontmatter keys, the biography nor `aliases` (a name variant that turns out wrong is
+  just noise). If it differs from what the tree already has, the difference also goes to `research/incoherencias.md`.
+  When a person of the family reviews the source, its data move from the notes to the frontmatter, the biography and
+  `aliases` (the name variants it documents), and only then can they change what the tree had.
 - Online indexes and transcriptions (FamilySearch, archive catalogues, transcribed censuses) are third-party readings,
   not the document: transcribe from the image of the original whenever it can be seen, and note where the index
   differs; a source taken only from an index says so and comes in as `status: indicio`.

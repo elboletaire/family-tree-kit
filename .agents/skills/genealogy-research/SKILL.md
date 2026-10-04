@@ -102,10 +102,10 @@ Only after grading, and following the `add-document` skill:
   online index or transcription (FamilySearch, a catalogue, a transcribed census) is someone else's reading: note
   where it differs from the image, and if there is no image, say the source comes only from the index
   (`status: indicio`).
-- A pending source fills gaps but never overwrites: where it differs from what the tree already has (a surname, a
-  date, a place), keep the current value, add the variant to `aliases` if it is a name, explain it in
-  `## Notas de investigación` and record it in `<research>/incoherencias.md`. The change is made only after a family
-  member reviews the source (`AGENTS.md` → "Rules").
+- What a pending source says goes only to `## Notas de investigación`, cited: not to the other frontmatter keys,
+  the biography nor `aliases`, not even to fill a gap. Where it differs from what the tree already has, record it
+  also in `<research>/incoherencias.md`. The data move to the frontmatter, the biography and `aliases` only after a
+  family member reviews the source (`AGENTS.md` → "Rules").
 - Link the source from every person it names. In the biography, only the facts (cited); how the record was found and
   matched goes to `## Notas de investigación` (`AGENTS.md` → "People", Body).
 - Leads that are not evidence (possible relatives, weak matches) go to `## Notas de investigación` and

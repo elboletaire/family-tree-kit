@@ -92,14 +92,14 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
 
 ## 4. Update the people
 
-- For each person named: add the source to `sources`, the facts to the frontmatter and the biography, each cited
-  inline `([F0xx](../<sources>/F0xx.md))`. The biography tells the life, not the research: where the document came
+- For each person named: add the source to `sources`, the facts (of a trusted source; see the next point) to the
+  frontmatter and the biography, each cited inline `([F0xx](../<sources>/F0xx.md))`. The biography tells the life, not the research: where the document came
   from, who identified whom and any correction go to `## Notas de investigación` (`AGENTS.md` → "People", Body).
-- A document outranks the family tree and memory — once it is trusted: a source with `review: pendiente` fills gaps
-  but never overwrites existing data; its differences go to the notes and `<research>/incoherencias.md` until a family
-  member reviews it (`AGENTS.md` → "Rules"). If it contradicts another document, keep the one closest to the
-  event, explain in the notes and add an item to `<research>/incoherencias.md`, under the family and branch of
-  the people involved.
+- A document outranks the family tree and memory — once it is trusted. What only a source with `review: pendiente`
+  says goes only to `## Notas de investigación` (never to the other frontmatter keys, the biography nor `aliases`),
+  and its differences also to `<research>/incoherencias.md`, until a family member reviews it (`AGENTS.md` →
+  "Rules"). If it contradicts another document, keep the one closest to the event, explain in the notes and add an
+  item to `<research>/incoherencias.md`, under the family and branch of the people involved.
 - New people: create them with what the document says; parents from a certificate or will are `proven`, from
   anything weaker `probable`. Speculative links never go in the frontmatter — only in the notes.
 - Sources that mention several people must be linked from all of them (a list of candidates names two relatives:
