@@ -4,7 +4,7 @@ import { createEffect, createSignal, For, Show } from 'solid-js';
 export interface Tip { title?: string; lines?: string[]; note?: string; noteOpacity?: number }
 const [tip, setTip] = createSignal<{ content: Tip; x: number; y: number } | null>(null);
 
-export const showTip = (content: Tip, ev: MouseEvent): void => { setTip({ content, x: ev.clientX, y: ev.clientY }); };
+export const showTip = (content: Tip, ev: { clientX: number; clientY: number }): void => { setTip({ content, x: ev.clientX, y: ev.clientY }); };
 export const hideTip = (): void => { setTip(null); };
 
 export function Tooltip() {

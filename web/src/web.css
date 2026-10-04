@@ -99,7 +99,12 @@ main { padding: 0 1.4rem 3rem; }
 .home-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.2rem; margin-top: 1.4rem; }
 .card-panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.2rem; }
 .card-panel h2 { margin: 0 0 .6rem; font-size: 1.2rem; }
+.home-docs-panel { container-type: inline-size; }
+/* The home shows 6 documents: the columns always divide them into full rows (6, 3 or 2 columns) */
 .mini-docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
+.home-docs-panel .mini-docs { grid-template-columns: repeat(2, 1fr); }
+@container (min-width: 480px) { .home-docs-panel .mini-docs { grid-template-columns: repeat(3, 1fr); } }
+@container (min-width: 900px) { .home-docs-panel .mini-docs { grid-template-columns: repeat(6, 1fr); } }
 
 /* Legend */
 .legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; padding: .8rem 0; font-size: .85rem; color: var(--ink-2); }
@@ -265,7 +270,14 @@ body.voyage-full .voyage-bar { bottom: calc(1rem + env(safe-area-inset-bottom));
 .review-flag i { width: 7px; height: 7px; border-radius: 50%; flex: none;
                  background: repeating-linear-gradient(45deg, var(--review) 0 2px, transparent 2px 3px);
                  box-shadow: 0 0 0 1.5px var(--review); }
-.doc-meta .review-flag { margin-top: .45rem; }
+.doc-tags { display: flex; gap: .35rem; margin-top: .45rem; }
+.doc-tag { display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; cursor: help;
+           border: 1px solid var(--review-line); background: var(--review-bg); color: var(--review); }
+.doc-tag:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.doc-tag.ai { background: #fde2e1; border-color: #f0b4b2; color: #9b2c2c; }
+.doc-tag i { width: 9px; height: 9px; border-radius: 50%; flex: none;
+             background: repeating-linear-gradient(45deg, var(--review) 0 2px, transparent 2px 3px);
+             box-shadow: 0 0 0 1.5px var(--review); }
 .review-link { display: inline-block; text-decoration: none; margin-top: .35rem; }
 .review-link:hover .review-flag { border-color: var(--review); }
 .p-head .review-link { display: table; }
@@ -273,7 +285,11 @@ body.voyage-full .voyage-bar { bottom: calc(1rem + env(safe-area-inset-bottom));
 .review-note .review-link { margin: 0 .3rem .2rem 0; vertical-align: middle; }
 .review-count { margin: .2rem 0 0; }
 .review-count a { text-decoration: none; }
-.review-count .review-flag { font-size: .85rem; padding: .25rem .8rem .25rem .6rem; }
+/* Same button as the research documents' ones, with the review mark in front */
+.btn-review { display: inline-flex; align-items: center; gap: .5rem; }
+.btn-review i { width: 9px; height: 9px; border-radius: 50%; flex: none;
+                background: repeating-linear-gradient(45deg, var(--review) 0 2px, transparent 2px 3px);
+                box-shadow: 0 0 0 1.5px var(--review); }
 .review-split { display: block; margin-top: .45rem; font-size: .85rem; color: var(--muted); }
 .review-split a { color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--line);
                   text-underline-offset: 3px; }

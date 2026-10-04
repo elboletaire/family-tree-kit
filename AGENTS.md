@@ -205,7 +205,7 @@ generated in Python already without them (nothing is hidden with JavaScript nor 
 ## What's new
 
 The website's «Novedades» view (`#novedades`), the «Historial de la ficha» of the person card and the documents of
-«Documentos añadidos hace poco» on the home come from the Git history of the data, not from the commit messages
+«Últimos documentos añadidos» on the home come from the Git history of the data, not from the commit messages
 (`scripts/history.py`, in `DATA.history`). For each day with commits along the first-parent line of the branch, the
 notes at the end of the previous day are compared with those at the end of that day: sources added, approved
 (`review` from `pendiente` to `revisada`), updated or removed; people added, removed, renamed (Git's rename detection)

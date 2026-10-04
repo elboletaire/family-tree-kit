@@ -161,7 +161,7 @@ test('novedades: the days of the history, with links to their documents and peop
   expect(await hash(page)).toMatch(new RegExp(`^#novedades/[^/]+/d:${id}$`));
   // The home shows the documents added last, with a link here
   await page.goto(`${PAGE}#inicio`);
-  await expect(page.locator('.home-grid h2').first()).toHaveText('Documentos añadidos hace poco');
+  await expect(page.locator('.home-grid h2').first()).toHaveText('Últimos documentos añadidos');
   await expect(page.locator('#home-docs .doc-card').first()).toBeVisible();
   await page.locator('.home-news a').click();
   await expect(page.locator('#view-news')).toHaveClass(/active/);

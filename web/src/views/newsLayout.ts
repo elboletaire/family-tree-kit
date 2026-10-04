@@ -15,7 +15,7 @@ export function addedDocIds(history: HistoryEntry[]): string[] {
 /** The documents for «Últimos documentos» of the home: the `n` last ones added that `keep` accepts (from the history)
  *  or, without history, those of `fallback` (the documents by their own date). `added` says which of both it is */
 export function recentDocs(history: HistoryEntry[], docs: Map<string, Doc>, keep: (d: Doc) => boolean,
-                           fallback: () => Doc[], n = 8): { docs: Doc[]; added: boolean } {
+                           fallback: () => Doc[], n = 6): { docs: Doc[]; added: boolean } {
   const added = addedDocIds(history).map(id => docs.get(id)).filter((d): d is Doc => Boolean(d && keep(d)));
   return added.length ? { docs: added.slice(0, n), added: true } : { docs: fallback().slice(0, n), added: false };
 }

@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from 'solid-js';
 import { DocCard } from '../components/DocCard';
 import { Legend } from '../components/Legend';
-import { ReviewFlag } from '../components/ReviewFlag';
 import { AI, COMPILATION_TYPE, DATA, GENEALOGY, INCONSISTENCIES, P, PENDING, pendingDocs, PHOTO, REVISION, S } from '../data';
 import { ALL, SEVERAL } from '../family';
 import { texts } from '../i18n';
@@ -87,7 +86,7 @@ export function Home() {
       </div>
       <Legend id="legend-home" />
       <div class="home-grid">
-        <div class="card-panel">
+        <div class="card-panel home-docs-panel">
           <h2>{recent.added ? texts.home.latestAdded : texts.home.latestDocuments}</h2>
           <div id="home-docs" class="mini-docs"><For each={recent.docs}>{(d, i) => <DocCard doc={d} index={i()} />}</For></div>
           <Show when={DATA.history.length}>
@@ -104,8 +103,8 @@ export function Home() {
              <ResearchLink class="btn" name={REVISION}>{texts.home.revision}</ResearchLink></p>
           <Show when={pendingDocs.length}>
             <p class="review-count" id="home-review">
-              <ResearchLink name={REVISION}>
-                <ReviewFlag text={texts.review.pendingDocs(pendingDocs.length)} />
+              <ResearchLink class="btn btn-review" name={REVISION}>
+                <i aria-hidden="true" />{texts.review.pendingDocs(pendingDocs.length)}
               </ResearchLink>
               <Show when={split.length}>
                 <span class="review-split">
