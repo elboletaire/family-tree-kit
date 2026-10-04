@@ -49,7 +49,7 @@ De la [demo](https://elboletaire.github.io/family-tree-kit/) (`make screenshots`
 | ![Mapa](docs/screenshots/map.jpg) | ![Persona](docs/screenshots/person.jpg) |
 | **Mapa** de los lugares y las migraciones | La **ficha de una persona**: datos, parientes, documentos |
 | ![Documentos](docs/screenshots/documents.jpg) | ![Novedades](docs/screenshots/news.jpg) |
-| **Documentos**, con los pendientes de revisar | |
+| **Documentos**, con los pendientes de revisar | **Novedades**: lo que ha cambiado en el árbol, día a día |
 
 ## Empezar a mano
 

@@ -49,7 +49,7 @@ From the [demo](https://elboletaire.github.io/family-tree-kit/) (`make screensho
 | ![Map](docs/screenshots/map.jpg) | ![Person](docs/screenshots/person.jpg) |
 | **Map** of the places and migrations | A **person's card**: facts, relatives, documents |
 | ![Documents](docs/screenshots/documents.jpg) | ![What's new](docs/screenshots/news.jpg) |
-| **Documents**, with those pending review | |
+| **Documents**, with those pending review | **What's new**: what changed in the tree, day by day |
 
 ## Start by hand
 
