@@ -339,7 +339,10 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
 - `incoherencias.md` and `pendientes.md` go by families: a `##` for each family of `families.yml` (with its exact
   `title`), with a `###` per branch, and «General». Each new item goes in the family and branch of the people it
   affects; only what touches several goes in «General». An item is a plain top-level bullet (`- **Title** — text`, no
-  checkbox) and is removed when solved: the solution is in the notes. The family `##` titles are not renamed: the website and
+  checkbox) and is removed only once its answer is written where it belongs: the settled fact in the frontmatter and
+  biography (with its source) and how it was settled in the notes, or what was ruled out deleted and recorded in
+  `research/descartados.md`; removing an item without that loses the answer, and what only a pending source says
+  does not settle it. The family `##` titles are not renamed: the website and
   `make report` filter by them (if one is renamed, its `title` in `families.yml` is changed at the same time).
 - Every source found by automated or AI research (newspaper archives, gazettes, archive indexes) comes in with
   `review: pendiente`, and only a person of the family changes it to `revisada`. What only a pending source says is

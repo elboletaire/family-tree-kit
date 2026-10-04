@@ -75,7 +75,8 @@ Answers come back numbered, often in fragments, sometimes corrected minutes late
 - A document outranks memory: if the answer contradicts a document, keep the document's value, explain it in the
   notes and add an item to `incoherencias.md`. If a document is itself unclear (a date misread by OCR), the
   testimony can settle it — say so.
-- Remove resolved items from `incoherencias.md` and answered questions from `pendientes.md`; add the new
+- Remove resolved items from `incoherencias.md` and answered questions from `pendientes.md`, but only after the answer
+  is in the people's notes (the settled fact in the frontmatter and biography, a rejection in `descartados.md`); add the new
   ones that came up, all of them, before telling the user: an answer that opens a question (a name without surnames,
   «a cousin», an unsure date) leaves it written there.
 - Photos they send: `add-document` skill.
