@@ -161,7 +161,6 @@ class ConfiguredFolders(unittest.TestCase):
         revision = self.read("research", "revision.md")
         self.assertIn("[abrir F002](../sources/F002.md)", revision)
         self.assertIn("[Pau Ferrer Puig](../people/pau-ferrer-puig.md)", revision)
-        self.assertIn("`sources/F0xx.md`", revision)
 
     def test_validate(self):
         result = run(self.root, "validate")

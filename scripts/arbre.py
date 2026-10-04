@@ -800,7 +800,7 @@ def revision_markdown(people, sources, hide_dates=lambda p: False):
         "",
         i18n.REVISION_GENERATED,
         "",
-        *i18n.revision_intro(CONFIG.paths.sources),
+        *i18n.revision_intro(),
         "",
         i18n.revision_split_intro(f.title for f in CONFIG.families),
         "",

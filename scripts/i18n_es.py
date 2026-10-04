@@ -22,19 +22,14 @@ GENERAL_OF = "sin personas"
 
 REVISION_TITLE = "# Revisión de lo hallado por investigación automática"
 REVISION_GENERATED = "<!-- generado con `make refs` a partir del campo `review` de las fuentes; no editar a mano -->"
-def revision_intro(sources):
-    """`sources`: the folder of the sources (`paths.sources` in families.yml)."""
+def revision_intro():
     return [
-        "Estas fuentes no vienen del Drive ni de la familia: las encontró una investigación automática (IA) en",
-        "hemerotecas, boletines oficiales e índices de archivos. Los datos que dependen solo de ellas son",
-        "**provisionales** hasta que alguien de la familia las revise.",
+        "Estas fuentes no vienen de la familia: las encontró una investigación automática (IA) en hemerotecas,",
+        "boletines oficiales e índices de archivos. Los datos que dependen solo de ellas son **provisionales**",
+        "hasta que alguien de la familia las revise.",
         "",
-        f"- **Aprobar una fuente**: en su ficha (`{sources}/F0xx.md`) se cambia `review: pendiente` por",
-        "  `review: revisada` y se añade quién y cuándo, p. ej. `reviewed_by: \"Nombre, 2026-10-02\"`. También",
-        "  se le puede pedir a Claude.",
-        "- **Si una fuente es errónea** (otra persona, otra familia, un dato mal leído): se borra la fuente y, con",
-        "  ella, los datos que dependen de ella. Las personas marcadas «se quedaría sin fuentes» no tienen otra",
-        "  prueba y saldrían del árbol; las de la lista final de cada familia dependen solo de fuentes pendientes.",
+        "Las personas marcadas «se quedaría sin fuentes» no tienen otra prueba: si la fuente resultara errónea,",
+        "saldrían del árbol. Las de la lista final de cada familia dependen solo de fuentes pendientes.",
     ]
 
 
