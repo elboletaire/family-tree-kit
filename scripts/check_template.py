@@ -53,11 +53,14 @@ MIN_SURNAME = 4
 # Surnames that are also common words or appear in the engine for their own sake; they are still searched as part of
 # full names and slugs. Each one says why.
 COMMON = {
+    "cartagena": "Spanish city (naval archives are there)",
     "costa": "Spanish and Catalan word: coast",
+    "diez": "Spanish word: ten (court edicts: «cita por diez días»)",
     "fuentes": "Spanish word: sources (the data values and texts use it)",
     "font": "CSS and typography word (font-family) and a common Catalan surname",
     "garcia": "one of the commonest Spanish surnames (fictional people of the tests)",
     "guerra": "Spanish word: war",
+    "iglesias": "Spanish word: churches, and the name of institutions (Fundación Pablo Iglesias)",
     "nieto": "Spanish word: grandson",
     "perez": "one of the commonest Spanish surnames (fictional people of the tests)",
     "sans": "CSS and typography word (sans-serif) and a common Catalan surname",
