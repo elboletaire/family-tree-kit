@@ -72,16 +72,21 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   is or becomes public, its history must not hold unredacted copies.
 - Store files in `<sources>/F0xx/` (Git LFS) with descriptive names, and list them in `files`. Originals in the
   sources folder are never edited afterwards.
-- **Newspaper notices and other pages taken from an online archive**: read and transcribe from the page image,
-  never from the archive's OCR alone (the OCR mixes columns and misreads names). Store a colour crop of the notice
-  and, when the portal lets you download the whole issue, its pages too: other people of the tree may turn up in the
-  same issue, and searching a local copy is easier than searching online. A whole issue is often a heavy PDF (tens of
-  MB), which is not stored as it is; keep each page twice: the original in colour as JPEG at about 200 dpi and
-  quality ~75 (2-3 MB per broadsheet page: the paper and its tone as the archive scanned them, and enough to derive
-  any other copy), and a reading copy as 1-bit PNG (median filter, autocontrast, a threshold around 140: about 1 MB
-  per page, sharp enough to run OCR again). Name them alike (`…-p1.jpg`, `…-p1.png`), and put the link to the
-  original in `origin` and in the transcription. If no image can be had, say so in `origin` and add an item to
-  `pendientes.md` to get it.
+- **Newspaper notices and other pages taken from an online archive**: read and transcribe from the page image, never
+  from the archive's OCR alone (the OCR mixes columns and misreads names). Store a colour crop of the notice and, when
+  the portal lets you download the whole issue, its pages too: other people of the tree may turn up in the same issue,
+  and searching a local copy is easier than searching online. **One crop per notice, readable on its own**: a notice
+  often breaks across columns (the heading — a town's name, a party, an «obituaries» section header — at the foot of
+  one column and its text at the top of the next, or a long list continuing in the next column). Crop each piece and
+  stack them top to bottom, left-aligned, into a single image; never store a piece that only holds a heading, which on
+  the website is a thumbnail that says nothing. Several numbered crops of the same page are only for notices that are
+  distinct and make sense each alone. Trim from each piece whatever belongs to the neighbouring columns (a photo's
+  edge, another notice's lines). A whole issue is often a heavy PDF (tens of MB), which is not stored as it is; keep
+  each page twice: the original in colour as JPEG at about 200 dpi and quality ~75 (2-3 MB per broadsheet page: the
+  paper and its tone as the archive scanned them, and enough to derive any other copy), and a reading copy as 1-bit
+  PNG (median filter, autocontrast, a threshold around 140: about 1 MB per page, sharp enough to run OCR again). Name
+  them alike (`…-p1.jpg`, `…-p1.png`), and put the link to the original in `origin` and in the transcription. If no
+  image can be had, say so in `origin` and add an item to `pendientes.md` to get it.
 - A portrait for a person's `photo` is a derived crop in `<portraits>/<slug>.jpg`, documented with a row in
   `<portraits>/README.md` (source and crop box).
 
