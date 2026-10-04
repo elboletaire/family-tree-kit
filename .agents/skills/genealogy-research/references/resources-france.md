@@ -22,6 +22,26 @@ population) online. *Reported, not checked:* the Ardennes, the Aude, the Calvado
 censuses online (several years between 1926 and 1946 for some communes). Read a census household by household: it gives birthplace and occupation
 for each member.
 
+**Archives départementales des Pyrénées-Orientales** (`archives.cd66.fr/mdr/index.php/rechercheTheme`, portal
+`ledepartement66.fr/lesarchivesenligne/`; *checked*, free, no login; reported to be blocked from outside France at
+times: a VPN) — for the French Cerdagne and the Roussillon, and for families on both sides of the border: parish
+registers 1516–1792 and civil registers 1793–1902 by commune, military recruitment registers by class, household
+censuses, mortgage registers 1799–1955, the Napoleonic cadastre, the tables of deaths, successions and absences
+1704–1968 by registration office (useful to date a death and find an inheritance), and a selection of files on the
+refugees and internment camps of 1939–1942. Each theme is `/mdr/index.php/rechercheTheme/requeteConstructor/<n>/1/R/0/0`
+(1 civil registers, 2 military, 3 censuses, 4 mortgages, 5 cadastre, 6 death tables, 13 refugees and camps); browse by
+commune and register into the image viewer — no name index for the civil registers.
+
+## Exile of 1939
+
+The nominative lists of the internees of the camps (about 15,000 names from February to June 1939, more than 57,000
+after October 1939) are described in the research guide of the Mémorial du camp d'Argelès-sur-Mer
+(`memorial-argeles.eu/fr/le-memorial/outils-de-recherche.html`, *checked*), with the finding aids of the Archives
+nationales (FRAN_IR_050044, FRAN_IR_054192), and in the Pyrénées-Orientales page on the camps
+(`ledepartement66.fr/les-ressources-sur-les-camps-dinternement/`). *Reported:* Exilis (`exilis.1936-1946.eu`), a guide
+to archive sources on the exile; *Mémoire des hommes* of the French Ministry of the Armed Forces (foreign volunteers of
+1939–1940, war dead; 403 to automation). Deportees to the Nazi camps: see `resources-spain.md`, "Military and Civil War".
+
 ## Newspapers and directories
 
 **Gallica (Bibliothèque nationale de France)** — digitised press and annuaires. *Reported, not checked:* the
