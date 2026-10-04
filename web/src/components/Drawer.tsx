@@ -17,9 +17,12 @@ export function Drawer() {
   // The panel starts below the top bar (--topbar-h, which Topbar measures)
   return (
     <aside id="drawer" class="drawer" classList={{ open: Boolean(panel()) }} aria-hidden={!panel()} ref={el}>
-      <button class="drawer-back" id="drawer-back" aria-label={texts.drawer.back} title={texts.drawer.backTitle} hidden={!canGoBack()}
-              onClick={() => history.back()}>←</button>
-      <button class="drawer-close" id="drawer-close" aria-label={texts.close} onClick={closePanel}>×</button>
+      {/* One bar for every card: the buttons never share a row with the content */}
+      <header class="drawer-bar">
+        <button class="drawer-back" id="drawer-back" aria-label={texts.drawer.back} title={texts.drawer.backTitle} hidden={!canGoBack()}
+                onClick={() => history.back()}>←</button>
+        <button class="drawer-close" id="drawer-close" aria-label={texts.close} onClick={closePanel}>×</button>
+      </header>
       <div id="drawer-body" class="drawer-body">
         <Switch>
           <Match when={kind() === 'p' && key()} keyed>{id => <PersonPanel id={id} />}</Match>

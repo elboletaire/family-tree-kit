@@ -293,8 +293,8 @@ body.voyage-full .voyage-bar { bottom: calc(1rem + env(safe-area-inset-bottom));
                   text-underline-offset: 3px; }
 .review-split a:hover { color: var(--accent); text-decoration-color: currentColor; }
 /* Research documents: family selector */
-.family-switch { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; gap: .3rem;
-                 margin: -1.2rem 0 .4rem; padding: .75rem 0 .6rem; background: var(--card); }
+.family-switch { position: sticky; top: var(--bar-h, 0px); z-index: 1; display: flex; flex-wrap: wrap; gap: .3rem;
+                 margin: 0 0 .4rem; padding: .4rem 0 .6rem; background: var(--card); }
 .family-switch button { padding: .35rem .85rem; border-radius: 999px; border: 1px solid var(--line);
                         background: var(--card); color: var(--ink-2); font: inherit; font-size: .85rem;
                         cursor: pointer; }
@@ -329,14 +329,15 @@ section[data-family][hidden] { display: none; }
           transform: translateX(105%); transition: transform .35s var(--ease); overflow-y: auto; }
 .drawer.open { transform: none; }
 .drawer:not(.open) { visibility: hidden; transition: transform .35s var(--ease), visibility 0s .35s; }
-.drawer-close { position: sticky; top: .6rem; float: right; margin: .6rem .8rem 0 0; border: 0;
-                background: var(--paper-2); width: 34px; height: 34px; border-radius: 50%; font-size: 1.3rem;
-                cursor: pointer; z-index: 2; }
-.drawer-back { position: sticky; top: .6rem; float: left; margin: .6rem 0 0 .8rem; border: 0;
-               background: var(--paper-2); width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem;
-               cursor: pointer; z-index: 2; }
+.drawer { --bar-h: 3.1rem; }
+.drawer-bar { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between;
+              height: var(--bar-h); padding: 0 .8rem; background: var(--card); }
+.drawer-close, .drawer-back { border: 0; background: var(--paper-2); width: 34px; height: 34px; border-radius: 50%;
+                              cursor: pointer; flex: none; }
+.drawer-close { margin-left: auto; font-size: 1.3rem; }
+.drawer-back { margin-right: .8rem; font-size: 1.1rem; }
 .drawer-back[hidden] { display: none; }
-.drawer-body { padding: 1.2rem 1.5rem 3rem; }
+.drawer-body { padding: .2rem 1.5rem 3rem; }
 .p-head { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
 .p-photo { width: 96px; height: 116px; border-radius: 10px; object-fit: cover; box-shadow: var(--shadow);
            cursor: zoom-in; }
@@ -361,11 +362,12 @@ section[data-family][hidden] { display: none; }
 .prose { font-size: .95rem; }
 .prose a[href^="http"] { overflow-wrap: anywhere; }
 .prose h1, .prose h2 { font-size: 1.15rem; }
+.prose h1 { font-size: 1.7rem; line-height: 1.15; margin: .2rem 0 .6rem; }
 .prose h3 { border: 0; font-size: 1rem; }
 /* Research documents: family (h2), branch (h3) and kind of point (h4) */
-.prose section[data-family] > h2 { font-size: 1.3rem; margin: 2rem 0 .4rem; padding-bottom: .3rem;
-                                   border-bottom: 2px solid var(--ink); }
-.prose section[data-family] h3 { margin-top: 1.6rem; border-bottom: 1px solid var(--line); padding-bottom: .25rem; }
+.prose section[data-family] > h2 { font-size: 1.15rem; margin: 1.8rem 0 .4rem; padding-bottom: .25rem;
+                                   border-bottom: 1px solid var(--ink); }
+.prose section[data-family] h3 { font-size: .95rem; margin-top: 1.4rem; border-bottom: 1px solid var(--line); padding-bottom: .25rem; }
 .prose section[data-family] h4:not(:has(> a)) { margin: 1rem 0 .3rem; font-size: .75rem; font-weight: 600;
                                                 text-transform: uppercase; letter-spacing: .08em; color: var(--accent-2); }
 .prose table { border-collapse: collapse; font-size: .85rem; }

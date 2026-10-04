@@ -16,8 +16,12 @@ export function ResearchPanel(props: { name: string }) {
     setFamily(f);
     (e.currentTarget as Element).closest('.drawer')?.scrollTo({ top: 0 });
   };
+  // The title (what comes before the first family) goes above the selector
+  const lead = parts[0] && !parts[0].family ? parts[0] : null;
+  const rest = lead ? parts.slice(1) : parts;
   return (
     <>
+      <Show when={lead}>{l => <Html class={`prose research-${props.name}`} html={l().html} />}</Show>
       <Show when={split}>
         <div class="family-switch" role="group" aria-label={texts.research.whichFamily}>
           <For each={offered}>{([key, label]) => {
@@ -31,7 +35,7 @@ export function ResearchPanel(props: { name: string }) {
         </div>
       </Show>
       <div class={`prose research-${props.name}`}>
-        <For each={parts}>{part => part.family
+        <For each={rest}>{part => part.family
           ? <Html tag="section" html={part.html} data-family={part.family} data-count={String(part.count)}
                   hidden={!sectionVisible(part.family, shown())} />
           : <Html tag="div" html={part.html} style={{ display: 'contents' }} />}
