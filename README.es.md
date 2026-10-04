@@ -60,8 +60,10 @@ Sin el texto de arriba, los mismos pasos:
 2. Instala los requisitos (abajo) y el hook `pre-push` (`make hooks`), que, entre otras cosas, impide subir tu árbol
    a `kit`.
 3. Abre tu agente en la carpeta y dile **«quiero empezar mi árbol»** (en cualquier idioma). Sin `families.yml`, sigue
-   la skill `start-tree`: pregunta en qué idioma se escribe el árbol y dónde guardarlo, te entrevista sobre ti, tus
-   padres y tus abuelos, y crea las primeras fichas, `families.yml` y `TREE.md` (las convenciones de tu propio árbol).
+   la skill `start-tree`: pregunta en qué idioma se escribe el árbol, te entrevista sobre ti (y si tienes algo de lo
+   que partir: un árbol que alguien empezó, esquelas…; si no, no pasa nada), tus padres y tus abuelos, pocas preguntas
+   cada vez, y crea las primeras fichas, `families.yml` y `TREE.md` (las convenciones de tu propio árbol). Ves la web
+   en cuanto están tus padres, y dónde guardar el árbol se pregunta al final.
 4. `make html` y abre `build/web/index.html`.
 
 **Dónde guardarlo**: solo en tu ordenador (con una copia de seguridad: la carpeta copiada en una nube, un disco

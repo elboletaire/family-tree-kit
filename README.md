@@ -60,9 +60,11 @@ Without the prompt above, the same steps:
 2. Install the requirements (below) and the `pre-push` hook (`make hooks`), which, among other things, refuses a push
    of your tree to `kit`.
 3. Open your agent in the folder and say **"I want to start my tree"** (in any language). With no `families.yml`, it
-   follows the `start-tree` skill: it asks which language the tree is written in and where to keep it, interviews you
-   about yourself, your parents and your grandparents, and creates the first notes, `families.yml` and `TREE.md` (the
-   conventions of your own tree).
+   follows the `start-tree` skill: it asks which language the tree is written in, interviews you about yourself
+   (and whether you have anything to start from: a tree someone began, funeral cards… none is fine too), your parents
+   and your grandparents, a few questions at a time, and creates the first notes, `families.yml` and `TREE.md` (the
+   conventions of your own tree). You see the website as soon as your parents are in, and where to keep the tree is
+   asked at the end.
 4. `make html` and open `build/web/index.html`.
 
 **Where to keep it**: only on your computer (with a backup: a copy of the folder in a cloud drive, an external

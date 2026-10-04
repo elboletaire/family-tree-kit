@@ -10,11 +10,18 @@ with every fact traceable to a source, and leave them with a working website and
 
 Read `AGENTS.md` first: it is the contract for file names, frontmatter keys, date formats, sources and the families
 config. This skill is the workflow; `AGENTS.md` is the schema. When they disagree, `AGENTS.md` wins. What is specific
-to this tree (not to every tree made from the template) goes in `TREE.md`, which this skill creates (step 6).
+to this tree (not to every tree made from the template) goes in `TREE.md`, which this skill creates (step 5).
 
 Data folders are named by their role — the people, sources, research and portraits folders — and their names are
 in `paths` of `families.yml`. Below, `<sources>/F0xx.md` means a file in the sources folder (`paths.sources`), and so
 on.
+
+**Keep the start light.** A long questionnaire before anything appears on screen is the main reason people never
+start their tree. Ask little at a time, write the people as soon as you have them, and show the website once the user
+and their parents are in (step 6): from there on every round adds to a tree that already works, and the user can stop
+at any point and come back another day. Technical decisions (where to keep the tree) wait until the end (step 7).
+Say so at the start, in one or two sentences: a few short rounds of questions, nothing needs to be complete, gaps are
+normal.
 
 ## 0. Language and the families config
 
@@ -30,16 +37,113 @@ Then create `families.yml` from `families.example.yml` (copy it; do not edit the
 - `paths`: keep the defaults (`people`, `sources`, `research`, `portraits`) unless the user wants other folder names.
   The template has no data folders: once `families.yml` has its `paths`, run `make folders`, which creates them
   (with a `.gitkeep` in each, so that Git keeps the empty ones).
-- `main`: the user's slug, once you know their full name (step 2).
-- Replace the fictional family, branches and groups of the example with the real ones as you learn them (step 5).
+- `main`: the user's slug, once you know their full name (step 1).
+- Replace the fictional family, branches and groups of the example with the real ones as you learn them (step 4).
 
 Every later session and skill reads the language from `families.yml`, so it is never asked again. The skills
 themselves are in English; that never decides the language of the conversation or the content.
 
-## 1. Where to keep the tree
+## 1. Ask a little, then write
 
-Ask early, in plain words (the user may not know what git or GitHub are), where the tree should be kept. It can be
-decided later: the tree works on this computer either way.
+Use short rounds of questions (AskUserQuestion when available, 2–4 questions per round). Never ask for everything at
+once. Go generation by generation, starting with the user, and write each generation's people (step 3) before asking
+about the next one:
+
+1. **The user**: full name as it appears on their ID (all surnames, accents included), sex, birth date and place.
+   Whether they want their own data in the tree at all. If the naming system is not obvious from their name (one or
+   two surnames, maiden names, patronymics), ask: slugs follow the surnames the family actually uses.
+2. **Anything to start from?** Right after the user's own data, ask whether they have anything they can hand over
+   now: a tree someone already started (a spreadsheet, a GEDCOM or an export from a genealogy site, a photo of a
+   handwritten tree), a family book, funeral cards, obituaries, certificates. Say plainly that having nothing is fine
+   and the questions go on as usual. If they hand something over, read it before the next round: take from it the
+   names, dates and places it gives, and turn the questions into confirmations ("the tree says your grandfather was
+   born in 1921 in …, is that right?"), asking only for what it doesn't answer. Don't stop the interview to import
+   it: each document becomes a source with `add-document` once the first people exist (step 3), and a tree compiled
+   by the family is named in `TREE.md` (step 5) as the compiled source it is. The engine has no GEDCOM importer
+   (`make gedcom` only exports): read a GEDCOM as a text file.
+3. **Parents**: full names, birth and death dates and places (approximate is fine: "around 1950", "in the 60s"),
+   marriage date and place, whether they are alive, other children (the user's siblings, half-siblings).
+4. **Grandparents** (four of them), then great-grandparents: same questions. Expect gaps; a first name alone is
+   useful ("my grandmother's mother was called Rosa"). These rounds can wait for another session (step 6).
+5. **Documents that exist but are not at hand**: at a relative's home, in a box — family books, certificates, wills,
+   deeds, letters, photos with writing on the back, funeral cards, a relative's handwritten tree. Each will become a
+   source later (`add-document` skill).
+6. **Who else knows things**: the oldest living relatives. They are the most urgent source (`family-interview`
+   skill).
+
+Record uncertainty exactly as said: "born around 1923" → `"c. 1923"`; "I think the 8th of December" →
+`"¿1923-12-08?"`; unknown → omit the key or `"?"`. Never round a guess into a firm date.
+
+## 2. The first source: the user's own testimony
+
+Before creating any person, create `<sources>/F001.md` for the conversation itself: type "oral testimony", date
+today, issuer the user, and a `## Datos` list with what they said, in their words; add to it as the rounds go on.
+Every person you create cites it in `sources`, and every fact in the biography cites it inline. Later documents will
+confirm or correct it; the testimony stays as the record of what was believed. Documents the user handed over (step 1)
+come next, from `F002` on.
+
+The user's testimony about their **own** generation and their parents' is strong. What they say about
+great-grandparents is family tradition: use `parents_confidence: probable`.
+
+## 3. Create the people
+
+- One file per person, slug from the full name (see `AGENTS.md`: lowercase, no accents, hyphens; `nombre-nn` when
+  surnames are unknown, `nn-apellido` when the given name is unknown).
+- Only `father`, `mother` and `spouses` link people. Children are never written: they are derived.
+- Spouses and `marriages` must be identical on both files.
+- `living: true` for the living. Do not store current addresses, ID numbers or phone numbers of anyone alive.
+- Siblings whose parents are not in the tree yet go in `siblings`; once the parents exist, remove it.
+- Body: `# Full name`, `## Biografía` (short, every fact with its source link), `## Notas de investigación` (what is
+  unknown and which document would answer it).
+- After each generation, `make validate` (0 errors) before asking about the next one.
+
+## 4. The families config
+
+Fill in the rest of `families.yml` (see "Families and branches" in `AGENTS.md`), replacing the example's fictional
+family. A first version is enough as soon as the parents are in; complete it as grandparents and great-grandparents
+come in:
+
+- `main`: the user's slug — the website opens through their eyes.
+- `families`: usually one per side the user cares about (e.g. the father's family and the mother's family), one
+  marked `default: true`.
+- `branches`: one per surname line with a known founder (the oldest ancestor of that line in the tree), with a
+  distinct colour. Add `rama/<key>` tags to everyone who descends from each founder.
+- `groups`: how branches are grouped in the review report.
+
+Also create `<research>/incoherencias.md` and `<research>/pendientes.md` with one `##` per family `title`
+(exactly as in the config), a `###` per branch, and a `## General`.
+
+## 5. TREE.md: this tree's conventions
+
+Create `TREE.md` at the root, in the tree's language: what makes this tree different from any other made from the
+template. `AGENTS.md` stays as it is (it is shared with the template); every later session reads both. Write only
+what you know now, say what is still unknown, and complete it as the tree grows:
+
+- A short description of the tree: whose it is, which families and branches, where it comes from.
+- The content language and, if they are not the defaults, the data folders (`paths`).
+- The family's own sources in the hierarchy of `AGENTS.md` ("Rules"): which compiled trees exist (a relative's
+  spreadsheet, a handwritten tree) and their source numbers once they are added.
+- Where the originals are (a shared folder, boxes at a relative's home) and, for a shared folder, how to reach it for
+  `scripts/drive_diff.py`; where the full photo albums are kept.
+- The language of the commit messages (ask; by default, the language the user writes in).
+- Where the tree is kept (step 7): only on this computer and where its backups go, or its `origin` remote.
+
+## 6. Show it early
+
+As soon as the user and their parents are in:
+
+1. `make validate` — must end with 0 errors. Fix everything it reports before continuing.
+2. `make html` and open `build/web/index.html` with the user: the tree should show them and their parents.
+3. Ask whether to go on now with the grandparents and great-grandparents (step 1), or leave it here for today. Both
+   are fine: what is written stays, and the next session picks up from the people folder and `pendientes.md`. Before
+   stopping, do steps 7 and 8, so nothing is lost.
+
+After each further generation, `make html` again: seeing the tree grow is what keeps people going.
+
+## 7. Where to keep the tree, and the first commit
+
+Ask now, in plain words (the user may not know what git or GitHub are), where the tree should be kept. It can be
+decided later still: the tree works on this computer either way.
 
 - **Only on this computer.** Fine to start with. Warn that it then needs a backup: a copy of the folder in a cloud
   drive, on an external disk… A tree lost with a laptop is years of work.
@@ -59,95 +163,17 @@ kit's: there is no `kit` remote, and the first update of the kit needs `git remo
 https://github.com/elboletaire/family-tree-kit` and `git merge --allow-unrelated-histories kit/main` (with conflicts
 to resolve by hand, once); later updates are normal merges. Say so, so it is not a surprise.
 
-Creating the remote and the first push can wait until the first commit of the tree (step 7). Note the answer in
-`TREE.md` (step 6): where the tree is kept and where its backups are.
-
-## 2. Ask before writing
-
-Use short rounds of questions (AskUserQuestion when available, 2–4 questions per round). Never ask for everything at
-once. Go generation by generation, starting with the user:
-
-1. **The user**: full name as it appears on their ID (all surnames, accents included), sex, birth date and place.
-   Whether they want their own data in the tree at all.
-2. **Parents**: full names, birth and death dates and places (approximate is fine: "around 1950", "in the 60s"),
-   marriage date and place, whether they are alive, other children (the user's siblings, half-siblings).
-3. **Grandparents** (four of them), then great-grandparents: same questions. Expect gaps; a first name alone is
-   useful ("my grandmother's mother was called Rosa").
-4. **What documents exist at home**: family books, certificates, wills, deeds, letters, photos with writing on the
-   back, funeral cards, obituaries, a relative's handwritten tree. Each will become a source later
-   (`add-document` skill).
-5. **Who else knows things**: the oldest living relatives. They are the most urgent source (`family-interview`
-   skill).
-6. **Naming**: the naming system (one or two surnames, maiden names, patronymics). Slugs follow the surnames the
-   family actually uses.
-
-Record uncertainty exactly as said: "born around 1923" → `"c. 1923"`; "I think the 8th of December" →
-`"¿1923-12-08?"`; unknown → omit the key or `"?"`. Never round a guess into a firm date.
-
-## 3. The first source: the user's own testimony
-
-Before creating any person, create `<sources>/F001.md` for the conversation itself: type "oral testimony", date
-today, issuer the user, and a `## Datos` list with what they said, in their words. Every person you create cites it
-in `sources`, and every fact in the biography cites it inline. Later documents will confirm or correct it; the
-testimony stays as the record of what was believed.
-
-The user's testimony about their **own** generation and their parents' is strong. What they say about
-great-grandparents is family tradition: use `parents_confidence: probable`.
-
-## 4. Create the people
-
-- One file per person, slug from the full name (see `AGENTS.md`: lowercase, no accents, hyphens; `nombre-nn` when
-  surnames are unknown, `nn-apellido` when the given name is unknown).
-- Only `father`, `mother` and `spouses` link people. Children are never written: they are derived.
-- Spouses and `marriages` must be identical on both files.
-- `living: true` for the living. Do not store current addresses, ID numbers or phone numbers of anyone alive.
-- Siblings whose parents are not in the tree yet go in `siblings`; once the parents exist, remove it.
-- Body: `# Full name`, `## Biografía` (short, every fact with its source link), `## Notas de investigación` (what is
-  unknown and which document would answer it).
-
-## 5. The families config
-
-Fill in the rest of `families.yml` (see "Families and branches" in `AGENTS.md`), replacing the example's fictional
-family:
-
-- `main`: the user's slug — the website opens through their eyes.
-- `families`: usually one per side the user cares about (e.g. the father's family and the mother's family), one
-  marked `default: true`.
-- `branches`: one per surname line with a known founder (the oldest ancestor of that line in the tree), with a
-  distinct colour. Add `rama/<key>` tags to everyone who descends from each founder.
-- `groups`: how branches are grouped in the review report.
-
-Also create `<research>/incoherencias.md` and `<research>/pendientes.md` with one `##` per family `title`
-(exactly as in the config), a `###` per branch, and a `## General`.
-
-## 6. TREE.md: this tree's conventions
-
-Create `TREE.md` at the root, in the tree's language: what makes this tree different from any other made from the
-template. `AGENTS.md` stays as it is (it is shared with the template); every later session reads both. Write only
-what you know now, and say what is still unknown:
-
-- A short description of the tree: whose it is, which families and branches, where it comes from.
-- The content language and, if they are not the defaults, the data folders (`paths`).
-- The family's own sources in the hierarchy of `AGENTS.md` ("Rules"): which compiled trees exist (a relative's
-  spreadsheet, a handwritten tree) and their source numbers once they are added.
-- Where the originals are (a shared folder, boxes at a relative's home) and, for a shared folder, how to reach it for
-  `scripts/drive_diff.py`; where the full photo albums are kept.
-- The language of the commit messages (ask; by default, the language the user writes in).
-- Where the tree is kept (step 1): only on this computer and where its backups go, or its `origin` remote.
-
-## 7. Check and show
-
-1. `make validate` — must end with 0 errors. Fix everything it reports before continuing.
-2. `make html` and open `build/web/index.html` with the user: the tree should show their parents and grandparents.
-3. Commit (message style in `AGENTS.md` and `TREE.md`) and, if the tree has an `origin` (step 1), push to it — never
-   to `kit`.
+Note the answer in `TREE.md` (step 5): where the tree is kept and where its backups are. Then commit (message style
+in `AGENTS.md` and `TREE.md`) and, if the tree has an `origin`, push to it — never to `kit`.
 
 ## 8. Leave a research plan
 
 Write the gaps into `<research>/pendientes.md`, most urgent first:
 
 - Questions only living relatives can answer (who to ask, what to ask) — these expire.
-- Documents the family probably has (marriage certificate of the parents, grandparents' funeral cards).
+- Generations not asked about yet, if the user stopped early (step 6).
+- Documents the family probably has (marriage certificate of the parents, grandparents' funeral cards), and those
+  handed over in step 1 still to be added as sources.
 - Civil and church records to request, with the place and approximate year needed.
 
 Then suggest the next step: an interview with the oldest relative (`family-interview`), or searching online for the
