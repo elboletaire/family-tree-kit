@@ -13,7 +13,8 @@ are in `paths` of `families.yml` (by default `people`, `sources`, `research` and
 means a file in the sources folder (`paths.sources`), and so on.
 
 Schema and rules are in `AGENTS.md` (above all "Sources" and "Rules": every finding comes in pending review), and this
-tree's own conventions in `TREE.md` if it exists.
+tree's own conventions in `TREE.md` if it exists. Start from what the tree already has:
+`uv run scripts/lookup.py <person>` gives their facts, family, sources and open and discarded items in one call.
 
 Good research here is persistence plus method: most useful archives are free but awkward (JavaScript apps, anti-bot
 challenges, OCR full of errors, search forms that silently ignore parameters). A less determined agent stops at the

@@ -12,6 +12,15 @@ transcriptions, research notes, the website) is in the tree's language, `languag
 keys are in English. After any change in the people or sources folders, run `make validate` (it must end with 0
 errors).
 
+**To find anything in the tree, start with `uv run scripts/lookup.py`**, not with grep or by reading notes: one call
+gives a person's card (facts, parents, spouses, children, siblings, sources and their items in `pendientes.md`,
+`incoherencias.md` and `descartados.md`), a source's (`F012`), a branch's (`rama/<key>`) or the lines of the notes that
+contain a text (`--text`); several queries go in the same call, one per argument. The cards are short (relatives by
+slug, source ids, one line per item); widen only the part you need: `--family` (names, dates, grandparents),
+`--sources` (titles; all the fields and files of a source), `--links` (notes that link or name them), `--items` (the
+items in full), `--full` (all of them), `--body` (the note's body). It reads the notes as they are, so it is never out
+of date. Open a note only to read or edit what the card points to.
+
 ## Structure
 
 The data folders are named in `paths` of `families.yml` (see "Language and folders"); here they are cited by their
@@ -33,7 +42,8 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   `build/private/` (see "Public version"); `privacy.py` decides what is public and `leak_check.py` is the leak check; `share_image.py` makes the collage of the
   link preview (see "Public version"); `history.py` reads «Novedades» from the Git history (see "What's new");
   `references.py` regenerates the generated sections and `report.py` makes the report; `geocode.py` fills in
-  `places.yml`; `folders.py` creates the data folders of `paths`; `config.py` prints a value of `families.yml` for the shell scripts; `check_template.py` checks that
+  `places.yml`; `lookup.py` answers in one call what the tree knows about a person, a source, a branch or a text;
+  `folders.py` creates the data folders of `paths`; `config.py` prints a value of `families.yml` for the shell scripts; `check_template.py` checks that
   no name of the family is in the engine's files (see "Engine and data"); `demo.py` writes the fictional demo tree
   (Faker with a fixed seed; real towns, so that its map works; portraits drawn with Pillow, never real photos; and a
   Git repository with a few weeks of history, dated back from the day it runs, for «Novedades»).
@@ -90,6 +100,9 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
 - `make demo` — the fictional tree of `scripts/demo.py` in `build/demo-tree` and its whole website in `build/demo`
   (with its scans in `build/demo/sources`), without touching this tree · `make screenshots` — the screenshots of the
   READMEs from it, in `docs/screenshots/` (Playwright, `web/screenshots.config.ts`).
+- `uv run scripts/lookup.py <query>...` — a person (slug or any part of the name), a source (`F012`), a branch
+  (`rama/<key>`) or a text (`--text`); short cards, widened with `--family`, `--sources`, `--links`, `--items`,
+  `--full` or `--body`; `--all` a card for every match.
 - `uv run scripts/drive_diff.py "<folder>"` — what has changed in the shared folder since the last import.
 
 ## People

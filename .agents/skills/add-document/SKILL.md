@@ -32,9 +32,10 @@ key sources, where its originals come from).
      one per life stage at most, and group photos only when everyone identified has died.
    - Identify people only when it is certain (a caption, a name on the back, a document). Doubtful identifications
      go to `<research>/pendientes.md` with the file name, so the family can answer.
-3. Check it is new: grep the sources folder for the date, the names and the file name. The same obituary may have come
-   from the Drive and from a newspaper archive. Grep `<research>/descartados.md` too: a document the family already
-   rejected is not added again.
+3. Check it is new: `uv run scripts/lookup.py --sources` with the names of the people (their cards list their
+   sources and their items in `<research>/descartados.md`), and `--text` with the date and the file name. The same obituary may have come
+   from the Drive and from a newspaper archive. A document the family already rejected (`descartados.md`) is not added
+   again.
 
 ## 2. Transcribe
 

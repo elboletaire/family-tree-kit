@@ -21,7 +21,8 @@ Schema and rules are in `AGENTS.md` (sources, dates, confidence, privacy), and t
 ## 1. Prepare the questions (fast)
 
 1. Identify the branch: the relative, and whose parents/grandparents/siblings they can speak about.
-2. Collect open items for those people:
+2. Collect open items for those people (`uv run scripts/lookup.py rama/<key>` lists the branch's people and items,
+   and `uv run scripts/lookup.py --items <slug> <slug>...` gives each person's card with their items in full):
    - `<research>/pendientes.md` and `<research>/incoherencias.md` under that family and branch;
    - person files of the branch: missing `born`/`died`/places, doubtful dates (`¿…?`, `c.`), `nombre-nn` or
      `nn-apellido` slugs, missing parents, `## Notas de investigación`;

@@ -572,6 +572,70 @@ print(json.dumps([history.open_items(old), history.open_items(new)]))
         self.assertEqual(sorted(old.keys() - new.keys()), [])
 
 
+class Lookup(unittest.TestCase):
+    """lookup.py: a person's card, a source's card, a branch and the text search, from the notes as they are."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.root = Path(cls.tmp.name)
+        make_tree(cls.root)
+        (cls.root / "research" / "pendientes.md").write_text(
+            "# Pendientes\n\n## Ferrer family\n\n### Ferrer and Puig\n\n"
+            "- **Death of Pau Ferrer Puig**: ask\n  the parish.\n- **Unrelated**: nothing.\n", encoding="utf-8")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def lookup(self, *args):
+        result = run(self.root, "lookup", *args)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result.stdout
+
+    def test_person(self):
+        out = self.lookup("pau ferrer")
+        self.assertIn("## Pau Ferrer Puig [pau-ferrer-puig] — people/pau-ferrer-puig.md", out)
+        self.assertIn("father: jaume-ferrer-soler · mother: rosa-puig-vidal · proven", out)
+        self.assertIn("sources (2; * pending review): F001 F002*", out)
+        # The item names him (in two lines), the other does not; in one line, without markdown
+        self.assertIn("research/pendientes.md:7 · Death of Pau Ferrer Puig: ask the parish.", out)
+        self.assertNotIn("Unrelated", out)
+        self.assertIn("children: pau-ferrer-puig", self.lookup("jaume-ferrer-soler"))
+
+    def test_wider_person(self):
+        out = self.lookup("--family", "--sources", "--items", "pau-ferrer-puig")
+        self.assertIn("father: Jaume Ferrer Soler [jaume-ferrer-soler] (1890 –)", out)
+        self.assertIn("F002 — Newspaper notice (1920, review pendiente)", out)
+        self.assertIn("research/pendientes.md:7 · Ferrer family › Ferrer and Puig\n"
+                      "  **Death of Pau Ferrer Puig**: ask the parish.", out)
+        self.assertNotIn("linked from", out)
+        self.assertIn("children: Pau Ferrer Puig [pau-ferrer-puig] (1921 –)", self.lookup("--full", "jaume-ferrer-soler"))
+
+    def test_source(self):
+        out = self.lookup("f001")
+        self.assertIn("## F001 — Marriage record — sources/F001.md", out)
+        self.assertIn("type Acta · date 1920", out)
+        self.assertIn("files: 1", out)
+        self.assertIn("cited by: jaume-ferrer-soler", out)
+        self.assertIn("research/incoherencias.md:5 · Fictional item (F001).", out)
+        self.assertIn("files (1): sources/F001/acta.png", self.lookup("--sources", "F001"))
+
+    def test_branch(self):
+        out = self.lookup("rama/puig")
+        self.assertIn("## Branch Puig [puig]", out)
+        self.assertIn("- Rosa Puig Vidal [rosa-puig-vidal] (1892 –) · 1 sources", out)
+        self.assertIn("research/pendientes.md:7 · Death of Pau Ferrer Puig: ask the parish.", out)
+
+    def test_several_people_and_text(self):
+        # Two people are Puig: a card each; one query per argument; no person: the lines of the notes
+        out = self.lookup("puig", "parish")
+        self.assertIn("## Rosa Puig Vidal [rosa-puig-vidal]", out)
+        self.assertIn("## Pau Ferrer Puig [pau-ferrer-puig]", out)
+        self.assertIn("## Text «parish»\nresearch/pendientes.md\n  8: the parish.", out)
+        self.assertIn("## Text «Puig»\npeople/pau-ferrer-puig.md — Pau Ferrer Puig", self.lookup("--text", "Puig"))
+
+
 class InvalidConfig(unittest.TestCase):
     def check(self, message, **tree):
         with tempfile.TemporaryDirectory() as tmp:
