@@ -60,6 +60,7 @@ COMMON = {
     "guerra": "Spanish word: war",
     "nieto": "Spanish word: grandson",
     "perez": "one of the commonest Spanish surnames (fictional people of the tests)",
+    "sans": "CSS and typography word (sans-serif) and a common Catalan surname",
     "soler": "one of the commonest Catalan surnames (fictional people of the tests and the example)",
     "villa": "Spanish word: town (and part of many place names)",
     "vivas": "Spanish word: living (women)",
