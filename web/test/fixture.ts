@@ -20,7 +20,7 @@ const day = (date: string, over: Partial<HistoryEntry>): HistoryEntry => ({
 });
 
 const research = (families: [string, number][]) => families.map(([f, n]) =>
-  `<section data-family="${f}" data-count="${n}"><h2>${f}</h2><ul>${'<li>[ ] punto</li>'.repeat(n)}</ul></section>`).join('');
+  `<section data-family="${f}" data-count="${n}"><h2>${f}</h2><ul>${'<li>punto</li>'.repeat(n)}</ul></section>`).join('');
 
 /* abuelo (grandfather) ═ abuela; padre (father), madre (mother), tia/tio (aunt/uncle), yo (me), hermana (sister),
    primo (cousin), segunda (second wife), hermanastro (step-brother)

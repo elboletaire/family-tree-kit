@@ -95,9 +95,9 @@ def make_tree(root, language="es", main="pau-ferrer-puig", living=False, extra_c
         sources / "F001.md": source("F001", "Marriage record", ["F001/acta.png"]),
         # Found by automated research: it goes to revision.md
         sources / "F002.md": source("F002", "Newspaper notice", review="pendiente"),
-        research / "incoherencias.md": "# Incoherencias\n\n## Ferrer family\n\n- [ ] Fictional item "
+        research / "incoherencias.md": "# Incoherencias\n\n## Ferrer family\n\n- Fictional item "
                                        f"([F001](../{folders['sources']}/F001.md)).\n",
-        research / "pendientes.md": "# Pendientes\n\n## Ferrer family\n\n- [ ] Nothing yet.\n",
+        research / "pendientes.md": "# Pendientes\n\n## Ferrer family\n\n- Nothing yet.\n",
     }
     if living:
         notes.update({
@@ -541,6 +541,37 @@ print(json.dumps([md(t) for t in json.loads(sys.stdin.read())]))
             self.assertEqual(got, expected.format(ext=ext), text)
 
 
+class OpenItems(unittest.TestCase):
+    """history.open_items: every top-level bullet of a family section is an open item; the `[ ]` of the old task-list
+    format does not change its key, and an old `[x]` one is closed."""
+
+    OLD = "# P\n\n## Ferrer family\n\n- [ ] **Birth of Marc**: his\n  certificate.\n- [x] **Done one** solved.\n"
+    NEW = "# P\n\n## Ferrer family\n\n- **Birth of Marc**: his\n  certificate.\n\n## General\n\n- **Ask**: the books.\n"
+
+    def test_old_and_new_format_are_the_same_item(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_tree(root)
+            header = (CODE / "scripts" / "build_site.py").read_text(encoding="utf-8").split("# ///\n")[0] + "# ///\n"
+            (root / "items.py").write_text(header + f"""
+import json, sys
+sys.path.insert(0, {str(CODE / "scripts")!r})
+import history
+old, new = json.loads(sys.stdin.read())
+print(json.dumps([history.open_items(old), history.open_items(new)]))
+""", encoding="utf-8")
+            env = {**os.environ, "ARBRE_ROOT": str(root)}
+            result = subprocess.run(["uv", "run", "--quiet", "--script", str(root / "items.py")], cwd=root, env=env,
+                                    input=json.dumps([self.OLD, self.NEW]), capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        old, new = json.loads(result.stdout)
+        # `- [ ] X` and `- X` are the same item, and the `[x]` one is closed
+        self.assertEqual(old, {"Birth of Marc": "ferrer"})
+        self.assertEqual(new, {"Birth of Marc": "ferrer", "Ask": "general"})
+        # Removing an item from the list closes it (see History.test_whole_history)
+        self.assertEqual(sorted(old.keys() - new.keys()), [])
+
+
 class InvalidConfig(unittest.TestCase):
     def check(self, message, **tree):
         with tempfile.TemporaryDirectory() as tmp:
@@ -628,8 +659,8 @@ class History(unittest.TestCase):
         people.joinpath("pere-soler.md").write_text(person("Pere", "Soler", "M", 1850, ["F001"], died=1910),
                                                     encoding="utf-8")
         research.joinpath("pendientes.md").write_text(
-            "# Pendientes\n\n## Ferrer family\n\n- [x] Nothing yet.\n- [ ] **Birth of Marc Ferrer Roca**: his "
-            "certificate.\n\n## General\n\n- [ ] **Ask the archive**: the parish books.\n", encoding="utf-8")
+            "# Pendientes\n\n## Ferrer family\n\n- **Birth of Marc Ferrer Roca**: his "
+            "certificate.\n\n## General\n\n- **Ask the archive**: the parish books.\n", encoding="utf-8")
         run(root, "references")
         git(root, "add", "-A")
         git(root, "commit", "-qm", "a person", date=days[1])
@@ -681,6 +712,7 @@ class History(unittest.TestCase):
         self.assertEqual(second["research"], [
             {"note": "pendientes", "text": "Ask the archive", "family": "general", "resolved": False},
             {"note": "pendientes", "text": "Birth of Marc Ferrer Roca", "family": "ferrer", "resolved": False},
+            # Removed from the list = solved
             {"note": "pendientes", "text": "Nothing yet.", "family": "ferrer", "resolved": True}])
         self.assertEqual(third["docsReviewed"], ["F002"])
         self.assertEqual(third["peopleRenamed"], [{"from": "Josep Puig", "to": "josep-puig-vidal"},

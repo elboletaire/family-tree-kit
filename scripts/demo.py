@@ -973,13 +973,12 @@ class Demo:
         return "---\n" + "\n".join(fm) + "\n---\n" + body
 
     def research_note(self, name, title, intro, day):
-        """A research document on the day `day`: the items opened by then, those closed by then checked."""
+        """A research document on the day `day`: the items opened by then and not solved yet."""
         def line(i):
-            if i["closed"] is not None and i["closed"] <= day:
-                return fill(self.relink(f"- [x] {i['text']} {i['resolution']}".rstrip()), indent="  ")
-            return fill(self.relink(f"- [ ] {i['text']}"), indent="  ")
+            return fill(self.relink(f"- {i['text']}"), indent="  ")
 
-        items = [i for i in self.research[name] if i["opened"] <= day]
+        items = [i for i in self.research[name]
+                 if i["opened"] <= day and (i["closed"] is None or i["closed"] > day)]
         by_id = {id(p): p for p in self.people}
         out = [f"# {title}", "", intro, ""]
         for key, surname, bs in self.families:

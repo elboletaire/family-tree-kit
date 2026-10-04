@@ -327,6 +327,19 @@ def markdown_renderer(people, sources, doc_ids):
     return md
 
 
+def top_level_items(body):
+    """How many items the top-level lists of a rendered markdown have (the nested lists are part of their item)."""
+    depth = count = 0
+    for tag in re.findall(r"</?(?:ul|ol|li)\b", body):
+        if tag in ("<ul", "<ol"):
+            depth += 1
+        elif tag in ("</ul", "</ol"):
+            depth -= 1
+        elif tag == "<li" and depth == 1:
+            count += 1
+    return count
+
+
 def document_files(sid, meta, media):
     """Originals of a document with their thumbnails and previews, and the thumbnail of the document."""
     files, thumb = [], None
@@ -457,14 +470,15 @@ def build_payload(people, sources, main, media, view=None, changes=()):
             "families": sorted(families.get(slug, ())),
         })
 
-    def research_html(text):
+    def research_html(text, items=True):
         """Each family section (level-2 headings) goes in its own <section data-family>, so the web can show a
         single family."""
         out = []
         for fam, chunk in family_sections(text):
             body = md(chunk)
             if fam:
-                count = body.count("<li>[ ]") or body.count(f"<strong>{i18n.REVISION_DOCUMENT_LABEL}</strong>")
+                count = (top_level_items(body) if items
+                         else body.count(f"<strong>{i18n.REVISION_DOCUMENT_LABEL}</strong>"))
                 body = f'<section data-family="{fam}" data-count="{count}">{body}</section>'
             out.append(body)
         return "".join(out)
@@ -476,7 +490,7 @@ def build_payload(people, sources, main, media, view=None, changes=()):
             path = RESEARCH_DIR / f"{name}.md"
             if path.exists():
                 research[name] = research_html(path.read_text(encoding="utf-8"))
-        research[REVISION_NOTE] = research_html(revision_markdown(people, sources))
+        research[REVISION_NOTE] = research_html(revision_markdown(people, sources), items=False)
 
     # Coordinates of the places that the web shows (places.yml, filled in by `make places`): only those of the facts
     # that are in these data, so that the places of the living (and of the private documents) do not reach the

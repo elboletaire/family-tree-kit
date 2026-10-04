@@ -210,7 +210,7 @@ The website's «Novedades» view (`#novedades`), the «Historial de la ficha» o
 notes at the end of the previous day are compared with those at the end of that day: sources added, approved
 (`review` from `pendiente` to `revisada`), updated or removed; people added, removed, renamed (Git's rename detection)
 or with changed facts (name, dates, places, parents, spouses, photo, biography, research notes) and new sources; and
-the open items of `incoherencias.md` and `pendientes.md` that appeared or were closed (only in the private data).
+the items of `incoherencias.md` and `pendientes.md` (each top-level bullet) that appeared or were removed (only in the private data).
 
 - `history_months` (optional, in `families.yml`): how many months back, 6 by default; `0` turns it off.
 - Without Git, outside a repository or in a shallow clone there is less or no history, never an error (the home then
@@ -338,7 +338,8 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
 - AI-generated content (`category: ia`) is **never** the source of a fact.
 - `incoherencias.md` and `pendientes.md` go by families: a `##` for each family of `families.yml` (with its exact
   `title`), with a `###` per branch, and «General». Each new item goes in the family and branch of the people it
-  affects; only what touches several goes in «General». The family `##` titles are not renamed: the website and
+  affects; only what touches several goes in «General». An item is a plain top-level bullet (`- **Title** — text`, no
+  checkbox) and is removed when solved: the solution is in the notes. The family `##` titles are not renamed: the website and
   `make report` filter by them (if one is renamed, its `title` in `families.yml` is changed at the same time).
 - Every source found by automated or AI research (newspaper archives, gazettes, archive indexes) comes in with
   `review: pendiente`, and only a person of the family changes it to `revisada`. What only a pending source says is

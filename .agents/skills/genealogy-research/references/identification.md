@@ -43,7 +43,7 @@ place and wording of the record so they can recognise it.
 - When only family testimony and an official list disagree (e.g. a draft list vs the family's date), keep the
   family's date until the certificate arrives.
 - Never choose silently: explain the choice in the person's `## Notas de investigación` and add an item to
-  `incoherencias.md` of the research folder (`paths.research`); mark it `[x]` with the deciding document once settled.
+  `incoherencias.md` of the research folder (`paths.research`); remove it once settled (the deciding document goes in the notes).
 - Label inferences as such (a pension transferred "from the day after" a death dates the death; an age in an obituary
   gives a two-year birth range).
 

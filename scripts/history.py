@@ -11,7 +11,7 @@ two research documents with open items.
   added the same day with the same given name and surnames that extend each other) and, for the others, which
   facts changed (FIELDS: name, dates, places, parents, spouses, photo…; the biography and the research notes, without
   the generated «Referencias») and which sources they cite now that they did not.
-- Research: the open items (`- [ ]`) of incoherencias.md and pendientes.md that appeared or were closed, each with
+- Research: the open items (the top-level `- ` bullets) of incoherencias.md and pendientes.md that appeared or were closed, each with
   the family of the `## ` section it is in (arbre.family_sections: a family key, `several` or `general`).
 
 The days are grouped along the first-parent line of the branch (the merges of the kit bring no data), bounded by
@@ -65,7 +65,8 @@ FIELDS = {
 BIOGRAPHY, NOTES = "biography", "notes"
 # What of a source counts as updating it
 SOURCE_FIELDS = ("title", "type", "category", "date", "place", "issuer", "pages", "files")
-ITEM_RE = re.compile(r"^- \[([ xX])\] (.*)$")
+# An item is a top-level bullet; the `[ ]` of the old task-list format is dropped, and a `[x]` one counts as closed
+ITEM_RE = re.compile(r"^- (?:\[([ xX])\] )?(.*)$")
 BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 ITEM_LEN = 160
 
@@ -156,14 +157,14 @@ def plain(text):
 
 
 def open_items(text):
-    """{text: family} of the open items (`- [ ] …`, with their indented lines) of a research document: each one by its
+    """{text: family} of the open items (`- …`, with their indented lines) of a research document: each one by its
     bold title, or its whole text, as plain text; and the family of the section it is in (before any, `general`)."""
     out = {}
     for family, chunk in family_sections(text or ""):
         items, cur = [], None
         for line in chunk.splitlines():
             if m := ITEM_RE.match(line):
-                cur = {"open": m.group(1) == " ", "lines": [m.group(2)]}
+                cur = {"open": m.group(1) in (None, " "), "lines": [m.group(2)]}
                 items.append(cur)
             elif cur and line.startswith("  ") and line.strip():
                 cur["lines"].append(line.strip())
