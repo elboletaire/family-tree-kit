@@ -51,7 +51,8 @@ the next step is an email request with parish, type, approximate date and names.
   sacramental books of a growing list of parishes (so far mostly Lluçanès, Moianès, Anoia, Bages and Ripollès; the big
   town parishes not yet), pastoral visits, the marriage contracts, inventories and wills of the Cúria Fumada and burial
   records; search `/index.php/informationobject/browse?topLod=0&query=<q>`, and ask `registre@bisbatvic.org` for the
-  parishes not online;
+  parishes not online. A book's record says whether it has digital objects (many described books have none), and the
+  images need a free registered account;
   the Arxiu Diocesà i Capitular d'Urgell publishes a spreadsheet of surviving books per parish
   (`urgellensisecclesiaearchivia.bisbaturgell.org/registre-sacramental/`; visits by appointment). Many parish archives
   burnt in 1936: check what survives before asking. Barcelona Cathedral's marriage-licence books (1451–1905) are
@@ -158,10 +159,19 @@ files of the Universidad Central (Madrid) are in the Archivo Histórico Nacional
     `catastro-de-ensenada`, `recursos-para-investigadores`; Angular: a real browser or headless Chromium) with PDF **name
     indexes**: the municipal civil register 1817–1868, the burials of the Ceares cemetery 1877–1939, padrones 1900–1920,
     the emigrants who sailed to Havana 1858–1869, hidalguía 1585–1831. Find book and page in the index, then open the
-    book under `fondos.gijon.es/fotoweb/archives/5004-Archivo/ayArchivo/<series folder>/`.
+    book under `fondos.gijon.es/fotoweb/archives/5004-Archivo/ayArchivo/<series folder>/` (FotoWeb: a folder's
+    subfolders with `Accept: application/vnd.fotoware.collection+json`, its files with `…assetlist+json`; each asset's
+    JSON lists previews up to 2400 px that curl downloads, and the original TIF comes through the renditions POST of the
+    Hemeroteca entry). The cemetery books give date of burial, niche and later transfers of remains; the burial index is
+    `Libros Cementerios/CGijónPersonas.pdf`. The padrones have no name index: about 1,000 pages per book, by street —
+    find the address first. The draft books (`Libros Alistamientos`) were empty online in 2026.
   - *Archivo Municipal de Mieres* (`archivo.ayto-mieres.es/portalArchivo/`, AngularJS: a browser; guide of fonds as a PDF
     on `mieres.es`) — civil register, padrones (from 1910), draft records, electoral rolls, minutes, photos, and part of
-    the records of the Fábrica de Mieres (1878–1959). `archivo@ayto-mieres.es`.
+    the records of the Fábrica de Mieres (1878–1959). `archivo@ayto-mieres.es`. Digitised padrones: 1910, 1920 and 1924
+    (one PDF per tome, hundreds of pages, by parish and place), and births registered in 1925. Its search ORs the words.
+    With Playwright: dismiss the cookie dialog («Rechazar todas»), click the result (`[ng-click^='goToDetail']`), and
+    fetch the PDF the detail page links (`images/R000…/<file>.pdf?dl=<n>`) with `context.request.get` in the same
+    session — plain curl gets an empty body.
   - *Archivo Municipal de Oviedo* (`oviedo.es/archivo-municipal/documentos-digitalizados`, viewers
     `archivomunicipal.oviedo.es/<padrones|hidalguias|registrocivil|acuerdos|catalogo|pergaminos>/visor.php`) — padrones
     of the city 1664–1833 and the rural concejo 1536–1831, ejecutorias de hidalguía with a surname search, the municipal
@@ -258,7 +268,10 @@ files of the Universidad Central (Madrid) are in the Archivo Histórico Nacional
   not resolve) has historical commercial directories of Santander, a newspaper section (Boletín de Comercio, Revista
   de Santander, Altamira), hospital records (Valdecilla, Maternidad), a photo archive, a survey of the municipal
   archives of Cantabria around 1950 and a list of the Cantabrian titles in Prensa Histórica; browse by section, no name
-  index. Reported, not checked: padrones from 1838 in the Archivo Municipal de Torrelavega.
+  index. Reported, not checked: padrones from 1838 in the Archivo Municipal de Torrelavega. The *ReCrea* repository of
+  the Universidad de Cantabria (found through Hispana; CC BY) has digitised private fonds with item-level images, such
+  as the letters received by a Santander politician around 1900 from correspondents in the villages, and the passenger
+  books of the Compañía Trasatlántica's agents in Santander (Fondo Pérez y Cía.: emigrants to Havana and the Americas).
 - *Madrid*: the Archivo de Villa keeps the city's padrones (1846–1965) for the reading room by appointment (being
   digitised with FamilySearch); the Archivo Regional de la Comunidad de Madrid and its Archivo Histórico de Protocolos
   publish only a selection in an AtoM catalogue.
@@ -345,7 +358,12 @@ BOP of León (1833–2009) and Burgos (1857–2010), Diario de Burgos, printed e
 complete, each issue with PDF and OCR text (`_djvu.txt`), free (CC BY 4.0): e.g. El Diario Palentino, 40,023 issues
 1882–1999 (`archive.org/details/ElDiarioPalentino`, items `ElDiarioPalentino_YYYYMMDD_NNNNN`) and El Día de Palencia.
 List by date with `archive.org/advancedsearch.php?q=title:("<title>")&fl[]=identifier&fl[]=date&sort[]=date asc&output=json`
-and download the text in bulk to grep — easier than the ministry's own viewer. Look for other titles there.
+and download the text in bulk to grep — easier than the ministry's own viewer. Look for other titles there: the same
+collection has, for example, El Distrito Universitario (León, teachers' lists and appointments, 1910s–1930s), whose
+issues the ministry's viewer marks as restricted. The full-text search of the Internet Archive covers them all
+(`archive.org/services/search/beta/page_production/?service_backend=fts&user_query=%22<phrase>%22&hits_per_page=50`).
+Some items name their files differently from the item (`2004-01-16.pdf` instead of `<item>.pdf`): list them with
+`archive.org/metadata/<item>/files`.
 
 **El Norte de Castilla** (Valladolid, 1854–today, `hemeroteca.elnortedecastilla.es`, reachable) — pages at
 `/DD/MM/YYYY/<page>/<hash>.html?subedition=VAL`; a paid subscription, but free from inside a town of the provinces of
@@ -405,10 +423,13 @@ the archives of El Periódico de Catalunya.
 
 - *Euskariana* (Basque Government, `euskariana.euskadi.eus`), which replaces Liburuklik (closing; its old search lands on
   the notice) — books up to about 1940, the Euskal Hemeroteka Digitala (historical press), maps, photos, with OCR.
-  Search `euskariana.euskadi.eus/euskadibib/es/bib/results.do?busq_general=<q>`.
+  Search `euskariana.euskadi.eus/euskadibib/es/bib/results.do?busq_general=<q>`; the default search does not look inside
+  the OCR text: add `&ocr=true&queryType=TEXT` for full text.
 - *Lau Haizeetara*, the digital library of the Biblioteca Foral de Bizkaia (`liburutegibiltegi.bizkaia.eus`, DSpace) —
   newspapers, reports of companies and institutions (mining, shipping), magazines of the 18th–20th centuries. Search
-  `/discover?query=<q>`; it needs a full browser user agent (a bare «Mozilla/5.0» gets «Request Rejected»).
+  `/discover?query=<q>`; it needs a full browser user agent (a bare «Mozilla/5.0» gets «Request Rejected»), and its
+  PDFs (bitstreams) `curl -L` with a cookie jar. It holds the printed **electoral censuses of Bizkaia** (several years
+  1898–1923, by town and street, with age and trade).
 - *Atzoko Prentsa Digitala* of Koldo Mitxelena Kulturunea (Diputación Foral de Gipuzkoa,
   `w390w.gipuzkoa.net/WAS/CORP/DKPAtzokoPrentsaWEB/`) — more than 100 titles of Gipuzkoan and Basque press, 1812–2020
   (Euskal-Erria, Euzkadi 1931–1937, La Voz de España 1936–1980…), many with OCR. `…/databilaketa` (search),
@@ -426,14 +447,18 @@ district and town, with each trade's names and addresses, in the Biblioteca Patr
 Barcelona (`bipadi.ub.edu/digital/collection/anuarioriera`, checked; OCR, CONTENTdm API
 `bipadiub.contentdm.oclc.org/digital/api/search/collection/anuarioriera/searchterm/<q>/maxRecords/<n>`, JSON). Its
 successor, the Anuario General de España (Bailly-Baillière-Riera, 1912–1978), is in the Hemeroteca Digital of the
-Biblioteca Nacional de España (real browser).
+Biblioteca Nacional de España (real browser). For a page-level search with the OCR, the older CONTENTdm web services
+work too: `bipadiub.contentdm.oclc.org/digital/bl/dmwebservices/index.php?q=dmQuery/anuarioriera/CISOSEARCHALL^<q>^all^and/title/title/1024/1/0/0/0/0/0/0/json`
+lists the matching pages, and `dmGetItemInfo/anuarioriera/<pointer>/json` gives each page's OCR (field `transc`); crops
+come straight from the IIIF server, `…/iiif/2/anuarioriera:<pointer>/pct:<x>,<y>,<w>,<h>/full/0/default.jpg`.
 
 **ARCA — Arxiu de Revistes Catalanes Antigues** (Biblioteca de Catalunya, `arca.bnc.cat/arcabib_pro/`, checked) —
 full-text OCR of old Catalan periodicals, including El Noticiero Universal into the 1970s (obituaries), La Publicitat,
 La Humanitat and El Diluvio (shop advertisements give trades and addresses). DIGIBIS software: POST
 `ca/consulta/resultados_ocr.do` with `general_ocr=on&busq_general=<q>`; page text
 `catalogo_imagenes/descargarTextoOCR.do?path=<n>&posicion=<p>`. Strict rate limit: after about 25 quick requests the IP
-is blocked for half an hour — wait several seconds between requests.
+is blocked for half an hour — wait several seconds between requests. The page image is
+`catalogo_imagenes/imagen_id.do?idImagen=<n>&formato=jpg` (with a browser user agent).
 
 **Hemeroteca of the Arxiu Històric de la Ciutat de Barcelona** (`ahcbdigital.bcn.cat/hemeroteca`, checked) — Diario de
 Barcelona (1792–1994, with gaps), El Noticiero Universal, Solidaridad Nacional and other city papers. Search
@@ -500,7 +525,7 @@ library, the paper's own archive).
   district or election; JSON endpoint (take the session cookie from the page first): POST to
   `…/historico-diputados?p_p_id=historicodiputados&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=filtrarListado&p_p_cacheability=cacheLevelPage`
   with `_historicodiputados_nombre=<surname>&_historicodiputados_paginaActual=1&_historicodiputados_orden=0`; links to the
-  credentials files.
+  credentials files. Search one word: several words always return nothing.
 - *Senado*, personal files of próceres and senators 1834–1923
   (`senado.es/web/conocersenado/senadohistoria/senado18341923/senadores/index.html`, checked; the old
   `senadoreshistoricos/` path gives 500) — 3,251 digitised files with baptism certificates, proofs of income and

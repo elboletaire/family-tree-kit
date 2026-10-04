@@ -30,7 +30,10 @@ censuses, mortgage registers 1799–1955, the Napoleonic cadastre, the tables of
 1704–1968 by registration office (useful to date a death and find an inheritance), and a selection of files on the
 refugees and internment camps of 1939–1942. Each theme is `/mdr/index.php/rechercheTheme/requeteConstructor/<n>/1/R/0/0`
 (1 civil registers, 2 military, 3 censuses, 4 mortgages, 5 cadastre, 6 death tables, 13 refugees and camps); browse by
-commune and register into the image viewer — no name index for the civil registers.
+commune and register into the image viewer — no name index for the civil registers. The death and succession tables
+are by registration office and by letter (columns: surname, given names, occupation, age, domicile, date of death,
+marital status, spouse): read the letters you need page by page; for the Cerdagne, Saillagouse (volumes for 1811–1899,
+1900–1919, 1920–1929, 1930–1940, 1941–1949 and 1950–1964).
 
 ## Exile of 1939
 
@@ -38,9 +41,11 @@ The nominative lists of the internees of the camps (about 15,000 names from Febr
 after October 1939) are described in the research guide of the Mémorial du camp d'Argelès-sur-Mer
 (`memorial-argeles.eu/fr/le-memorial/outils-de-recherche.html`, *checked*), with the finding aids of the Archives
 nationales (FRAN_IR_050044, FRAN_IR_054192), and in the Pyrénées-Orientales page on the camps
-(`ledepartement66.fr/les-ressources-sur-les-camps-dinternement/`). *Reported:* Exilis (`exilis.1936-1946.eu`), a guide
-to archive sources on the exile; *Mémoire des hommes* of the French Ministry of the Armed Forces (foreign volunteers of
-1939–1940, war dead; 403 to automation). Deportees to the Nazi camps: see `resources-spain.md`, "Military and Civil War".
+(`ledepartement66.fr/les-ressources-sur-les-camps-dinternement/`). The department's name database of the camps
+(`archives-camps.cd66.fr/basescamps`) has a CAPTCHA: ask the user to search it; the list of the internees' files
+(series 109W) is a PDF on the department's site (`LISTE_DOSSIERS_INTERNES_109W.pdf`), searchable as text.
+*Reported:* Exilis (`exilis.1936-1946.eu`), a guide to archive sources on the exile; *Mémoire des hommes* of the French
+Ministry of the Armed Forces (foreign volunteers of 1939–1940, war dead; 403 to automation). Deportees to the Nazi camps: see `resources-spain.md`, "Military and Civil War".
 
 ## Newspapers and directories
 
