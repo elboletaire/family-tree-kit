@@ -355,6 +355,9 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
   not the document: transcribe from the image of the original whenever it can be seen, and note where the index
   differs; a source taken only from an index says so and comes in as `status: indicio`.
 - No ID numbers, current addresses nor bank data of living people are copied.
+- The family's data (notes, documents, names and dates of the living, answers of relatives) are not sent to services outside
+  the tree's own repository and server: no pages, forms, pastes or shares on third-party hosting, even private ones, unless
+  the user asks for it. Questions for relatives are given as text for the user to send.
 - Archives and institutions are always named in full («National Archives», not «NA»): the family reads the website.
   Acronyms only stay inside call numbers.
 - The code (names, comments and internal messages) is in English; what the family reads, in the tree's language and
