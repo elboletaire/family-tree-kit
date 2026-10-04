@@ -110,8 +110,8 @@ come in:
   distinct colour. Add `rama/<key>` tags to everyone who descends from each founder.
 - `groups`: how branches are grouped in the review report.
 
-Also create `<research>/incoherencias.md` and `<research>/pendientes.md` with one `##` per family `title`
-(exactly as in the config), a `###` per branch, and a `## General`.
+Also create `<research>/incoherencias.md`, `<research>/pendientes.md` and `<research>/descartados.md` with one `##`
+per family `title` (exactly as in the config), a `###` per branch, and a `## General`.
 
 ## 5. TREE.md: this tree's conventions
 

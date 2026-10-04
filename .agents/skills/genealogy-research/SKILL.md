@@ -37,7 +37,8 @@ Reference files (read the one you need, not all):
 Start from the tree, not from the web:
 
 1. Read the person files involved, their sources, and the open items in `<research>/pendientes.md` and
-   `<research>/incoherencias.md`.
+   `<research>/incoherencias.md`. Read `<research>/descartados.md` too: what the family already rejected (homonyms,
+   records of someone else) is not brought back.
 2. Write down the concrete questions (when did X die, who were Y's parents, what was Z's job in 1930) and the
    **anchors** that will identify the right person: full name with every surname and spelling variant, approximate
    birth year, places lived, spouse, children, occupation.
@@ -113,7 +114,9 @@ Only after grading, and following the `add-document` skill:
   nothing (with the queries tried), is written in `pendientes.md`.
 - Contradictions with other documents go to `<research>/incoherencias.md` (see `references/identification.md`).
 - AI output (including your own summaries) is never a source. A claim from an AI conversation can be a lead to check.
-- If the family later rejects a source, delete it and every datum that depends on it.
+- If the family later rejects a source, delete it and every datum that depends on it, and record it in
+  `<research>/descartados.md` (`AGENTS.md` → "Rules"). A finding you discard yourself for a clear reason (a homonym
+  ruled out by dates) is recorded there too, so the next search does not pick it up again.
 
 ## 6. Report and next steps
 

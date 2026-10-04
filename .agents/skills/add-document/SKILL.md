@@ -33,7 +33,8 @@ key sources, where its originals come from).
    - Identify people only when it is certain (a caption, a name on the back, a document). Doubtful identifications
      go to `<research>/pendientes.md` with the file name, so the family can answer.
 3. Check it is new: grep the sources folder for the date, the names and the file name. The same obituary may have come
-   from the Drive and from a newspaper archive.
+   from the Drive and from a newspaper archive. Grep `<research>/descartados.md` too: a document the family already
+   rejected is not added again.
 
 ## 2. Transcribe
 

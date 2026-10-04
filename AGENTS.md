@@ -19,8 +19,8 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
 
 - `people/<slug>.md` — one person.
 - `sources/F0xx.md` — one document; its originals in `sources/F0xx/` (Git LFS, never edited).
-- `research/` — `incoherencias.md`, `pendientes.md`, `revision.md` (generated) and, if the originals come from a shared
-  folder, `drive-manifest.tsv` (see "Updating from a shared folder").
+- `research/` — `incoherencias.md`, `pendientes.md`, `descartados.md` (see "Rules"), `revision.md` (generated) and, if
+  the originals come from a shared folder, `drive-manifest.tsv` (see "Updating from a shared folder").
 - `portraits/` — crops of photos used in the `photo` field.
 - `places.yml` — coordinates of the places for the website's map (see "Places").
 - `families.yml` — language, data folders, families, branches (with their colour and founder), groups of branches and
@@ -243,8 +243,9 @@ original spelling and mark doubtful readings with `[?]`.
 **Review.** Optional keys `review` (`pendiente` | `revisada`) and `reviewed_by` (free text, e.g.
 `"Name, 2026-10-02"`). A source without `review` is trusted: originals of the family archive or handed over by the
 family. To approve a pending one, change it to `review: revisada` and fill in `reviewed_by`; if it turns out wrong,
-delete the source and the data that depend on it. The state of each person is deduced from it (without a key of its
-own): «nueva, por revisar» if all their sources are pending, «con datos por revisar» if any is.
+delete the source and the data that depend on it, and record it in `research/descartados.md` (see "Rules"). The
+state of each person is deduced from it (without a key of its own): «nueva, por revisar» if all their sources are
+pending, «con datos por revisar» if any is.
 `research/revision.md` lists the pending ones and what each one contributes, by families (according to the people who
 cite them; logic in `person_families` and `source_family` of `scripts/arbre.py`); `make refs` generates it and it is
 not edited by hand.
@@ -328,6 +329,12 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
   `research/pendientes.md`, and a contradiction to `research/incoherencias.md`, in the same change that brings it and
   before telling the user. The notes of a person or a source can explain it, but the item is in those files: a
   question said only in the conversation is lost.
+- **What is discarded is written down too.** A document or an identification the family rejects (a homonym, a record
+  of someone else, a wrong reading) is deleted with every datum that depends on it, and recorded in
+  `research/descartados.md`: what it was, where it was found (the URL or archive reference that would bring it back),
+  who decided it and when, and why. It goes by families and branches like `pendientes.md`, and the «Notas de
+  investigación» of the person it was attached to keep one line about it. Research reads that file before recording
+  anything, so that a discarded document does not come back. It is not shown on the website.
 - AI-generated content (`category: ia`) is **never** the source of a fact.
 - `incoherencias.md` and `pendientes.md` go by families: a `##` for each family of `families.yml` (with its exact
   `title`), with a `###` per branch, and «General». Each new item goes in the family and branch of the people it
