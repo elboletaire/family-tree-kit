@@ -88,10 +88,10 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   the website is a thumbnail that says nothing. Several numbered crops of the same page are only for notices that are
   distinct and make sense each alone. Trim from each piece whatever belongs to the neighbouring columns (a photo's
   edge, another notice's lines). A whole issue is often a heavy PDF (tens of MB), which is not stored as it is; keep
-  each page twice: the original in colour as JPEG at about 200 dpi and quality ~75 (2-3 MB per broadsheet page: the
-  paper and its tone as the archive scanned them, and enough to derive any other copy), and a reading copy as 1-bit
-  PNG (median filter, autocontrast, a threshold around 140: about 1 MB per page, sharp enough to run OCR again). Name
-  them alike (`…-p1.jpg`, `…-p1.png`), and put the link to the original in `origin` and in the transcription. If no
+  each page in colour as JPEG at about 200 dpi and quality ~75 (2-3 MB per broadsheet page: the paper and its tone as
+  the archive scanned them, and enough to derive any other copy), named by page (`…-p1.jpg`), and put the link to the
+  original in `origin` and in the transcription. No black-and-white copies for OCR are stored: they are derived from
+  the page when needed (median filter, autocontrast, a threshold around 140) and kept in the scratch folder. If no
   image can be had, say so in `origin` and add an item to `pendientes.md` to get it.
 - A portrait for a person's `photo` is a derived crop in `<portraits>/<slug>.jpg`, documented with a row in
   `<portraits>/README.md` (source and crop box).
