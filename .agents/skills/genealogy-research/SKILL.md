@@ -134,7 +134,10 @@ from the civil registry, and questions for relatives (prepare them with the `fam
 
 ## Privacy
 
-- Do not create person files for living people found only in the press; at most a mention in notes.
+- Being alive is not a reason to leave a relative without a person file (`AGENTS.md` → "People", who gets a note):
+  what keeps a person found in the press out of the frontmatter is that the source is pending review, as for the
+  dead. Until a family member reviews it, they stay in the notes; once their link to the family is confirmed, they
+  get their file with name, dates and biography. People with no link to the family never get one.
 - Never store ID numbers, current addresses or bank data of living people; no photos of living people.
 - Do not publish or send family data to third-party services beyond the search queries themselves; never use
   credentials or session cookies the user offers for social networks — find a public route instead.

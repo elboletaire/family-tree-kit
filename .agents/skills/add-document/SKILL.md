@@ -106,7 +106,9 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   and its differences also to `<research>/incoherencias.md`, until a family member reviews it (`AGENTS.md` →
   "Rules"). If it contradicts another document, keep the one closest to the event, explain in the notes and add an
   item to `<research>/incoherencias.md`, under the family and branch of the people involved.
-- New people: create them with what the document says; parents from a certificate or will are `proven`, from
+- New people: every relative of the family the document names gets a file, living or dead (being alive only keeps
+  photos, ID numbers, addresses and the like out; `AGENTS.md` → "People", who gets a note); people with no link to
+  the family (notaries, witnesses, officials) stay in the source note. Create them with what the document says; parents from a certificate or will are `proven`, from
   anything weaker `probable`. Speculative links never go in the frontmatter — only in the notes.
 - Sources that mention several people must be linked from all of them (a list of candidates names two relatives:
   both get the source).

@@ -107,6 +107,15 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
 
 ## People
 
+- **Who gets a note**: every member of the family (relatives by blood or marriage, and their partners), **living or
+  dead**, once their existence and their link to the family have been confirmed in one of these ways: a trusted
+  document names them (the family's archive, or a source found by research that a person of the family has reviewed,
+  `review: revisada`); a relative's testimony confirms them; or the user asks for their note expressly. Never before:
+  a name that only turned up in a source pending review, or a link that is only a guess, waits in «Notas de
+  investigación» and `research/pendientes.md`. Being alive only keeps some data out — photos, ID numbers, current
+  addresses, phone numbers, bank and health data —, never the note: name, dates, places, relations and a biography
+  are kept as for anyone (the public version already hides the living). People with no link to the family
+  (notaries, witnesses, neighbours, officials) stay in the source note, without a note of their own.
 - **Slug** = file name = `name-surname1-surname2`: lowercase, no accents, with hyphens. If it collides, all the
   surnames (`jaume-ferrer-soler-puig-vidal`). Without a given name: `nn-surname`; without surnames: `name-nn`.
 - **Frontmatter** (only these keys; the validator rejects any other):

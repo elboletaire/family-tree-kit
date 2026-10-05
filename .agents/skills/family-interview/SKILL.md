@@ -69,7 +69,8 @@ Answers come back numbered, often in fragments, sometimes corrected minutes late
   approximate), places, parents, spouses (both sides, identical `marriages`), `sources` and inline citations in the
   biography. The biography states the facts plainly; who said what, and a fact the relative corrected, go to
   `## Notas de investigación` (`AGENTS.md` → "People", Body).
-- Create new people named in the answers (great-grandparents, siblings, in-laws) with what is known;
+- Create new people named in the answers (great-grandparents, siblings, in-laws, cousins, the living too: name,
+  dates, places and what they told) with what is known;
   `parents_confidence: probable` when only oral testimony supports the relation.
 - Rename slugs when a surname becomes known or its spelling is corrected; update every `"[[slug]]"` and markdown
   link to it (grep the whole repo, including `families.yml`, `<portraits>/README.md` and the research folder).
