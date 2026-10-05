@@ -117,8 +117,12 @@ Only after grading, and following the `add-document` skill:
 - Contradictions with other documents go to `<research>/incoherencias.md` (see `references/identification.md`).
 - AI output (including your own summaries) is never a source. A claim from an AI conversation can be a lead to check.
 - If the family later rejects a source, delete it and every datum that depends on it, and record it in
-  `<research>/descartados.md` (`AGENTS.md` → "Rules"). A finding you discard yourself for a clear reason (a homonym
-  ruled out by dates) is recorded there too, so the next search does not pick it up again.
+  `<research>/descartados.md` (`AGENTS.md` → "Rules"). Only what a family member has rejected goes there: that file is
+  not shown on the website, so the family would never see a rejection decided by research. A finding you rule out
+  yourself (a homonym excluded by its dates) goes to `<research>/pendientes.md` as a possible homonym to confirm
+  (`- **¿Homónimo? …** — …`, in the tree's language), with the reference that would bring it back and why you think it is
+  not the person, so the next search does not pick it up again; it moves to `descartados.md` once a family member
+  confirms it.
 
 ## 6. Report and next steps
 

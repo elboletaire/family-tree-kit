@@ -13,7 +13,8 @@ occupation. Then grade:
   relative. Record with `status: indicio`.
 - **lead**: name only, or a common name with one matching detail. Notes or `pendientes.md` only.
 - **discarded**: an anchor contradicts (wrong age, other parents, other spouse, died while the person was alive). Write
-  down why, so nobody attaches it later.
+  down why, so nobody attaches it later: as a possible homonym to confirm in `pendientes.md`, not in `descartados.md`,
+  which only holds what a family member rejected (see the skill, section 5).
 
 To tell how rare a surname really is, the INE's «Apellidos y nombres más frecuentes» tool (`ine.es/apellidos`) gives
 the number of people with it and, reported by other trees, its distribution by province and municipality of birth

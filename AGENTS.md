@@ -347,7 +347,9 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
   `research/descartados.md`: what it was, where it was found (the URL or archive reference that would bring it back),
   who decided it and when, and why. It goes by families and branches like `pendientes.md`, and the «Notas de
   investigación» of the person it was attached to keep one line about it. Research reads that file before recording
-  anything, so that a discarded document does not come back. It is not shown on the website.
+  anything, so that a discarded document does not come back. It is not shown on the website, so only what a person of
+  the family has rejected goes in it: a homonym that research rules out by itself goes to `pendientes.md` as a possible
+  homonym to confirm, and moves here when someone of the family confirms it.
 - AI-generated content (`category: ia`) is **never** the source of a fact.
 - `incoherencias.md` and `pendientes.md` go by families: a `##` for each family of `families.yml` (with its exact
   `title`), with a `###` per branch, and «General». Each new item goes in the family and branch of the people it
