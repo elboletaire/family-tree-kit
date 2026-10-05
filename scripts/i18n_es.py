@@ -98,6 +98,11 @@ MONTH_NAMES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "
                "noviembre", "diciembre"]
 
 
+# A date in long form, as long_date writes it and as older notes may write it («1.º de mayo del 2001»), to find it
+# in a text; {months} is filled in with MONTH_NAMES
+LONG_DATE_PATTERN = r"(?<!\d)(?P<day>\d{{1,2}})(?:\.?º)? de (?P<month>{months}) del? (?P<year>\d{{4}})(?!\d)"
+
+
 def long_date(day, month, year):
     return f"{day} de {month} de {year}"
 

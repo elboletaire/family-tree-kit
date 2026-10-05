@@ -26,6 +26,11 @@ export const norm = (s: string): string => s.normalize('NFD').replace(/[̀-ͯ]/g
 export const fmtDate = (s: string | null | undefined): string =>
   String(s || '').replace(/(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/, (_m, y: string, mo?: string, d?: string) =>
     [d && +d, mo && texts.months[+mo - 1], y].filter(Boolean).join(' '));
+/** The full ISO dates of a text in long form («2026-10-04» → «4 de octubre de 2026»): the data fields of a document
+    (pages, who reviewed it) write them in ISO, and the family reads them as prose */
+export const longDates = (s: string): string =>
+  s.replace(/(?<!\d)(\d{4})-(\d{2})-(\d{2})(?!\d)/g, (m, y: string, mo: string, d: string) =>
+    +mo >= 1 && +mo <= 12 ? texts.longDate(+d, +mo, y) : m);
 /** Position in years with decimals, to spread the events of the same year */
 export const yearAt = (s: string | null | undefined, fallback: number): number => {
   const m = String(s || '').match(/(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/);

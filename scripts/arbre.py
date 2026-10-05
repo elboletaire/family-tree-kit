@@ -7,7 +7,7 @@ import re
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import parse_qsl, unquote, urlencode, urlsplit
 
 import yaml
 
@@ -526,6 +526,99 @@ BRANCH_GROUPS = CONFIG.groups
 # Coordinates of the places, as they are written in the notes (see scripts/geocode.py)
 PLACES_PATH = ROOT / "places.yml"
 
+
+
+# --- Addresses written in a text ----------------------------------------------
+# An address runs until a space or a character that cannot be in it; the punctuation that closes the sentence around
+# it (and a bracket opened before it) is trimmed afterwards. The same rule as `splitUrls` in web/src/util.ts
+URL_RE = re.compile(r"https?://[^\s<>\"«»`\x00-\x1f\x7f]+")
+URL_TRAILING = ".,;:!?'\"’”"
+# Parameters that only say where a link was shared from, not what it points to
+URL_TRACKING_RE = re.compile(r"^(utm_\w*|fbclid|gclid|dclid|msclkid|mc_cid|mc_eid|igshid|_ga|_gl|ref_src)$", re.IGNORECASE)
+
+
+def trim_url(url):
+    while url:
+        last = url[-1]
+        opener = {")": "(", "]": "["}.get(last)
+        if last in URL_TRAILING or (opener and url.count(opener) < url.count(last)):
+            url = url[:-1]
+        else:
+            break
+    return url
+
+
+def find_urls(text):
+    return [trim_url(m.group(0)) for m in URL_RE.finditer(text)]
+
+
+def normalize_url(url):
+    """The same address however it was copied: without the scheme, «www.», the fragment, the tracking parameters
+    nor the final «/», with the host in lowercase, the escapes decoded and the parameters in order."""
+    parts = urlsplit(trim_url(url.strip()))
+    host = (parts.hostname or "").removeprefix("www.")
+    if parts.port and parts.port not in (80, 443):
+        host += f":{parts.port}"
+    path = unquote(parts.path).rstrip("/")
+    query = sorted((k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if not URL_TRACKING_RE.match(k))
+    return host + path + (f"?{unquote(urlencode(query))}" if query else "")
+
+
+# --- Dates written in a text -------------------------------------------------
+# Prose (biographies, research notes, `origin`) writes dates in the long form of the tree's language («12 de abril
+# de 1931»); data fields (`date`, `pages`, `reviewed_by`, file names) in ISO. Older notes mix in D-M-YYYY, so the
+# duplicate check (lookup.py) reads the three forms as the same date, and the validator warns about the wrong one.
+
+TEXT_DATE_ISO, TEXT_DATE_NUMERIC, TEXT_DATE_LONG = "iso", "numeric", "long"
+# Year first, with «-» (ISO) or «/» (as in many addresses of newspaper archives: …/1931/04/12/…)
+_TEXT_ISO_RE = re.compile(r"(?<!\d)(\d{4})([-/])(\d{1,2})\2(\d{1,2})(?!\d)")
+# Day first: D-M-YYYY, D/M/YYYY
+_TEXT_NUMERIC_RE = re.compile(r"(?<!\d)(\d{1,2})[-/](\d{1,2})[-/](\d{4})(?!\d)")
+_TEXT_LONG_RE = re.compile(i18n.LONG_DATE_PATTERN.format(months="|".join(map(re.escape, i18n.MONTH_NAMES))),
+                           re.IGNORECASE)
+_MONTH_NUMBER = {m.lower(): n for n, m in enumerate(i18n.MONTH_NAMES, 1)}
+
+
+@dataclass
+class TextDate:
+    iso: str    # YYYY-MM-DD
+    form: str   # TEXT_DATE_ISO | TEXT_DATE_NUMERIC | TEXT_DATE_LONG
+    text: str   # as it is written
+    start: int
+    end: int
+
+
+def _text_date(y, mo, d):
+    try:
+        return dt.date(int(y), int(mo), int(d)).isoformat()
+    except ValueError:
+        return None
+
+
+def find_text_dates(text):
+    """The dates with day, month and year written in a text, in any of the three forms, in order. A form that is not
+    a real date (31-2-1900) is not one; «1931/04/12» counts as ISO only if written with «-»."""
+    found = []
+    for m in _TEXT_ISO_RE.finditer(text):
+        if iso := _text_date(m.group(1), m.group(3), m.group(4)):
+            form = TEXT_DATE_ISO if m.group(2) == "-" and len(m.group(3)) == len(m.group(4)) == 2 else TEXT_DATE_NUMERIC
+            found.append(TextDate(iso, form, m.group(0), m.start(), m.end()))
+    taken = [(t.start, t.end) for t in found]
+    for m in _TEXT_NUMERIC_RE.finditer(text):
+        if any(a < m.end() and m.start() < b for a, b in taken):
+            continue
+        if iso := _text_date(m.group(3), m.group(2), m.group(1)):
+            found.append(TextDate(iso, TEXT_DATE_NUMERIC, m.group(0), m.start(), m.end()))
+    for m in _TEXT_LONG_RE.finditer(text):
+        if iso := _text_date(m.group("year"), _MONTH_NUMBER[m.group("month").lower()], m.group("day")):
+            found.append(TextDate(iso, TEXT_DATE_LONG, m.group(0), m.start(), m.end()))
+    return sorted(found, key=lambda t: t.start)
+
+
+def long_text_date(iso):
+    """«1931-04-12» in the long form of the tree's language."""
+    y, mo, d = (int(x) for x in iso.split("-"))
+    return i18n.long_date(d, i18n.MONTH_NAMES[mo - 1], y)
 
 
 # --- Places ---------------------------------------------------------------

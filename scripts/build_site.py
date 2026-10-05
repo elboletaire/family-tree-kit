@@ -44,9 +44,9 @@ import history
 import leak_check
 import share_image
 from arbre import (BRANCHES, CODE_ROOT, COMPILATION_TYPE, CONFIG, DEFAULT_CATEGORY, HISTORIC_EVENTS, IMAGE_EXT,
-                   OTHER_BRANCH, PLACES_PATH, RESEARCH_DIR, ROOT, SOURCES_DIR, branch_of, family_sections, i18n,
+                   OTHER_BRANCH, PLACES_PATH, RESEARCH_DIR, ROOT, SOURCES_DIR, URL_RE, branch_of, family_sections, i18n,
                    is_pending, load_people, load_places, load_sources, parse_date, person_families, person_review,
-                   revision_markdown, source_family, source_files, strip_refs_block, sub_links)
+                   revision_markdown, source_family, source_files, strip_refs_block, sub_links, trim_url)
 from privacy import public_view
 
 # The interface (TypeScript, in web/) is compiled separately with `make web`: here the bundle is only embedded
@@ -201,24 +201,9 @@ def year_of(value):
     return d.year if d and d.year else None
 
 
-# An address runs until a space or a character that cannot be in it; the punctuation that closes the sentence around
-# it (and a bracket opened before it) is trimmed afterwards. The same rule as `splitUrls` in web/src/util.ts
-URL_RE = re.compile(r"https?://[^\s<>\"«»`\x00-\x1f\x7f]+")
-URL_TRAILING = ".,;:!?'\"’”"
 URL_HOST_RE = re.compile(r"^https?://[^/?#]")
 # Inside them the text is not linked: links, code and the markdown's own placeholders
 NO_AUTOLINK = {"a", "code", "pre", "script", "style"}
-
-
-def trim_url(url):
-    while url:
-        last = url[-1]
-        opener = {")": "(", "]": "["}.get(last)
-        if last in URL_TRAILING or (opener and url.count(opener) < url.count(last)):
-            url = url[:-1]
-        else:
-            break
-    return url
 
 
 def split_urls(text):

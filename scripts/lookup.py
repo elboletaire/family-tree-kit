@@ -16,10 +16,17 @@ Each argument is one query:
   matches, the list of candidates;
 - anything else, or with `--text`: the lines of the notes (people, sources and research) that contain it, by note.
 
+With `--duplicates`, each argument is a clue of a document about to be added — a date, an address, an archive id or a
+file name — and the answer is every source that already has it, with where: its `date`, `pages`, `origin`, `files`,
+title or body. Dates match in any form (1931-04-12, 12-4-1931, 12/04/1931 or the long form of the tree's language,
+and the year-first dates of an address), addresses however they were copied (scheme, «www.», tracking parameters,
+final «/»), and anything else as text, without accents, capitals or punctuation.
+
 The cards are short by default: relatives by slug, source ids, one line per research item. Each part can be widened:
 
 Usage: uv run scripts/lookup.py [--family] [--sources] [--links] [--items] [--full] [--body] [--text] [--all]
                                 QUERY [QUERY...]
+       uv run scripts/lookup.py --duplicates CLUE [CLUE...]
   --family   relatives with their names and dates, and the grandparents
   --sources  the title, date and state of each source; in a source's card, all its fields and its files
   --links    the notes that link or name the person or source
@@ -28,6 +35,7 @@ Usage: uv run scripts/lookup.py [--family] [--sources] [--links] [--items] [--fu
   --body     also print the note's body (biography and research notes, or the transcription)
   --text  search the text of the notes, not people
   --all   a card for every matching person, however many
+  --duplicates  the sources that already have a date, address, id or file name (before adding a document)
 """
 
 import argparse
@@ -35,8 +43,8 @@ import re
 import sys
 
 from arbre import (BRANCH_TAG_PREFIX, BRANCHES, OTHER_BRANCH, PEOPLE_DIR, RESEARCH_DIR, REVISION_PATH, ROOT,
-                   SOURCES_DIR, branch_of, is_pending, load_people, load_sources, person_review, source_files,
-                   strip_refs_block, sub_links)
+                   SOURCES_DIR, branch_of, find_text_dates, find_urls, is_pending, load_people, load_sources,
+                   normalize_url, person_review, source_files, strip_refs_block, sub_links)
 from textsearch import norm
 
 SOURCE_ID_RE = re.compile(r"^[Ff]\d+$")
@@ -48,6 +56,12 @@ MAX_CARDS = 3
 MAX_LINES, LINE_LEN = 5, 200
 # A research item in one line (short cards and branches)
 ITEM_LEN = 160
+# The fields of a source where the duplicate check looks, besides its files and body
+DUPLICATE_FIELDS = ("title", "date", "pages", "origin", "drive_path")
+# A file name is also looked for without its extension, if it has one of these lengths
+EXTENSION_RE = re.compile(r"\.[A-Za-z0-9]{2,5}$")
+# Matching fields and lines shown per source
+MAX_HITS = 10
 # The parts of a card that can be widened (see the usage)
 FAMILY, SOURCES, LINKS, ITEMS = "family", "sources", "links", "items"
 PARTS = (FAMILY, SOURCES, LINKS, ITEMS)
@@ -337,6 +351,57 @@ class Tree:
         if not hits:
             print("no matches")
 
+    def duplicates(self, clue):
+        """The sources that already have a clue of a new document: its dates (in any form), its addresses
+        (normalized) and the rest of it as text, with where each one matched."""
+        clue = clue.strip()
+        print(f"## Duplicates of «{clue}»")
+        urls, rest = set(), clue
+        for u in find_urls(clue):
+            urls.add(normalize_url(u))
+            rest = rest.replace(u, " ")
+        found_dates = find_text_dates(clue)
+        dates = {d.iso for d in found_dates}
+        # Addresses and dates are matched as such; anything else (a file name, an archive id) also as text, without
+        # its extension
+        bare = rest
+        for d in found_dates:
+            bare = bare.replace(d.text, " ")
+        text = norm(EXTENSION_RE.sub("", rest)).strip() if norm(bare).strip() else ""
+        if not (urls or dates or text):
+            print("nothing to look for")
+            return
+
+        def hits_in(value):
+            found = []
+            if dates and (ds := [d.text for d in find_text_dates(value) if d.iso in dates]):
+                found.append(f"date {', '.join(dict.fromkeys(ds))}")
+            if urls and any(normalize_url(u) in urls for u in find_urls(value)):
+                found.append("address")
+            if text and f" {text} " in norm(value):
+                found.append("text")
+            return found
+
+        matched = 0
+        for sid, src in self.sources.items():
+            meta, lines = src["meta"], []
+            fields = [(k, str(meta[k])) for k in DUPLICATE_FIELDS if meta.get(k) not in (None, "")]
+            fields += [("files", f.relative_to(SOURCES_DIR).as_posix()) for f in source_files(meta)]
+            for key, value in fields:
+                if found := hits_in(value):
+                    lines.append(f"  {key} ({', '.join(found)}): {short(value, LINE_LEN)}")
+            for n, line in enumerate(self.notes[SOURCES_DIR / f"{sid}.md"].splitlines(), 1):
+                if found := hits_in(line):
+                    lines.append(f"  body:{n} ({', '.join(found)}): {short(line, LINE_LEN)}")
+            if lines:
+                matched += 1
+                print(self.source_line(sid))
+                print("\n".join(lines[:MAX_HITS]))
+                if len(lines) > MAX_HITS:
+                    print(f"  … {len(lines) - MAX_HITS} more")
+        if not matched:
+            print("no source has it")
+
     def query(self, q, body=False, text=False, all_cards=False):
         q = q.strip()
         if text:
@@ -373,12 +438,17 @@ def main():
     parser.add_argument("--body", action="store_true", help="also print the note's body")
     parser.add_argument("--text", action="store_true", help="search the text of the notes, not people")
     parser.add_argument("--all", action="store_true", help="a card for every matching person")
+    parser.add_argument("--duplicates", action="store_true",
+                        help="the sources that already have a date, address, id or file name (before adding one)")
     args = parser.parse_args()
     tree = Tree(frozenset(p for p in PARTS if args.full or getattr(args, p)))
     for i, q in enumerate(args.queries):
         if i:
             print()
-        tree.query(q, body=args.body, text=args.text, all_cards=args.all)
+        if args.duplicates:
+            tree.duplicates(q)
+        else:
+            tree.query(q, body=args.body, text=args.text, all_cards=args.all)
 
 
 if __name__ == "__main__":

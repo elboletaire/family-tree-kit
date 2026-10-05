@@ -10,6 +10,7 @@ import { AI, DATA, REVIEW_DONE, REVIEW_PENDING, REVISION, S } from '../data';
 import { texts } from '../i18n';
 import { openResearch } from '../router';
 import { openDialog } from '../session';
+import { longDates } from '../util';
 
 export function DocPanel(props: { id: string }) {
   const d = S.get(props.id)!;
@@ -17,8 +18,8 @@ export function DocPanel(props: { id: string }) {
   const others = d.files.filter(f => f.kind !== 'image');
   const rows: [string, string][] = [
     [texts.doc.date, d.date], [texts.doc.place, d.place], [texts.doc.issuer, d.issuer], [texts.doc.status, d.status],
-    [texts.doc.reviewedBy, d.review === REVIEW_DONE ? d.reviewedBy || texts.doc.reviewedByFamily : ''], [texts.doc.origin, d.origin],
-    [texts.doc.pages, d.pages], [texts.doc.reference, d.id],
+    [texts.doc.reviewedBy, d.review === REVIEW_DONE ? longDates(d.reviewedBy) || texts.doc.reviewedByFamily : ''],
+    [texts.doc.origin, d.origin], [texts.doc.pages, longDates(d.pages)], [texts.doc.reference, d.id],
   ];
   const zoom = (i: number) => openLightbox(images.map(f => ({ src: f.preview, caption: `${d.title} — ${f.name}` })), i);
   return (

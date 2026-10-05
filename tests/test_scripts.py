@@ -678,6 +678,99 @@ class Lookup(unittest.TestCase):
         self.assertIn("## Text «Puig»\npeople/pau-ferrer-puig.md — Pau Ferrer Puig", self.lookup("--text", "Puig"))
 
 
+class DuplicateSources(unittest.TestCase):
+    """lookup.py --duplicates: a date in any of its three forms, an address however it was copied, an archive id or a
+    file name find the sources that already have them, a page of a compilation included; and validate warns about the
+    dates written in the wrong form for their field."""
+
+    COMPILATION = """\
+---
+id: F004
+title: Notices of Jaume Ferrer Soler (The Fictional Herald, 1960-1970)
+type: Recopilación
+category: genealogia
+date: 1960-03-14
+pages: "3 (1960-03-14 p. 12; 1965-03-14 p. 8; 1970-03-14 p. 30)"
+origin: "Hemeroteca de The Fictional Herald (https://archive.example.org/herald/1965/03/14/page-8/?utm_source=share), consultada el 4 de octubre de 2026"
+files: ["F004/Herald 1960-03-14 p12.png"]
+---
+# Notices of Jaume Ferrer Soler
+
+> (1970-03-14, p. 30) Fictional notice.
+"""
+    ARCHIVE = """\
+---
+id: F005
+title: Parish book of Vilaficta
+type: Libro
+category: genealogia
+date: 1890
+pages: "f. 12"
+origin: "Archivo ficticio de Vilaficta, visor en línea (path=/libros/77, idImagen=4711), 4-10-2026; recibido como «scan 2026-10-04.png»"
+review: revisada
+reviewed_by: "A cousin, 4 de octubre de 2026"
+---
+# Parish book of Vilaficta
+
+Written on the 14 de marzo de 1965 margin: «nació el 14-3-1965».
+"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.root = Path(cls.tmp.name)
+        make_tree(cls.root)
+        sources = cls.root / "sources"
+        (sources / "F004").mkdir()
+        (sources / "F004" / "Herald 1960-03-14 p12.png").write_bytes(PNG)
+        (sources / "F004.md").write_text(cls.COMPILATION, encoding="utf-8")
+        (sources / "F005.md").write_text(cls.ARCHIVE, encoding="utf-8")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def duplicates(self, *clues):
+        result = run(self.root, "lookup", "--duplicates", *clues)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result.stdout
+
+    def test_the_three_date_forms_are_the_same_date(self):
+        for clue in ("1965-03-14", "14-3-1965", "14/03/1965", "14 de marzo de 1965"):
+            out = self.duplicates(clue)
+            # A page inside the compilation's `pages`, and the dates of a body in any form
+            self.assertIn("F004 — Notices of Jaume Ferrer Soler", out, clue)
+            self.assertIn("  pages (date 1965-03-14): 3 (1960-03-14 p. 12; 1965-03-14 p. 8;", out, clue)
+            self.assertIn("F005 — Parish book of Vilaficta", out, clue)
+            self.assertIn("(date 14 de marzo de 1965, 14-3-1965): Written on the", out, clue)
+        self.assertIn("no source has it", self.duplicates("1965-03-15"))
+
+    def test_addresses_are_normalized(self):
+        out = self.duplicates("http://www.archive.example.org/herald/1965/03/14/page-8?fbclid=abc#top")
+        self.assertIn("  origin (date 1965/03/14, address): Hemeroteca", out)
+        # Another page of the same day is not the same address, but it is the same date
+        out = self.duplicates("https://archive.example.org/herald/1965/03/14/page-9")
+        self.assertNotIn("address", out)
+        self.assertIn("origin (date 1965/03/14)", out)
+
+    def test_ids_and_file_names(self):
+        self.assertIn("F005 — Parish book of Vilaficta", self.duplicates("idImagen=4711"))
+        self.assertIn("no source has it", self.duplicates("idImagen=47"))
+        out = self.duplicates("Herald 1960-03-14 p12.jpg")
+        self.assertIn("  files (date 1960-03-14, text): F004/Herald 1960-03-14 p12.png", out)
+
+    def test_validate_warns_about_the_form_of_the_dates(self):
+        result = run(self.root, "validate")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        out = result.stdout
+        # Prose in long form: the date of an address or a quoted file name is not prose
+        self.assertIn("sources/F005.md: origin: dates in prose go in long form: 4-10-2026 → 4 de octubre de 2026\n", out)
+        self.assertNotIn("F004.md: origin", out)
+        # Data fields in ISO
+        self.assertIn("sources/F005.md: reviewed_by: dates go as YYYY-MM-DD: 4 de octubre de 2026 → 2026-10-04", out)
+        self.assertNotIn("F004.md: pages", out)
+
+
 class InvalidConfig(unittest.TestCase):
     def check(self, message, **tree):
         with tempfile.TemporaryDirectory() as tmp:

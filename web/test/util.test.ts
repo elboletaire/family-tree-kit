@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { esc, fmtDate, hash, initials, lifespan, lightColor, norm, splitUrls, years, yearAt } from '../src/util';
+import { esc, fmtDate, hash, longDates, initials, lifespan, lightColor, norm, splitUrls, years, yearAt } from '../src/util';
 import { fixture } from './fixture';
 
 const people = new Map(fixture().people.map(p => [p.id, p]));
@@ -24,6 +24,13 @@ describe('helpers', () => {
     expect(years(p('abuela'))).toBe('1905–?');
     expect(years(p('yo'))).toBe('1960–');
   });
+  it('longDates writes the ISO dates of a text in long form', () => {
+    expect(longDates('3 (1960-03-14 p. 12; 1965-03-04 p. 8)')).toBe('3 (14 de marzo de 1960 p. 12; 4 de marzo de 1965 p. 8)');
+    expect(longDates('A cousin, 2026-10-04')).toBe('A cousin, 4 de octubre de 2026');
+    // Only full dates; years, months and other numbers stay
+    expect(longDates('pp. 1-4, 1965-03, 19.397/24, 11965-03-140')).toBe('pp. 1-4, 1965-03, 19.397/24, 11965-03-140');
+  });
+
   it('fmtDate gives readable dates and keeps the prefixes', () => {
     expect(fmtDate('1896-12-19')).toBe('19 dic 1896');
     expect(fmtDate('1896-02')).toBe('feb 1896');

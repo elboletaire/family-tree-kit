@@ -33,10 +33,14 @@ function fanRelation(n: number): string {
 }
 
 const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const MONTHS_LONG = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre',
+  'noviembre', 'diciembre'];
 
 export const es = {
   siteTitle: 'Historia de la familia',
   months: MONTHS,
+  /** A date in long form, as prose writes it: «12 de abril de 1931» */
+  longDate: (day: number, month: number, year: string) => `${day} de ${MONTHS_LONG[month - 1]} de ${year}`,
   close: 'Cerrar',
   unavailable: '<p>No disponible.</p>',
   people: (n: number) => plural(n, 'persona', 'personas'),

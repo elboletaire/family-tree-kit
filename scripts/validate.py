@@ -8,16 +8,25 @@
 Usage: uv run scripts/validate.py [--strict]   (--strict turns warnings into errors)
 """
 
+import re
 import sys
 
 from arbre import (CONFIDENCE, CONFIG, CONFIG_PATH, PEOPLE_DIR, PERSON_KEYS, PLACES_PATH, PORTRAITS_DIR, RESEARCH_DIR,
                    REVIEW_DONE, REVIEW_VALUES, ROOT, SLUG_RE, SOURCE_CATEGORIES, SOURCE_KEYS, SOURCES_DIR,
-                   all_note_names, generated_files, load_people, load_places, load_sources, parse_date, source_files,
-                   sub_links, unlink, used_places)
+                   TEXT_DATE_ISO, TEXT_DATE_LONG, all_note_names, find_text_dates, generated_files, load_people,
+                   load_places, load_sources, long_text_date, parse_date, source_files, sub_links, unlink, used_places)
 
 MIN_PARENT_AGE = 12
 MAX_FATHER_AGE = 75
 MAX_MOTHER_AGE = 55
+# What `origin` quotes as it is (addresses, «file and folder names», `code`): its dates are not checked
+LITERAL_RE = re.compile(r"https?://\S+|«[^»]*»|`[^`]*`")
+
+
+def misdated(text, want):
+    """The dates of a text not written in the form `want`, each with how it should be."""
+    fix = long_text_date if want == TEXT_DATE_LONG else str
+    return [f"{d.text} → {fix(d.iso)}" for d in find_text_dates(text) if d.form != want]
 
 
 def main(argv):
@@ -199,6 +208,12 @@ def main(argv):
             err(where, f"review must be one of {', '.join(REVIEW_VALUES)}")
         if meta.get("reviewed_by") and meta.get("review") != REVIEW_DONE:
             warn(where, f"reviewed_by without review: {REVIEW_DONE}")
+        # Dates: long form in prose (origin), ISO in data fields. Only a warning, so that older trees keep validating
+        if bad := misdated(LITERAL_RE.sub(" ", str(meta.get("origin") or "")), TEXT_DATE_LONG):
+            warn(where, "origin: dates in prose go in long form: " + "; ".join(bad))
+        for k in ("pages", "reviewed_by"):
+            if bad := misdated(str(meta.get(k) or ""), TEXT_DATE_ISO):
+                warn(where, f"{k}: dates go as YYYY-MM-DD: " + "; ".join(bad))
         for f in source_files(meta):
             if not f.is_file():
                 err(where, f"missing file: {f.relative_to(SOURCES_DIR)}")
