@@ -35,6 +35,14 @@ are by registration office and by letter (columns: surname, given names, occupat
 marital status, spouse): read the letters you need page by page; for the Cerdagne, Saillagouse (volumes for 1811–1899,
 1900–1919, 1920–1929, 1930–1940, 1941–1949 and 1950–1964).
 
+*Checked:* the household censuses (series 6M, one register per commune and year: 1896, 1901, 1906, 1911, 1921…) list
+house by house the age, birthplace and nationality of everyone, and the civil registers (9NUM2E…) are by commune
+and decade; Spanish families who worked French farms across the border appear in both, with the Spanish village of
+birth. The viewer (`docnumViewer/calculHierarchieDocNum/<udid>/…`) embeds base64 `src` ids; the whole image, about 7000
+px wide, comes from `docnumserv/getImagePart/<src>/<base64("0/0/W/H/W/H")>`. Searches go through `requeteConstructor`
+with a cookie jar. The military recruitment registers (series 1R) are also on Geneanet as free images (see
+`resources-spain.md`, FamilySearch and Geneanet): they give birth date and place, the parents and where the man lived.
+
 ## Exile of 1939
 
 The nominative lists of the internees of the camps (about 15,000 names from February to June 1939, more than 57,000

@@ -54,7 +54,11 @@ the next step is an email request with parish, type, approximate date and names.
   parishes not online. A book's record says whether it has digital objects (many described books have none), and the
   images need a free registered account;
   the Arxiu Diocesà i Capitular d'Urgell publishes a spreadsheet of surviving books per parish
-  (`urgellensisecclesiaearchivia.bisbaturgell.org/registre-sacramental/`; visits by appointment). Many parish archives
+  (`urgellensisecclesiaearchivia.bisbaturgell.org/registre-sacramental/`, checked: the 2026 file is
+  `…/wp-content/uploads/2026/05/Registre-sacramental-parroquies-Urgell-2026.xlsx`, one row per parish and book, with
+  the years of baptisms, marriages and deaths; it also lists the duplicates of the Andorran parishes of the 1860s; the
+  archive's address is `arxiudiocesa@bisbaturgell.org`, visits by appointment). Read the whole row of a parish before
+  asking: many keep only a few years. Many parish archives
   burnt in 1936: check what survives before asking. Barcelona Cathedral's marriage-licence books (1451–1905) are
   indexed by the Universitat Autònoma de Barcelona, behind a login.
 - *Request only* (no index): the Archivo Histórico Diocesano de Oviedo (`archivo@iglesiadeasturias.org`; fee charged
@@ -71,8 +75,17 @@ the next step is an email request with parish, type, approximate date and names.
   (including parish household censuses).
 
 **FamilySearch** — huge index, but search needs login (the API refuses anonymous calls); its wiki pages per locality
-(which collections and archives exist) are public. **Geneanet** indexes (derived from FamilySearch) are useful but
-Cloudflare-blocked for automation; users can save index cards as PDF. Index transcriptions contain surname errors.
+(which collections and archives exist) are public. **Geneanet** indexes (derived from FamilySearch) are useful;
+users can save index cards as PDF. Index transcriptions contain surname errors. *Checked:* the search pages
+(`www.geneanet.org/fonds/individus/?go=1&size=100&nom=<SURNAME1+SURNAME2>`) pass Cloudflare with a headful Chromium
+(`headless=False`, a display such as WSLg) and `--disable-blink-features=AutomationControlled`, after loading the home
+page and removing the cookie banner (`#tarteaucitronRoot`); headless is blocked. They list public trees (person,
+spouse, year, place) and indexed collections: FamilySearch's municipal records of the province of Girona (padrons) are
+`cercles/view/colgnecm2015355/<n>` — names and record numbers free, details only with Premium; neighbouring numbers
+are one household. Free register images (French military registers among them) are viewed at
+`www.geneanet.org/registres/view/<id>/<page>`, tiles fetched inside the page. The trees themselves
+(`gw.geneanet.org/<user>?n=<surname>&p=<given name>`) sit behind a Turnstile CAPTCHA: ask the user to open them. A
+tree is a compiled source (`status: indicio`), not a document.
 
 ## Archives
 
@@ -190,7 +203,9 @@ files of the Universidad Central (Madrid) are in the Archivo Histórico Nacional
   (`cercarEn=TITOL` to search titles only). Each result gives archive, fonds, `codiReferencia`, dates, title,
   description and, when digitised, `objecteDigitalUrl` (a static JPG that downloads with curl) and `reservat`
   (restricted: keep for family consultation only). Be gentle: one request every second or two. The record page for
-  a human is `https://arxiusenlinia.cultura.gencat.cat/#/cercabasica/detallunitat/<codiReferencia>`. For multi-page
+  a human is `https://arxiusenlinia.cultura.gencat.cat/#/cercabasica/detallunitat/<codiReferencia>`; the full record
+  (the search truncates descriptions) is
+  `…/unitat/detail/full?codiReferencia=<codiReferencia>&idSessio=x` (`idSessio` is required, any value). For multi-page
   digitised files, `…/unitat/objects?codiReferencia=<codiReferencia>` lists every image and PDF of the unit (no
   browser needed). Useful fonds: Govern Civil (fines, border-crossing cards, permits — the files usually carry
   birth date and place), the Ministry of Finance's provincial delegations (padrons and lists of the urban and rural
@@ -218,13 +233,26 @@ files of the Universidad Central (Madrid) are in the Archivo Histórico Nacional
   checked), and the Universitat Autònoma de Barcelona's *Xarxa de padrons històrics* (`dagapp.cvc.uab.cat/xarxes/`,
   `?c=cercador&co=<surname>&an1=1800&an2=1970`, checked) for a handful of Llobregat towns. County archives publish
   genealogy guides saying which padrons and civil registers stay at each town hall (in person only). The provincial
-  gazette of Barcelona (1833–1997) is online at the Diputació's archive (`diba.cat/web/arxiu/boph`, reported).
+  gazette of Barcelona (1833–1997) is online at the Diputació's archive (`diba.cat/web/arxiu/boph`, reported). The
+  inventories of the municipal archives of the province of Barcelona are open data of the Diputació
+  (`media-do.diba.cat/xam/<code>/inventari-<code>.csv`, `<code>` the archive's ten-digit code, checked): padrons,
+  draft files (quintes), cemetery books and electoral rolls with their unit numbers, to cite in a request. The
+  Diputació's heritage catalogue (`patrimonicultural.diba.cat/element/<slug>`, checked) has a record per farmhouse,
+  chapel or building, often with the owners' families across the centuries and the local-history source.
 - *DARA — Documentos y Archivos de Aragón* (`dara.aragon.es`, checked: reachable) — catalogue of the provincial
   historical archives of Huesca, Zaragoza and Teruel and other Aragonese archives. Reported useful, not checked: electoral
   rolls of Aragon (1890–1955).
 - *Provincial gazette portals* — reported by other trees: the Diputación de Jaén's historical BOP
   (`bophistorico.dipujaen.es`, checked: reachable), the Diputación de Granada's archive (BOP 1833–2002) and the
   Diputación de Almería's Pandora. Try them when the Biblioteca Virtual de Prensa Histórica lacks an issue.
+- *BOP de Girona, historical* (Diputació de Girona, checked; 1834 to today, OCR) — search
+  `https://www.ddgi.cat/bopH/results.vm?o=&w=<q>&f=&s=<offset>&lang=ca&view=bop` (without `g=p&c=1`), whole issue
+  `https://www.ddgi.cat/bopH/high.raw?id=<id>&name=00000001.original.pdf` with plain curl. Draft and absentee lists with
+  the parents' given names, jurors, municipal judges, the local land-assessment boards (juntas periciales), tax-debtor
+  lists by municipality and summonses to heirs.
+- *BOP de Lleida, historical* (Diputació de Lleida, checked) — search
+  `https://pandora4.diputaciolleida.cat/pandora/4/results.vm?o=&w=<q>&s=<n>&g=p&c=1&lang=ca&view=bop` (`curl -k`); hits
+  are per issue, so search quoted phrases; PDFs with the same `high.raw` pattern.
 - Reported, not checked: the Archivo de la Real Chancillería de Granada (lists of cases of the Audiencia Territorial),
   the Archivo Histórico Provincial de Almería (fonds of the provincial Treasury delegation) and the Archivo Histórico
   Municipal de Úbeda (padrones online).
@@ -343,6 +371,7 @@ over provincial gazettes and hundreds of regional newspapers. Slow server: curl 
   (page with `posicion=51,101…`).
 - Issue: `…/es/catalogo_imagenes/grupo.do?path=<path>` (`&posicion=<page>&presentacion=pagina`).
 - OCR text of a page: `…/catalogo_imagenes/descargarTextoOCR.do?path=<path>&posicion=<page>`.
+- Nineteenth-century gazettes join the surnames with «y» («Pedro Soler y Puig»): search that form too.
 - Page image: find `imagen_id.do?idImagen=<id>` in the page HTML, then `…imagen_id.do?idImagen=<id>&formato=jpg&registrardownload=0`.
 - PDF export goes through a job queue: not automatable; use the image.
 - Store the `path` of each hit so it can be reopened.
@@ -413,7 +442,9 @@ bunny.net challenge: technique "challenge pages" (load `index.vm?lang=ca&view=he
 - Regional editions do not cover every county's obituaries.
 
 **XAC Premsa** (Xarxa d'Arxius Comarcals, `xacpremsa.cultura.gencat.cat/pandora/`) — same software (`view=premsa`,
-needs `g=p&c=1` to list hits); local and county press of Catalonia from the 19th century.
+needs `g=p&c=1` to list hits); local and county press of Catalonia from the 19th century. Plain curl works; a county
+filter is `&p=1&p=<county>&p=0&p=0`; whole issue `…/pandora/high.raw?id=<id>&name=00000001.original.pdf`. The OCR of
+some small papers is poor: absence of a name proves little.
 
 **Other press archives** — reported by other trees, not checked: the Diputación de Jaén's digital newspaper library
 (with the Instituto de Estudios Giennenses), the Biblioteca Hemeroteca Municipal de Tarragona (through Pandora) and
@@ -462,8 +493,10 @@ is blocked for half an hour — wait several seconds between requests. The page 
 
 **Hemeroteca of the Arxiu Històric de la Ciutat de Barcelona** (`ahcbdigital.bcn.cat/hemeroteca`, checked) — Diario de
 Barcelona (1792–1994, with gaps), El Noticiero Universal, Solidaridad Nacional and other city papers. Search
-`/hemeroteca/cerca-avancada?content=<q>&since=DD/MM/YYYY&until=DD/MM/YYYY`; each issue's viewer links (`handle_txt`) the
-full OCR text of the issue.
+`/hemeroteca/cerca-avancada?content=<q>&since=DD/MM/YYYY&until=DD/MM/YYYY` (12 results a page, `&page=<n>`; phrase search
+is accent-sensitive: try both forms); each issue's viewer links (`handle_txt`) the full OCR text of the issue, and the whole
+issue is a PDF at `https://ahcbdigital.bcn.cat/get-pdf/?id=<ahcb-dNNNNNN>`. Fetch viewers one at a time: parallel requests
+come back without `handle_txt`.
 
 **Recent deaths in Catalonia** (checked) — El 9 Nou (`el9nou.cat/osona-ripolles/defuncions/`, also
 `/valles-oriental/defuncions/`; name, age and town, paginated `/page/<n>/`, online from 2022; its old archive is for
@@ -542,6 +575,10 @@ library, the paper's own archive).
   flagged as such.
 - Personal and company websites (a relative's own page, company registers via BORME aggregators) — public roles only.
 - Business directories to confirm a family business named in testimony.
+- *Surname distribution* (Instituto Nacional de Estadística, checked): `ine.es/apellidos/widget?apellido=<X>` gives how
+  many people carry a surname, and `mapaWidget?apellido=<X>&tipo=1|2[&vista=muni]` its density by province or
+  municipality (first or second surname). A rare surname concentrated in one or two municipalities points to the
+  family's village.
 
 ## Cemeteries and photos
 

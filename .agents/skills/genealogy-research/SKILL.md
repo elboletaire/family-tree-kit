@@ -26,6 +26,8 @@ Reference files (read the one you need, not all):
 - `references/resources-spain.md` — where to look in Spain, by record type and region, with URL patterns.
 - `references/resources-france.md` — where to look in France (deaths since 1970, censuses, departmental archives), for
   branches that emigrated or went into exile there. Kept apart from Spain on purpose.
+- `references/resources-andorra.md` — the national archive's catalogue and where the parish books are, for branches
+  from the Andorran valleys.
 - `references/resources-argentina.md` — where to look in Argentina (arrivals at the port of Buenos Aires, national archive,
   FamilySearch), for branches that emigrated there.
 - `references/techniques.md` — how to get past JS apps, challenges and broken search forms; OCR and download tricks;
