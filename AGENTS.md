@@ -346,6 +346,12 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
 - If a document contradicts a compiled tree, the document wins. If two documents contradict each other (above all on
   dates), do not choose blindly: use the one closest to the fact, explain it in the notes and record it in
   `research/incoherencias.md`. Data are not invented: the gaps go to `research/pendientes.md`.
+- **A new fact is carried everywhere it belongs, in the same change.** When a document, an answer or a review
+  confirms, corrects or completes something, it is not enough to write it in the note of the person it is about:
+  `uv run scripts/lookup.py <slug> --links` (and `--text` with the old value) shows every note that depends on it — the
+  biographies of the spouse, children and siblings that repeat the old date or place, the notes of other sources that
+  discussed it, the facts of a pending source that the new one now confirms, an item of `incoherencias.md` or
+  `pendientes.md` that it settles, a place missing from `places.yml` — and all of them are updated before the commit.
 - **Every open question is written down when it comes up.** Whatever a new document, an answer, a testimony or a
   search opens (who someone is, a doubtful reading that matters, a gap, something to ask the family) goes to
   `research/pendientes.md`, and a contradiction to `research/incoherencias.md`, in the same change that brings it and

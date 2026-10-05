@@ -110,6 +110,8 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   photos, ID numbers, addresses and the like out; `AGENTS.md` → "People", who gets a note); people with no link to
   the family (notaries, witnesses, officials) stay in the source note. Create them with what the document says; parents from a certificate or will are `proven`, from
   anything weaker `probable`. Speculative links never go in the frontmatter — only in the notes.
+- Carry every new or corrected fact to all the notes that depend on it (`AGENTS.md` → "Rules", a new fact is carried
+  everywhere): `lookup.py <slug> --links` for each person touched, and `--text` with any value the document corrects.
 - Sources that mention several people must be linked from all of them (a list of candidates names two relatives:
   both get the source).
 - Remove from `pendientes.md` what the document answers; add what it opens: every question it raises (an
@@ -121,3 +123,16 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
 `make validate` (0 errors; it also checks that every file in `<sources>/F0xx/` is listed), commit, and tell the user
 in a few lines what the document added, what was redacted or left out and why, and which questions it raises for
 the family — each of them already in `pendientes.md` or `incoherencias.md`.
+
+Then **offer** (do not start) the two to four things the new data make possible, each in one line and concrete,
+and wait for the answer. Many users do not know what else the tree and the agent can do, so these offers are how
+they find out:
+
+- a search with the new data (`genealogy-research`): a death date and town open the obituary in that town's press, a
+  birthplace the parish books, an occupation the official gazettes — say what would be searched and where;
+- questions for a relative about what the document leaves open (`family-interview`), ready to send;
+- other documents the family may keep and that would settle a doubt (the other half of a deed, the back of a photo);
+- reviewing the pending sources of the same people, if there are any.
+
+When several searches are independent, say that they can run in parallel as subagents (in clients that have them)
+while the user goes on with something else, and roughly how long they take.

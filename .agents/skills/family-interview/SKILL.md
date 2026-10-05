@@ -72,6 +72,8 @@ Answers come back numbered, often in fragments, sometimes corrected minutes late
 - Create new people named in the answers (great-grandparents, siblings, in-laws, cousins, the living too: name,
   dates, places and what they told) with what is known;
   `parents_confidence: probable` when only oral testimony supports the relation.
+- Carry every new or corrected fact to all the notes that depend on it (`AGENTS.md` → "Rules", a new fact is carried
+  everywhere): `lookup.py <slug> --links` for each person touched, and `--text` with any value the answer corrects.
 - Rename slugs when a surname becomes known or its spelling is corrected; update every `"[[slug]]"` and markdown
   link to it (grep the whole repo, including `families.yml`, `<portraits>/README.md` and the research folder).
 - A document outranks memory: if the answer contradicts a document, keep the document's value, explain it in the
@@ -86,7 +88,11 @@ Answers come back numbered, often in fragments, sometimes corrected minutes late
 ## 4. Close
 
 `make validate` (0 errors), commit with a message saying who answered what, and tell the user in two or three lines
-what changed and what is still open for the next call.
+what changed and what is still open for the next call. Then **offer** (do not start) what the answers make
+possible, and wait: a search with the new names, dates and places (`genealogy-research`: say what and where, and that
+independent searches can run in parallel as subagents while the user does something else); the next questions,
+for this relative or another who would know (`family-interview`); documents or photos the relative mentioned that
+could be asked for (`add-document`).
 
 ## Privacy
 

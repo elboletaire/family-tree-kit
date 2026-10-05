@@ -128,9 +128,17 @@ Only after grading, and following the `add-document` skill:
 
 ## 6. Report and next steps
 
+Research opens more research. What the user asked for is done in full; anything beyond it is **asked, not done**:
+a finding that points to other people (siblings, a second marriage, the family of an in-law), to another country or
+archive, or to a long job (a whole run of a newspaper, an archive request by email, a paid service) is offered with
+what it would take, and started only if the user says so.
+
 End with a short report for the user: what was found and its grade, what was not found, and the next steps that
 need a human: archive requests (which archive, which book/folio/reference, by email or form), certificates to order
-from the civil registry, and questions for relatives (prepare them with the `family-interview` skill).
+from the civil registry, and questions for relatives (prepare them with the `family-interview` skill). Then the **offers**, each in one line:
+the searches the findings open (who, what, where), which of them could run in parallel as subagents while the user
+does something else, and reviewing the new pending sources together, one by one, so that their facts can enter the
+tree.
 
 ## Privacy
 
