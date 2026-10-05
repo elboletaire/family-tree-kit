@@ -213,6 +213,8 @@ def main(argv):
     ap.add_argument("--remote", help="with --rev, only the messages of the commits this remote does not have")
     ap.add_argument("--family-paths", action="store_true", help="print the family's files and folders")
     args = ap.parse_args(argv)
+    # The hook reads this output in a shell: no «\r» at the end of the lines, also on Windows
+    sys.stdout.reconfigure(newline="\n")
     if args.family_paths:
         print("\n".join(data_paths()))
         return

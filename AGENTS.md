@@ -7,6 +7,15 @@ has not been started yet.
 where its originals come from, its commit language). When it and this file disagree on something specific to the
 tree, `TREE.md` wins; this file is the engine's contract, shared by every tree made from the template.
 
+**This is a family's tree, not the kit.** Almost every repository made from the template is a family's tree: its
+user keeps their family in it, and the engine (code, tests, hooks, skills, these guidelines) is only used, never
+maintained. In a family's tree, do not fix, refactor or "improve" the engine on your own: if a script, a test or a
+hook fails, tell the user in their terms, work around it if the tree's work allows, and offer to write the report for
+the kit's maintainers (an issue at https://github.com/elboletaire/family-tree-kit/issues, with what failed and on
+which system); a local change to the engine conflicts with every later kit update. The template's own machinery —
+the `github` remote, the `template` branch, `make check-template`, publishing engine commits — is for the kit's
+maintainer only: a tree is the maintainer's when its `TREE.md` says so. Elsewhere, nothing is ever pushed to the kit.
+
 **Talk to the user at their level.** `TREE.md` says how the person who keeps the tree works with an AI agent
 (`modo: guiado` or `modo: técnico`; see "Working with the user"). In `guiado` mode they may not even know they are
 talking to an agent that edits files: never show them commands, file names, paths of the repository, Git or commits.
@@ -430,6 +439,10 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
   `make e2e`.
 
 ## Engine and data
+
+What matters to **every** tree: the split below, commits that do not mix code and data, and that nothing is pushed to
+`kit` (the `pre-push` hook refuses it). The rest of this section — publishing engine commits to the template — is
+only for the kit's maintainer, whose `TREE.md` says so; in any other tree there is nothing here to do.
 
 This repository can be a copy of the public template or share its engine with it. Every file is either:
 

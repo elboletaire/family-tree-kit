@@ -21,6 +21,8 @@ KEYS = {"language": CONFIG.language, "main": CONFIG.main,
 def main(argv):
     if len(argv) != 1 or argv[0] not in KEYS:
         sys.exit(f"usage: config.py {' | '.join(KEYS)}")
+    # Read by shell scripts: no «\r» at the end of the line, also on Windows
+    sys.stdout.reconfigure(newline="\n")
     print(KEYS[argv[0]])
 
 
