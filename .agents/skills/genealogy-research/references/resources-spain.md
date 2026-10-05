@@ -506,13 +506,29 @@ there).
 
 **Regional dailies with obituary sections** — e.g. Regió7 (Manresa): web obituaries only from mid-2021, paginated
 `…/necrologiques/pagina-<n>/` (download all, grep); older archive is paid. Funeral homes sometimes re-host the printed
-obituary page as a PDF: search the funeral home's site.
+obituary page as a PDF: search the funeral home's site. Two in Asturias are free and separate from the paper's (paid)
+newspaper archive:
 
-**Obituary aggregators** — esquelasdeasturias.com (archive only from 2024; old ids return 410), rememori
-(Cloudflare), others unreliable. Reported by other trees, not checked: tanatorio.pro, esquelas.es and the funeral-home
+- La Nueva España (Oviedo): `esquelas.lne.es`, from about 2020. Search `esquelas.lne.es/buscar/?s=<name>`; each notice
+  at `esquelas.lne.es/esquela-<slug>/<id>.html`.
+- El Comercio (Gijón): `esquelas.elcomercio.es`, from about 2009. Search `esquelas.elcomercio.es/buscar-esquela/?nom=<name>`
+  — only the deceased's name, not the relatives'; notices at `esquelas.elcomercio.es/necrologicas/<slug>-<id>.html`.
+
+**Funeral homes' own websites** — many publish the obituaries of the deaths they handle, often older than the
+aggregators keep: find the funeral homes of the town where the person died and look for an «esquelas» or «defunciones»
+section. Their lists can usually be walked whole; old notices may only open with their exact slug, and the Wayback
+Machine CDX (technique "Social media without login", with `url=<site>/esquelas/*`) finds slugs the list no longer
+shows. Example: Funerarias Noega (Gijón), `funerariasnoega.es/esquelas/`, about 1,800 notices with ids from 944 that
+can be walked in order.
+
+**Obituary aggregators** — infoesquelas.com, by province and town (`infoesquelas.com/<province>/esquelas/<town>/<slug>/<id>`,
+e.g. `infoesquelas.com/leon/esquelas/ponferrada/…`), covers Asturias and León and searches by name. esquelasdeasturias.com:
+its search only covers the last 15 months or so and old ids return 410; older notices through the Wayback Machine CDX
+(`url=esquelasdeasturias.com/*`). Rememori (Cloudflare), others unreliable. Reported by other trees, not checked: tanatorio.pro, esquelas.es and the funeral-home
 directories. Use them to discard homonyms rather than as the main route.
 
-Paid or offline archives (La Nueva España, El Comercio, El 9 Nou…): tell the user where the paper copies are (regional
+Paid or offline newspaper archives (the full papers of La Nueva España, El Comercio, El 9 Nou…; not their free
+obituary sites above): tell the user where the paper copies are (regional
 library, the paper's own archive).
 
 ## Military and Civil War

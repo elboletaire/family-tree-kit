@@ -32,6 +32,10 @@ A rare-looking name is not proof: in small regions the same full name repeats ac
 - A local press article naming the right surname in another branch of the same family.
 - A search with 60+ hits for a common name: all homonyms. Narrow by place and period before reading.
 
+An obituary also checks a compiled family tree: its full list of siblings (the dead ones marked with ✟) confirms that
+each child the tree lists really existed. A «child» in a handwritten tree who is missing from every sibling's obituary
+may turn out to be an in-law (a son- or daughter-in-law written in among the children).
+
 When in doubt, do not attach: turn it into a question for the relatives (`family-interview` skill), with the date,
 place and wording of the record so they can recognise it.
 
