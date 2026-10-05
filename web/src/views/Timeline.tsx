@@ -10,7 +10,7 @@ import { openDoc, openPerson, scope, setScope, view } from '../router';
 import { focus, focusName, kinOf, kinSet } from '../state';
 import type { Doc } from '../types';
 import { lifespan, reduced, T } from '../util';
-import { aliveIn, datedDocs, estimateBirths, lifeRows, type Row } from './timelineLayout';
+import { aliveIn, datedDocs, estimateBirths, eventDividers, lifeRows, type Row } from './timelineLayout';
 
 // From top to bottom: eras (two rows of names, alternating so they do not overlap), documents stacked by year,
 // axis and lives. The height of the documents depends on the year with most.
@@ -43,7 +43,8 @@ export function Timeline() {
     const barW = (r: Row) => r.end ? Math.max(3, x(r.end) - x(r.start)) : 60;
     // The name goes after the bar, or before it if it does not fit
     const labelLeft = (r: Row) => x(r.start) + barW(r) + 150 > width;
-    return { rows, dots, axisY, top, width, height, x0, x, barW, labelLeft, events: DATA.events.filter(e => e.to > x0) };
+    const events = DATA.events.filter(e => e.to > x0);
+    return { rows, dots, axisY, top, width, height, x0, x, barW, labelLeft, events, dividers: eventDividers(events) };
   });
 
   // Who was alive in the year under the mouse
@@ -101,6 +102,10 @@ export function Timeline() {
                           height={L().height - BOTTOM - 18 - (i() % 2) * 13} />
                     <text x={L().x((ev.from + ev.to) / 2)} y={14 + (i() % 2) * 13} text-anchor="middle">{ev.label}</text>
                   </g>
+                )}</For>
+                <For each={L().dividers}>{d => (
+                  <line class="event-divider" x1={L().x(d.year)} x2={L().x(d.year)} y1={18 + d.row * 13}
+                        y2={L().height - BOTTOM} />
                 )}</For>
               </g>
               <g class="axis" transform={`translate(0,${L().axisY})`} fill="none" font-size="10" font-family="sans-serif" text-anchor="middle">

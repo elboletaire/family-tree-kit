@@ -1,7 +1,7 @@
 /* Calculations of the timeline, without DOM */
 import * as d3 from 'd3';
 import { AI, DATA, P } from '../data';
-import type { Doc, Person } from '../types';
+import type { Doc, HistoricEvent, Person } from '../types';
 
 // Approximate birth year of whoever has no dates, deduced from their family: parents and children ~28 years apart,
 // spouses and siblings of the same age. It spreads over several passes (one estimate helps another).
@@ -49,3 +49,18 @@ export const aliveIn = (r: Row, year: number): boolean =>
 /** Dated documents (without the AI-generated ones) of the people in `keep` */
 export const datedDocs = (keep: Set<string> | null): Doc[] =>
   DATA.docs.filter(d => d.year && d.category !== AI && (!keep || d.people.some(x => keep.has(x))));
+
+/** Dotted lines between eras that touch or overlap, whose bands would otherwise merge into one: at the year they share,
+ * or at both ends of the years they overlap (only the ends inside the other band). `row` is that of the lower of the two
+ * bands (they alternate in two rows), where the line starts; one line per year, from the higher row if two coincide. */
+export function eventDividers(events: HistoricEvent[]): { year: number; row: number }[] {
+  const lines = new Map<number, number>();
+  events.forEach((a, i) => events.slice(i + 1).forEach((b, k) => {
+    const lo = Math.max(a.from, b.from), hi = Math.min(a.to, b.to);
+    if (lo > hi) return;
+    const row = Math.max(i % 2, (i + 1 + k) % 2);
+    const years = lo === hi ? [lo] : [lo > Math.min(a.from, b.from) && lo, hi < Math.max(a.to, b.to) && hi];
+    years.forEach(y => { if (y !== false) lines.set(y, Math.min(row, lines.get(y) ?? row)); });
+  }));
+  return [...lines].sort(([a], [b]) => a - b).map(([year, row]) => ({ year, row }));
+}

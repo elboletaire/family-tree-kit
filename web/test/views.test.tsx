@@ -13,7 +13,7 @@ import { News } from '../src/views/News';
 import { ALL, family, setFamily } from '../src/family';
 import { addedDocIds, daySummary, familyHistory, type FamilyOf, knownHistory, newsFamilies, personHistory, recentDocs, splitChanges } from '../src/views/newsLayout';
 import { fanLabelTransform, fanRelation, fanSegments, fitText } from '../src/views/fanLayout';
-import { aliveIn, estimateBirths, lifeRows } from '../src/views/timelineLayout';
+import { aliveIn, estimateBirths, eventDividers, lifeRows } from '../src/views/timelineLayout';
 import { century, eraSummary, voyageEvents } from '../src/views/voyageEvents';
 import { fixture, publicFixture } from './fixture';
 
@@ -169,6 +169,21 @@ describe('timeline', () => {
     expect([aliveIn(abuela, 1960), aliveIn(abuela, 1970)]).toEqual([true, false]);  // without a death date: 60 years
     expect(rows.find(r => r.p.id === 'madre')!.est).toBe(true);
     expect(lifeRows(estimateBirths(), new Set(['yo']), 2026).map(r => r.p.id)).toEqual(['yo']);
+  });
+  it('separates the eras that touch or overlap', () => {
+    const ev = (from: number, to: number) => ({ from, to, label: `${from}` });
+    // Apart, or the same years: nothing to separate
+    expect(eventDividers([ev(1914, 1918), ev(1936, 1939)])).toEqual([]);
+    expect(eventDividers([ev(1914, 1918), ev(1914, 1918)])).toEqual([]);
+    // They touch: one line at the year they share, from the lower band
+    expect(eventDividers([ev(1936, 1939), ev(1939, 1945)])).toEqual([{ year: 1939, row: 1 }]);
+    // They overlap: one line at each end of the shared years; inside another, at both of its ends
+    expect(eventDividers([ev(1910, 1920), ev(1915, 1925)])).toEqual([{ year: 1915, row: 1 }, { year: 1920, row: 1 }]);
+    expect(eventDividers([ev(1900, 1950), ev(1910, 1920)])).toEqual([{ year: 1910, row: 1 }, { year: 1920, row: 1 }]);
+    // Same start: only the end inside the longer one
+    expect(eventDividers([ev(1910, 1920), ev(1910, 1915)])).toEqual([{ year: 1915, row: 1 }]);
+    // Two bands of the upper row (0 and 2) that touch: the line starts at the upper row
+    expect(eventDividers([ev(1900, 1910), ev(1950, 1960), ev(1910, 1915)])).toEqual([{ year: 1910, row: 0 }]);
   });
 });
 

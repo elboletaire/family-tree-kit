@@ -154,6 +154,7 @@ main { padding: 0 1.4rem 3rem; }
 #timeline .axis line, #timeline .axis path { stroke: var(--line); }
 #timeline .event rect { fill: #efe9df; }
 #timeline .event text { fill: var(--muted); font-size: 10.5px; }
+#timeline .event-divider { stroke: var(--muted); stroke-opacity: .55; stroke-dasharray: 1 3; }
 #timeline .cursor line { stroke: var(--ink); stroke-dasharray: 3 3; }
 #timeline .cursor text { font-size: 12px; font-weight: 600; fill: var(--ink); }
 #timeline .dim { opacity: .18; }
