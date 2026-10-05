@@ -67,7 +67,8 @@ def person(given, surnames, sex, born, sources, living="false", body="Fictional 
 
 
 def source(sid, title, files=(), review=None, date=1920):
-    lines = [f"id: {sid}", f"title: {title}", "type: Acta", "category: genealogia", f"date: {date}"]
+    lines = [f"id: {sid}", f"title: {title}", "type: Acta", "category: genealogia", f"date: {date}",
+             "origin: Fictional family archive"]
     if files:
         lines.append("files: [" + ", ".join(files) + "]")
     if review:
@@ -184,6 +185,17 @@ class ConfiguredFolders(unittest.TestCase):
         self.assertIn('data-doc="F001"', data["research"]["incoherencias"])
         # Not a Git repository: no history, and no error
         self.assertEqual(data["history"], [])
+
+    def test_validate_requires_an_origin(self):
+        note = self.root / "sources" / "F001.md"
+        original = note.read_text(encoding="utf-8")
+        try:
+            note.write_text(original.replace("origin: Fictional family archive\n", ""), encoding="utf-8")
+            result = run(self.root, "validate")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("no origin", result.stdout)
+        finally:
+            note.write_text(original, encoding="utf-8")
 
     def test_config_prints_the_folders(self):
         result = run(self.root, "config", "paths.sources")

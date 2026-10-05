@@ -281,7 +281,13 @@ Consecutive numbering (the next free `F0xx`). Frontmatter: `id`, `title`, `type`
 (`genealogia` | `foto` | `arbol` | `contexto` | `patrimonio` | `ia`), `date`, `place`, `issuer`, `subject`,
 `pages`, `status` (`documentado` | `pendiente` | `en-investigacion` | `indicio` | `no-fiable`), `origin`,
 `priority`, `drive_path` and `files` (relative to the sources folder). Every file of `sources/F0xx/` must be in the
-`files` of some note. Compilations have their own note with the table pages → notes. Transcriptions respect the
+`files` of some note. **`origin` is required** (`make validate` fails without it): how the document reached the
+tree, so that anyone can go back to it — the shared folder, its subfolder and the original file name; the message
+(email, Telegram, WhatsApp…), from whom and when; the website with its address and the date; the archive and its
+call number; the relative who handed it over, or the interview. Only what is known: if all that is known is a
+folder and a file name, that is the origin. It is read for the public version like the rest of the note, so it
+does not name a living person when it can be avoided («la familia», «su sobrino»). Compilations have their own note
+with the table pages → notes. Transcriptions respect the
 original spelling and mark doubtful readings with `[?]`.
 
 **Review.** Optional keys `review` (`pendiente` | `revisada`) and `reviewed_by` (free text, e.g.

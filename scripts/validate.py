@@ -190,6 +190,9 @@ def main(argv):
             err(where, f"unknown field «{k}»")
         if meta.get("id") != sid:
             err(where, "the frontmatter id does not match the file name")
+        if not str(meta.get("origin") or "").strip():
+            err(where, "no origin: say how the document reached the tree (who handed it over, the shared folder and file, "
+                       "the website, the message…)")
         if meta.get("category") and meta["category"] not in SOURCE_CATEGORIES:
             err(where, f"category must be one of {', '.join(SOURCE_CATEGORIES)}")
         if meta.get("review") is not None and meta["review"] not in REVIEW_VALUES:

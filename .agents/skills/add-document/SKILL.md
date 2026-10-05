@@ -44,6 +44,12 @@ key sources, where its originals come from).
   - `review: pendiente`: anything found by automated or AI-assisted research (newspaper archives, gazettes, archive
     catalogues, web pages). Only a family member marks it `revisada`.
   - `status: indicio` when it only suggests something (a catalogue entry, a homonym not yet confirmed).
+  - `origin`, always (`make validate` requires it): how the document reached the tree, in one line. A shared folder:
+    «Carpeta compartida «Papeles de la abuela», subcarpeta «Testamentos», fichero «test1.pdf»». A message: «Foto
+    enviada por WhatsApp por su sobrina el 3-5-2026». A website: «Hemeroteca de La Vanguardia, edición del
+    12-4-1931, p. 8, consultada el 2-10-2026 (https://…)». An archive: the archive in full and the call number. In
+    hand: who gave it and when. Only what is known (a folder and a file name is a fine origin), and no living
+    person's full name when it can be avoided: the origin counts for the public version.
 - Transcribe literally: original spelling and language, abbreviations as written, line breaks where they matter,
   `[?]` for doubtful readings, `[…]` for illegible parts. Redacted data is written as `[DNI omitido]`,
   `[domicilio omitido]`.

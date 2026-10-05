@@ -54,8 +54,10 @@ yourself and move on.
 Answers come back numbered, often in fragments, sometimes corrected minutes later.
 
 1. Create a new source `<sources>/F0xx.md` (next free number): type "oral testimony", `category: genealogia`,
-   `date` today, `issuer` the relative (and who relayed it), `origin` how it was obtained (phone call relayed by the
-   user, visit, messages). A source given by the family carries **no** `review` key (it is trusted by default).
+   `date` today, `issuer` the relative (and who relayed it), `origin` how it was obtained, always (`make validate`
+   requires it): who answered and who relayed it, the channel (phone call, visit, Telegram or WhatsApp messages, a
+   form, an email), the date, and the language if it was translated — e.g. «Respuestas por WhatsApp de su tía,
+   transmitidas por el usuario el 4-10-2026, en catalán; traducidas al importarlas». A source given by the family carries **no** `review` key (it is trusted by default).
 2. `## Datos`: one bullet per answer, keeping the relative's wording, place names and spellings. Record doubt as
    doubt ("she thinks 1970 or 1971").
 3. Corrections arriving later the same day go in a `## Correcciones del mismo día` section (and the facts are
