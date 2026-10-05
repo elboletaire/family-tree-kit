@@ -351,6 +351,10 @@ and `build_site.py`, which passes it to the website in `DATA.families`, `DATA.br
 - `site_url`, `share_image` and `link_preview` (optional): the site's address, the deceased in the link preview's
   collage and `false` to opt out of it (see "Public version").
 - `history_months` (optional): how many months of «Novedades» (see "What's new").
+- `historic_events` (optional): the historic events of the timeline and the voyage, a list of `{from, to, label}`
+  (years; `to` is `from` if missing). Without the key, those of the tree's language (`HISTORIC_EVENTS` of
+  `scripts/i18n_<language>.py`); with it, only the ones listed (it replaces them, it does not add to them), and `[]`
+  shows none.
 - `families`: `key`, `label` (the website's selector), `title` (the `##` of `incoherencias.md` and `pendientes.md`),
   `of` (to count its documents: «de la familia …») and `default: true` in only one. `several`, `general`, `all` and
   `todo` are reserved.

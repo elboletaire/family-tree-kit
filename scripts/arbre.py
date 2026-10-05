@@ -322,6 +322,8 @@ DEFAULT_PATHS = {"people": "people", "sources": "sources", "research": "research
 FOLDER_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]*$")
 # `history_months`: how far back «Novedades» goes, at most
 MAX_HISTORY_MONTHS = 120
+# Keys of an entry of `historic_events`
+HISTORIC_EVENT_KEYS = ("from", "to", "label")
 
 
 class ConfigError(ValueError):
@@ -367,6 +369,8 @@ class Config:
     share_image: tuple = ()  # slugs of the deceased in that image; empty: the main person's closest ancestors
     link_preview: bool = True  # `false` opts out of the preview image (and of its exception in the closed mode)
     history_months: int = 6  # months of «Novedades» read from the Git history (scripts/history.py); 0 turns it off
+    # Historic events of the timeline, (from, to, label); None: those of the tree's language (i18n.HISTORIC_EVENTS)
+    historic_events: tuple | None = None
 
     @property
     def default_family(self):
@@ -469,8 +473,31 @@ def load_config(path=CONFIG_PATH):
     if not isinstance(months, int) or isinstance(months, bool) or not 0 <= months <= MAX_HISTORY_MONTHS:
         raise ConfigError(f"history_months: expected a whole number of months, from 0 (no history) to "
                           f"{MAX_HISTORY_MONTHS}")
+    events = raw.get("historic_events")
+    if events is not None:
+        if not isinstance(events, list):
+            raise ConfigError("historic_events: expected a list of {from, to, label}")
+        events = tuple(historic_event(e, f"historic_events[{i}]") for i, e in enumerate(events))
     return Config(text(raw, "main", path.name), families, branches, other, tuple(groups), language, Paths(**folders),
-                  site_url.strip().rstrip("/"), tuple(share), preview, months)
+                  site_url.strip().rstrip("/"), tuple(share), preview, months, events)
+
+
+def historic_event(event, where):
+    """(from, to, label) of an entry of `historic_events`; `to` is `from` if missing."""
+    if not isinstance(event, dict):
+        raise ConfigError(f"{where}: expected a mapping with from, to and label")
+    if unknown := sorted(map(str, set(event) - set(HISTORIC_EVENT_KEYS))):
+        raise ConfigError(f"{where}: unknown keys: {', '.join(unknown)} (valid: {', '.join(HISTORIC_EVENT_KEYS)})")
+    start, end = event.get("from"), event.get("to", event.get("from"))
+    for key, year in (("from", start), ("to", end)):
+        if not isinstance(year, int) or isinstance(year, bool):
+            raise ConfigError(f"{where}: «{key}» must be a year (a whole number)")
+    if start > end:
+        raise ConfigError(f"{where}: «from» ({start}) is after «to» ({end})")
+    label = event.get("label")
+    if not isinstance(label, str) or not label.strip():
+        raise ConfigError(f"{where}: missing «label» (text)")
+    return start, end, label.strip()
 
 
 try:
@@ -484,6 +511,8 @@ PEOPLE_DIR = ROOT / CONFIG.paths.people
 SOURCES_DIR = ROOT / CONFIG.paths.sources
 RESEARCH_DIR = ROOT / CONFIG.paths.research
 PORTRAITS_DIR = ROOT / CONFIG.paths.portraits
+# Events of the timeline: those of families.yml, which replace the language's, or the language's
+HISTORIC_EVENTS = i18n.HISTORIC_EVENTS if CONFIG.historic_events is None else CONFIG.historic_events
 FAMILIES = tuple(f.key for f in CONFIG.families)
 DEFAULT_FAMILY = CONFIG.default_family
 # `##` titles of the sections of the research documents

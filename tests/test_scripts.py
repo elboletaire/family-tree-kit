@@ -425,6 +425,36 @@ class Places(unittest.TestCase):
         self.assertEqual(data["places"]["Monte Medio"]["name"], "Monte Medio")  # without a name, the text
 
 
+class HistoricEvents(unittest.TestCase):
+    """The events of the timeline: the language's by default; `historic_events` in families.yml replaces them."""
+
+    def events(self, extra_config=""):
+        if not (CODE / "web" / "dist" / "web.js").is_file():
+            self.skipTest("the interface is not compiled: run `make web`")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_tree(root, extra_config=extra_config)
+            run(root, "references")
+            out = root / "build" / "web"
+            result = run(root, "build_site", "--only", "local", "-o", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            return read_data(out / "index.html")[0]["events"]
+
+    def test_the_language_default(self):
+        events = self.events()
+        self.assertIn({"from": 1914, "to": 1918, "label": "Primera Guerra Mundial"}, events)
+        self.assertEqual(len(events), 5)
+
+    def test_the_tree_list_replaces_the_default(self):
+        events = self.events("historic_events:\n  - {from: 1855, to: 1860, label: Gran sequía}\n"
+                             "  - {from: 1907, label: Riada}\n")
+        self.assertEqual(events, [{"from": 1855, "to": 1860, "label": "Gran sequía"},
+                                  {"from": 1907, "to": 1907, "label": "Riada"}])
+
+    def test_an_empty_list_is_no_events(self):
+        self.assertEqual(self.events("historic_events: []\n"), [])
+
+
 class LinkPreview(unittest.TestCase):
     """The collage of deceased people for the preview of shared links (scripts/share_image.py)."""
 
@@ -672,6 +702,20 @@ class InvalidConfig(unittest.TestCase):
         self.check("history_months: expected a whole number of months, from 0 (no history) to 120",
                    extra_config="history_months: -1\n")
         self.check("history_months: expected a whole number", extra_config="history_months: yes\n")
+
+    def test_historic_events(self):
+        self.check("historic_events: expected a list of {from, to, label}", extra_config="historic_events: Guerra\n")
+        self.check("historic_events[0]: expected a mapping with from, to and label",
+                   extra_config="historic_events: [1914]\n")
+        self.check("historic_events[0]: unknown keys: until (valid: from, to, label)",
+                   extra_config="historic_events: [{from: 1914, until: 1918, label: War}]\n")
+        self.check("historic_events[0]: «from» must be a year (a whole number)",
+                   extra_config="historic_events: [{from: c. 1914, label: War}]\n")
+        self.check("historic_events[1]: «to» must be a year (a whole number)",
+                   extra_config="historic_events: [{from: 1800, label: Flood}, {from: 1914, to: yes, label: War}]\n")
+        self.check("historic_events[0]: «from» (1918) is after «to» (1914)",
+                   extra_config="historic_events: [{from: 1918, to: 1914, label: War}]\n")
+        self.check("historic_events[0]: missing «label» (text)", extra_config="historic_events: [{from: 1914, label: ' '}]\n")
 
     def test_two_roles_in_one_folder(self):
         self.check("paths: two roles share the same folder", research="sources")

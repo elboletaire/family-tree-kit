@@ -43,10 +43,10 @@ from PIL import Image, ImageOps
 import history
 import leak_check
 import share_image
-from arbre import (BRANCHES, CODE_ROOT, COMPILATION_TYPE, CONFIG, DEFAULT_CATEGORY, IMAGE_EXT, OTHER_BRANCH, PLACES_PATH,
-                   RESEARCH_DIR, ROOT, SOURCES_DIR, branch_of, family_sections, i18n, is_pending, load_people,
-                   load_places, load_sources, parse_date, person_families, person_review, revision_markdown,
-                   source_family, source_files, strip_refs_block, sub_links)
+from arbre import (BRANCHES, CODE_ROOT, COMPILATION_TYPE, CONFIG, DEFAULT_CATEGORY, HISTORIC_EVENTS, IMAGE_EXT,
+                   OTHER_BRANCH, PLACES_PATH, RESEARCH_DIR, ROOT, SOURCES_DIR, branch_of, family_sections, i18n,
+                   is_pending, load_people, load_places, load_sources, parse_date, person_families, person_review,
+                   revision_markdown, source_family, source_files, strip_refs_block, sub_links)
 from privacy import public_view
 
 # The interface (TypeScript, in web/) is compiled separately with `make web`: here the bundle is only embedded
@@ -507,7 +507,7 @@ def build_payload(people, sources, main, media, view=None, changes=()):
         "docs": docs,
         "branches": [{"key": b.key, "label": b.label, "color": b.color} for b in (*BRANCHES, OTHER_BRANCH)],
         "otherBranch": OTHER_BRANCH.key,
-        "events": [{"from": a, "to": b, "label": l} for a, b, l in i18n.HISTORIC_EVENTS],
+        "events": [{"from": a, "to": b, "label": l} for a, b, l in HISTORIC_EVENTS],
         "categories": i18n.CATEGORY_LABEL,
         "research": research,
         "places": places,

@@ -34,6 +34,14 @@ paths:
 # the Git history of the data folders). 6 by default; 0 turns it off.
 # history_months: 6
 
+# Optional: the historic events of the timeline (bands with their name over the years). Without this key, those of the
+# tree's language (wars and other events of its country); with it, only the ones listed here, which replace them
+# (copy the ones you want to keep); `historic_events: []` shows none. `to` is the same year as `from` if missing.
+# historic_events:
+#   - {from: 1914, to: 1918, label: Primera Guerra Mundial}
+#   - {from: 1918, to: 1920, label: Gripe de 1918}
+#   - {from: 1962, label: Gran riada}
+
 # Person through whose eyes the web opens (slug of a person)
 main: anna-ferrer-puig
 
