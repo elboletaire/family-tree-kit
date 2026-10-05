@@ -63,7 +63,10 @@ Start from the tree, not from the web:
 - Work in a scratch folder outside the repository (`/tmp/research/<topic>/`). Download pages, PDFs and images there
   with descriptive names (`YYYY-MM-DD_publication_topic.pdf`). Do not touch the tree until findings are graded.
 - For several independent questions, run one research subagent per branch or question in parallel. Give each: the
-  anchors, the questions, the resources to try, the sandbox path, and the rule that it must not edit the repository.
+  anchors, the questions, the resources to try, the sandbox path, the rule that it must not edit the repository, and
+  the rule that before proposing any document it runs `uv run scripts/lookup.py --duplicates` with its date, its URL,
+  its archive id and its file name (one argument each), and says in its report which existing source has it (a
+  page of a compilation already in the tree is proposed as an addition to that compilation, not as a new source).
   Their reports are proposals, not results: before recording or telling the user anything, open the saved pages and
   crops yourself, compare the transcription with the image, re-run the key queries, and test each identification
   against the tree's anchors and `descartados.md`. Say in your report what you checked and what you changed or
@@ -105,8 +108,15 @@ See `references/identification.md`. A match on name alone is never enough, howev
 
 Only after grading, and following the `add-document` skill:
 
-- Each document becomes `<sources>/F0xx.md`, with `origin` stating that it came from automated research, where
-  (institution in full, URL, reference) and when. **Always `review: pendiente`** — only a family member sets
+- **Before creating any source**, check that the tree does not have it yet: `uv run scripts/lookup.py --duplicates`
+  with the publication date, the URL, the archive id (`idImagen=…`, `path=…`, the call number) and the file name of
+  each document, one argument each. Dates match in any form and URLs however they were copied, so a notice already
+  stored from the shared folder, or a page already in a compilation (a series of notices of one person), shows up.
+  An existing source gets only what is new (a better copy, the missing page); a page of a compilation is added to
+  its `pages`, `files` and transcription, and cited from it — never a second source for the same page.
+- Each new document becomes `<sources>/F0xx.md`, with `origin` stating that it came from automated research, where
+  (institution in full, URL, reference) and when, the date in long form («Investigación automática del 4 de octubre
+  de 2026: …», in the tree's language); in `pages`, the dates of the issues as YYYY-MM-DD. **Always `review: pendiente`** — only a family member sets
   `revisada`. `status: indicio` for leads and uncertain readings; `pendiente` when only a catalogue entry exists and
   the document must be requested.
 - Transcribe literally from the image of the original whenever it can be seen; mark doubtful readings `[?]`. An

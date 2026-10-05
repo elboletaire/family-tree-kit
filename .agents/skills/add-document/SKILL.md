@@ -32,10 +32,20 @@ key sources, where its originals come from).
      one per life stage at most, and group photos only when everyone identified has died.
    - Identify people only when it is certain (a caption, a name on the back, a document). Doubtful identifications
      go to `<research>/pendientes.md` with the file name, so the family can answer.
-3. Check it is new: `uv run scripts/lookup.py --sources` with the names of the people (their cards list their
-   sources and their items in `<research>/descartados.md`), and `--text` with the date and the file name. The same obituary may have come
-   from the Drive and from a newspaper archive. A document the family already rejected (`descartados.md`) is not added
-   again.
+3. Check it is new, **before creating any `F0xx`**:
+   - `uv run scripts/lookup.py --duplicates` with every clue of the document, one argument each: its date of
+     publication or issue (in any form: `1931-04-12`, `12-4-1931` and «12 de abril de 1931» are the same date), its
+     address (scheme, «www.», tracking parameters and the final «/» do not matter), its archive id (`idImagen=4711`,
+     `path=/libros/77`, a call number) and its file name. It lists every source that already has one of them in its
+     `date`, `pages`, `origin`, `files`, title or body. Look at each match: the same notice may have come from the
+     shared folder and from a newspaper archive, or be one page of a compilation already in the tree.
+   - `uv run scripts/lookup.py --sources` with the names of the people (their cards list their sources and their
+     items in `<research>/descartados.md`). A document the family already rejected (`descartados.md`) is not added
+     again.
+   - If the document is already a source, add only what is new to it (a better copy, a missing page). If it is one
+     page of an existing compilation (a series of notices of the same person, the pages of one file), it is cited
+     from that compilation: its page goes in the compilation's `pages` and its files in `files`, with its
+     transcription in the body; it is not a new source.
 
 ## 2. Transcribe
 
@@ -46,9 +56,10 @@ key sources, where its originals come from).
   - `status: indicio` when it only suggests something (a catalogue entry, a homonym not yet confirmed).
   - `origin`, always (`make validate` requires it): how the document reached the tree, in one line. A shared folder:
     «Carpeta compartida «Papeles de la abuela», subcarpeta «Testamentos», fichero «test1.pdf»». A message: «Foto
-    enviada por WhatsApp por su sobrina el 3-5-2026». A website: «Hemeroteca de La Vanguardia, edición del
-    12-4-1931, p. 8, consultada el 2-10-2026 (https://…)». An archive: the archive in full and the call number. In
-    hand: who gave it and when. Only what is known (a folder and a file name is a fine origin), and no living
+    enviada por WhatsApp por su sobrina el 3 de mayo de 2026». A website: «Hemeroteca de El Diario Ficticio, edición
+    del 12 de abril de 1931, p. 8, consultada el 2 de octubre de 2026 (https://…)». An archive: the archive in full
+    and the call number. In hand: who gave it and when. `origin` is prose: its dates go in long form, in the tree's
+    language (`AGENTS.md` → "Dates"); the names of files and folders are quoted as they are. Only what is known (a folder and a file name is a fine origin), and no living
     person's full name when it can be avoided: the origin counts for the public version.
 - Transcribe literally: original spelling and language, abbreviations as written, line breaks where they matter,
   `[?]` for doubtful readings, `[…]` for illegible parts. Redacted data is written as `[DNI omitido]`,
@@ -78,7 +89,8 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   (`git checkout <sha> -- <file>`) once the person has died. A new document is redacted before its first commit;
   its unredacted original stays where it came from (the shared folder, the relative who sent it). If the repository
   is or becomes public, its history must not hold unredacted copies.
-- Store files in `<sources>/F0xx/` (Git LFS) with descriptive names, and list them in `files`. Originals in the
+- Store files in `<sources>/F0xx/` (Git LFS) with descriptive names, a date in them as YYYY-MM-DD
+  (`El Diario Ficticio 1931-04-12 p8.jpg`), and list them in `files`. Originals in the
   sources folder are never edited afterwards.
 - **Newspaper notices and other pages taken from an online archive**: read and transcribe from the page image, never
   from the archive's OCR alone (the OCR mixes columns and misreads names). **Always store both**: the whole page the

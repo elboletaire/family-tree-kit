@@ -32,7 +32,10 @@ contain a text (`--text`); several queries go in the same call, one per argument
 slug, source ids, one line per item); widen only the part you need: `--family` (names, dates, grandparents),
 `--sources` (titles; all the fields and files of a source), `--links` (notes that link or name them), `--items` (the
 items in full), `--full` (all of them), `--body` (the note's body). It reads the notes as they are, so it is never out
-of date. Open a note only to read or edit what the card points to.
+of date. Open a note only to read or edit what the card points to. **Before adding any document**,
+`--duplicates` with its clues (its date, URL, archive id and file name, one per argument) lists the sources that already
+have one of them, and where (`date`, `pages`, `origin`, `files`, title or body): it reads a date in any of its forms
+(`1931-04-12`, `12-4-1931`, `12/04/1931`, «12 de abril de 1931») and a URL however it was copied.
 
 ## Working with the user
 
@@ -73,7 +76,8 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   `build/private/` (see "Public version"); `privacy.py` decides what is public and `leak_check.py` is the leak check; `share_image.py` makes the collage of the
   link preview (see "Public version"); `history.py` reads «Novedades» from the Git history (see "What's new");
   `references.py` regenerates the generated sections and `report.py` makes the report; `geocode.py` fills in
-  `places.yml`; `lookup.py` answers in one call what the tree knows about a person, a source, a branch or a text;
+  `places.yml`; `lookup.py` answers in one call what the tree knows about a person, a source, a branch or a text, and
+  which sources already have a document's date, URL, id or file name;
   `folders.py` creates the data folders of `paths`; `config.py` prints a value of `families.yml` for the shell scripts; `check_template.py` checks that
   no name of the family is in the engine's files (see "Engine and data"); `demo.py` writes the fictional demo tree
   (Faker with a fixed seed; real towns, so that its map works; portraits drawn with Pillow, never real photos; and a
@@ -135,6 +139,9 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
 - `uv run scripts/lookup.py <query>...` — a person (slug or any part of the name), a source (`F012`), a branch
   (`rama/<key>`) or a text (`--text`); short cards, widened with `--family`, `--sources`, `--links`, `--items`,
   `--full` or `--body`; `--all` a card for every match.
+- `uv run scripts/lookup.py --duplicates <clue>...` — the sources that already have a date (ISO, D-M-YYYY, D/M/YYYY or
+  the long form of the tree's language: the same date), a URL (without scheme, «www.», tracking parameters or final
+  «/»), an archive id or a file name, with the field or line where each matched. Run it before creating any `F0xx`.
 - `uv run scripts/drive_diff.py "<folder>"` — what has changed in the shared folder since the last import.
 
 ## People
@@ -209,7 +216,7 @@ generated in Python already without them (nothing is hidden with JavaScript nor 
 `scripts/privacy.py`.
 
 - **Living person**: `living: true`, or without death (no `died`; `died: "?"` counts as deceased) and born less than
-  **100 years** ago. The last day that can be their date counts (`1925` is 31-12-1925; `c.` and `¿…?` add 5 years;
+  **100 years** ago. The last day that can be their date counts (`1925` is `1925-12-31`; `c.` and `¿…?` add 5 years;
   «después de …» always counts as recent). Without a birth date, it is estimated from the family (parents and children
   at 28 years, spouses and siblings of the same age; the dead, 60 years before their death) and counts as living if it
   falls less than 15 years from the limit. Whoever has no date and nobody with dates around, too, unless their note
@@ -279,6 +286,20 @@ the items of `incoherencias.md` and `pendientes.md` (each top-level bullet) that
 `"¿1938-07-06?"` (doubtful) · `"?"`. Times and details, in the biography. The date qualifiers are in Spanish whatever
 the tree's language.
 
+Dates written elsewhere, by where they go:
+
+- **Prose** — the biography, «Notas de investigación» and `origin` of a source (it is prose too: «Foto enviada por su
+  sobrina el 3 de mayo de 2026», «consultada el 2 de octubre de 2026 (https://…)») — writes them in long form, in the
+  tree's language (`language` of `families.yml`): for `es`, «12 de abril de 1931». What is quoted as it is (a URL,
+  «the name of a file or folder») keeps its own form.
+- **Data fields** — `date`, `pages` («2 (1931-04-12 p. 8; 1931-04-14 p. 3)»), `reviewed_by` («Name, 2026-10-02») and
+  the dates inside file names (`El Diario Ficticio 1931-04-12 p8.jpg`) — use `YYYY-MM-DD`. The website shows those
+  of `pages` and `reviewed_by` in long form.
+- **Transcriptions** stay literal: the date as the document writes it, never normalized.
+
+`make validate` warns (without error) about the dates of `origin` not in long form and those of `pages` and
+`reviewed_by` not in ISO; the month names come from `scripts/i18n_<language>.py`.
+
 ## Parentage confidence
 
 - `proven`: a document states it (will, certificate, deed).
@@ -297,7 +318,10 @@ tree, so that anyone can go back to it — the shared folder, its subfolder and 
 call number; the relative who handed it over, or the interview. Only what is known: if all that is known is a
 folder and a file name, that is the origin. It is read for the public version like the rest of the note, so it
 does not name a living person when it can be avoided («la familia», «su sobrino»). Compilations have their own note
-with the table pages → notes. Transcriptions respect the
+with the table pages → notes. **No document comes in twice**: before creating a source, `lookup.py --duplicates`
+with its date, URL, archive id and file name; one already in the tree only gets what is new (a better copy, a missing
+page), and a page that belongs to an existing compilation (a series of notices of one person, the pages of one file)
+goes into that compilation's `pages`, `files` and transcription and is cited from it, not as a new source. Transcriptions respect the
 original spelling and mark doubtful readings with `[?]`.
 
 **Review.** Optional keys `review` (`pendiente` | `revisada`) and `reviewed_by` (free text, e.g.
