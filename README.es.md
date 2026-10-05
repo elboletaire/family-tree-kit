@@ -4,6 +4,14 @@
 
 ## Empieza tu árbol
 
+> **¿Nunca has usado un agente de IA?** Un agente es un asistente como ChatGPT o Claude, pero que trabaja directamente
+> con los archivos de tu ordenador: lee tus documentos, escribe las fichas y prepara la web por ti. La forma más
+> sencilla es instalar la aplicación de escritorio de [Claude](https://claude.com/download) y usar su pestaña
+> **Code** (o [Claude Code](https://claude.com/claude-code), si te manejas con la terminal), elegir una carpeta de tu
+> ordenador y pegar el texto de abajo. Desde ahí, todo se hace hablando con él en tu idioma: no hace falta saber
+> programar, ni usar la terminal, ni entender git. Al empezar te preguntará si ya has usado estas herramientas, y si
+> no, te lo explicará todo sin tecnicismos.
+
 Pega esto en un agente de programación con IA (Claude Code, Codex…), abierto en la carpeta donde guardas tus
 proyectos. Solo hace falta git: ninguna cuenta de GitHub.
 

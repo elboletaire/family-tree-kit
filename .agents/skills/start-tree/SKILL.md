@@ -23,9 +23,16 @@ at any point and come back another day. Technical decisions (where to keep the t
 Say so at the start, in one or two sentences: a few short rounds of questions, nothing needs to be complete, gaps are
 normal.
 
-## 0. Language and the families config
+## 0. How they work with an agent, language and the families config
 
-Before anything else, ask (in the language the user wrote in) **which language the tree is written in**:
+First, find out how used they are to AI agents, because it decides how you talk to them for the life of the tree
+(`AGENTS.md` → "Working with the user"). Ask in plain words, with options, in the language they wrote in, e.g.:
+«¿Has usado antes asistentes como este, que trabajan en tu ordenador? ¿Te suenan palabras como "agente", "skills",
+"MCP", "terminal" o "git"?» — *Es la primera vez / me suenan poco* → `modo: guiado`; *Sí, los uso* → `modo: técnico`.
+In doubt, `guiado`. From this moment on, in `guiado` mode, nothing technical reaches them: no commands, no Git, no
+file names; this skill's technical steps are yours to do silently.
+
+Then ask **which language the tree is written in**:
 biographies, transcription notes, research documents and the website. Spanish (`es`) is the default and, for now, the
 only language with texts for the scripts and the website (`scripts/i18n_<language>.py`, `web/src/i18n/<language>.ts`);
 another one needs those two files translated first. Documents are always transcribed in their original language
@@ -125,7 +132,9 @@ what you know now, say what is still unknown, and complete it as the tree grows:
   spreadsheet, a handwritten tree) and their source numbers once they are added.
 - Where the originals are (a shared folder, boxes at a relative's home) and, for a shared folder, how to reach it for
   `scripts/drive_diff.py`; where the full photo albums are kept.
-- The language of the commit messages (ask; by default, the language the user writes in).
+- How they work with the agent: a section of its own with `modo: guiado` or `modo: técnico` (step 0) and one line on
+  what it means, so that every later session reads it before talking to them.
+- The language of the commit messages (ask only in `técnico` mode; by default, the language the user writes in).
 - Where the tree is kept (step 7): only on this computer and where its backups go, or its `origin` remote.
 
 ## 6. Show it early
@@ -133,7 +142,8 @@ what you know now, say what is still unknown, and complete it as the tree grows:
 As soon as the user and their parents are in:
 
 1. `make validate` — must end with 0 errors. Fix everything it reports before continuing.
-2. `make html` and open `build/web/index.html` with the user: the tree should show them and their parents.
+2. `make html` and open `build/web/index.html` with the user: the tree should show them and their parents. In
+   `guiado` mode, open it for them yourself and just say «aquí tienes tu árbol».
 3. Ask whether to go on now with the grandparents and great-grandparents (step 1), or leave it here for today. Both
    are fine: what is written stays, and the next session picks up from the people folder and `pendientes.md`. Before
    stopping, do steps 7 and 8, so nothing is lost.
@@ -142,7 +152,9 @@ After each further generation, `make html` again: seeing the tree grow is what k
 
 ## 7. Where to keep the tree, and the first commit
 
-Ask now, in plain words (the user may not know what git or GitHub are), where the tree should be kept. It can be
+Ask now, in plain words (the user may not know what git or GitHub are), where the tree should be kept. In `guiado`
+mode, the question is only «¿quieres que se guarde solo en este ordenador, o también una copia privada en internet?»;
+everything else (repository, remotes, hooks, commit) is done by you without naming it. It can be
 decided later still: the tree works on this computer either way.
 
 - **Only on this computer.** Fine to start with. Warn that it then needs a backup: a copy of the folder in a cloud
@@ -178,6 +190,23 @@ Write the gaps into `<research>/pendientes.md`, most urgent first:
 
 Then suggest the next step: an interview with the oldest relative (`family-interview`), or searching online for the
 grandparents (`genealogy-research`).
+
+## 9. Tell them how to go on
+
+Finish by saying clearly, above all in `guiado` mode, that **everything is done by talking to you, here, in this same
+app**: they never need to open or edit the tree's files, nor run anything. Whatever they want — add a document, fix a
+date, look for someone, see the tree — they say it to you in their own words, now or any other day. Then give them a
+short list of things they can ask, written as sentences they can copy, with the real names of their relatives and
+places, for example:
+
+- «Importa los documentos y fotos que hay en la carpeta C:\Fotos\abuela»
+- «Busca en internet información sobre mi bisabuelo [name of a great-grandparent already in the tree]»
+- «Prepárame preguntas para mi tía [name], que se acuerda de la familia de [place]»
+- «Mi abuelo no nació en 1920, sino en 1921: corrígelo»
+- «Enséñame el árbol» / «¿Qué nos falta por saber de la familia [surname]?»
+
+And one sentence on what you can do on your own while they do something else (searching several people at once,
+reading a whole box of documents), so that they know to ask for it.
 
 ## Do not
 

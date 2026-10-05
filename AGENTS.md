@@ -7,6 +7,10 @@ has not been started yet.
 where its originals come from, its commit language). When it and this file disagree on something specific to the
 tree, `TREE.md` wins; this file is the engine's contract, shared by every tree made from the template.
 
+**Talk to the user at their level.** `TREE.md` says how the person who keeps the tree works with an AI agent
+(`modo: guiado` or `modo: técnico`; see "Working with the user"). In `guiado` mode they may not even know they are
+talking to an agent that edits files: never show them commands, file names, paths of the repository, Git or commits.
+
 A family tree kept as code: one markdown note per person and per document. The content (biographies,
 transcriptions, research notes, the website) is in the tree's language, `language` in `families.yml`; the frontmatter
 keys are in English. After any change in the people or sources folders, run `make validate` (it must end with 0
@@ -20,6 +24,24 @@ slug, source ids, one line per item); widen only the part you need: `--family` (
 `--sources` (titles; all the fields and files of a source), `--links` (notes that link or name them), `--items` (the
 items in full), `--full` (all of them), `--body` (the note's body). It reads the notes as they are, so it is never out
 of date. Open a note only to read or edit what the card points to.
+
+## Working with the user
+
+The person who keeps a tree is often not used to AI agents: someone who has never heard of skills, a terminal or Git
+can still keep a good tree, as long as the agent does the technical part. The `start-tree` skill asks them at the
+start and writes the answer in `TREE.md`, in a section of its own, as `modo: guiado` or `modo: técnico` (if `TREE.md`
+says nothing, ask once and write it down).
+
+- **`guiado`**: everything is done by the agent and told in plain words. Never ask them to run a command, and never
+  mention `make`, `uv`, Git, commits, branches, remotes, Markdown, frontmatter, slugs or file paths inside the
+  repository: «he guardado los cambios», «el árbol ya muestra a tu abuela», «he apuntado la pregunta para tu tía».
+  Validating, committing and pushing still happen after every change, silently; only a problem that needs them is
+  told, with what they have to do in their terms. Ask with closed options whenever possible, one thing at a time.
+  Where a file has to come from, say it in their terms («déjalo en la carpeta Descargas y dime cómo se llama»). End
+  each piece of work with one or two concrete things they could ask next, written as sentences they can copy.
+- **`técnico`**: the user knows agents and Git; commands, paths and commits can be named, and the full reports of
+  the skills apply.
+- In both modes, they decide what is researched and published: offers are offered, not done (see the skills).
 
 ## Structure
 

@@ -4,6 +4,14 @@
 
 ## Start your tree
 
+> **Never used an AI agent?** An agent is an assistant like ChatGPT or Claude that works directly with the files on
+> your computer: it reads your documents, writes the notes and builds the website for you. The easiest way is to
+> install the [Claude](https://claude.com/download) desktop app and use its **Code** tab (or
+> [Claude Code](https://claude.com/claude-code), if you are at home in a terminal), pick a folder on your computer and
+> paste the text below. From then on everything is done by talking to it in your own language: no programming, no
+> terminal, no git knowledge needed. At the start it asks whether you have used these tools before and, if not,
+> explains everything without jargon.
+
 Paste this into an AI coding agent (Claude Code, Codex…), opened in the folder where you keep your projects. It
 only needs git: no GitHub account.
 
