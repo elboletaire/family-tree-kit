@@ -64,6 +64,10 @@ Start from the tree, not from the web:
   with descriptive names (`YYYY-MM-DD_publication_topic.pdf`). Do not touch the tree until findings are graded.
 - For several independent questions, run one research subagent per branch or question in parallel. Give each: the
   anchors, the questions, the resources to try, the sandbox path, and the rule that it must not edit the repository.
+  Their reports are proposals, not results: before recording or telling the user anything, open the saved pages and
+  crops yourself, compare the transcription with the image, re-run the key queries, and test each identification
+  against the tree's anchors and `descartados.md`. Say in your report what you checked and what you changed or
+  downgraded.
 - Keep scripts: a working scraper for a site is worth reusing in the next session. Keep cookie jars per site, set
   timeouts (`curl --max-time`), and run long scans in the background.
 
@@ -81,7 +85,9 @@ Start from the tree, not from the web:
   in the page source; see `references/techniques.md`), and store it as the `add-document` skill says.
 - Follow the family network: an obituary lists spouse, children and their spouses, grandchildren — it tells you who
   belongs to which branch and gives new names to search.
-- Record what you searched without results, so nobody repeats it.
+- Record what you searched without results, so nobody repeats it — in the tree's pending items. A site that found
+  nothing for this family is not a bad site: if it works and holds useful records, it goes into `references/`
+  described by what it covers, because those references serve every tree made from the kit.
 
 ## 4. Grade every finding
 
@@ -146,6 +152,10 @@ tree.
   what keeps a person found in the press out of the frontmatter is that the source is pending review, as for the
   dead. Until a family member reviews it, they stay in the notes; once their link to the family is confirmed, they
   get their file with name, dates and biography. People with no link to the family never get one.
+- What research finds online (gazettes, newspapers, open data) is already public: download and record it whole, like
+  any other finding, even when someone in it may be alive. Do not skip, leave unopened or censor it, and do not tell
+  research subagents to avoid living people's names in public sources; the website's public version hides the living
+  by itself. Redaction is for private family documents (`add-document`).
 - Never store ID numbers, current addresses or bank data of living people; no photos of living people.
 - Do not publish or send family data to third-party services beyond the search queries themselves; never use
   credentials or session cookies the user offers for social networks — find a public route instead.

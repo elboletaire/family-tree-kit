@@ -427,7 +427,7 @@ path, size, md5 and destination of each file already imported. `TREE.md` says wh
   the user asks for it. Questions for relatives are given as text for the user to send.
 - Archives and institutions are always named in full («National Archives», not «NA»): the family reads the website.
   Acronyms only stay inside call numbers.
-- The code (names, comments and internal messages) is in English; what the family reads, in the tree's language and
+- The code (names, comments and internal messages) and the skills are in English; what the family reads, in the tree's language and
   only in `scripts/i18n_<language>.py` and `web/src/i18n/<language>.ts`. The data values (`pendiente`, `genealogia`,
   `rama/`…) are compared with constants that contain them.
 - Python: 4 spaces; only the standard library or dependencies declared in the `# /// script` block.

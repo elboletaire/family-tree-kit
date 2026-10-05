@@ -124,6 +124,9 @@ original, not a photo of it. With Python (Pillow, declared in a `# /// script` b
   unidentified person, a doubtful reading of a name or date, a gap, something to ask the family) is written there
   now, not only in the report to the user.
 
+When importers ran as subagents, review their work before closing: the right pages in the right source, readable
+crops, the transcription against the image, `files` complete, the people updated as the rules say.
+
 ## 5. Close
 
 `make validate` (0 errors; it also checks that every file in `<sources>/F0xx/` is listed), commit, and tell the user
