@@ -79,10 +79,11 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   (Faker with a fixed seed; real towns, so that its map works; portraits drawn with Pillow, never real photos; and a
   Git repository with a few weeks of history, dated back from the day it runs, for «Novedades»).
 - `web/` — the website's interface in TypeScript with Solid (JSX; pnpm, vite, vitest): `src/main.tsx` (entry),
-  `App.tsx`, `router.ts` (hash `#view/focus[/p:slug|d:F0xx|r:name]` and history, with signals; the views' segments
-  are in Spanish, `#arbol`, `#abanico`…, and `VIEW_SEGMENT` translates them to the internal names), `state.ts` (focused
+  `App.tsx`, `router.ts` (hash `#view/focus[/p:slug|d:F0xx|r:name][?filtro=…&lugar=…]` and history, with signals;
+  `lugar`, only in the map, is the key of the point chosen; the views' segments are in Spanish, `#arbol`,
+  `#abanico`…, and `VIEW_SEGMENT` translates them to the internal names), `state.ts` (focused
   person and kinship), `session.ts` (the lock of the site), `family.ts` (family chosen in the research documents),
-  `components/` (top bar, search, side panel, chips, cards, viewer, tooltip and `Html.tsx`, the only one that uses
+  `components/` (top bar, search of people, places and documents, side panel, chips, cards, viewer, tooltip and `Html.tsx`, the only one that uses
   `innerHTML`: for the HTML that `build_site.py` already generates), `panels/` (person, document and research panels)
   and `views/` (`Home`, `Tree`, `Fan`, `Timeline`, `Voyage`, `Map` (`#mapa`, with Leaflet), `Documents` and `News`
   (`#novedades`), with their DOM-free computations in `fanLayout.ts`, `timelineLayout.ts`, `voyageEvents.ts`,

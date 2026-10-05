@@ -98,6 +98,55 @@ test('timeline: the legends stay above the chart', async ({ page }) => {
   expect(above(await boxes('#timeline circle'))).toBe(true);
 });
 
+test('map: a place found with the search is chosen on the map, also out of the year; the back button returns', async ({ page }) => {
+  await blockTiles(page);
+  await page.goto(`${PAGE}#mapa`);
+  const names = page.locator('#map-side .map-places button span');
+  await expect(names.first()).toBeAttached();
+  const all = await names.allTextContents();
+  // Up to the first year, a place that is not seen yet (if every place is there from the start, the last one)
+  const year = page.locator('#map-year');
+  await year.fill(await year.getAttribute('min') ?? '1800');
+  await expect(page.locator('#map-all-years')).toBeVisible();
+  const early = new Set(await names.allTextContents());
+  const name = all.find(n => !early.has(n)) ?? all[all.length - 1];
+
+  // From another view: the search finds it with its pin and goes to the map with it chosen, with all the years
+  await page.locator('.topbar a[data-view="home"]').first().click();
+  await expect(page.locator('#view-home')).toHaveClass(/active/);
+  const before = page.url();
+  await page.locator('#search').fill(name);
+  const hit = page.locator('#search-results li', { hasText: '📍' }).filter({ hasText: name }).first();
+  await expect(hit).toBeVisible();
+  await hit.click();
+  await expect(page.locator('#view-map')).toHaveClass(/active/);
+  await expect(page).toHaveURL(/#mapa\/[^?]*\?(.*&)?lugar=[-\d.,]+$/);
+  await expect(page.locator('#map-side .map-place h3')).toHaveText(name);
+  await expect(page.locator('#map-until')).toHaveText('Todos los años');
+  // The link can be shared: opened again, the same place
+  const link = page.url();
+  await page.reload();
+  await expect(page.locator('#map-side .map-place h3')).toHaveText(name);
+
+  // The back button returns to the list, and from there to the view where it was searched
+  await page.locator('#map-side .map-back').click();
+  await expect(page.locator('#map-side .map-places')).toBeVisible();
+  await page.goBack();
+  await expect(page.locator('#map-side .map-place h3')).toHaveText(name);
+  expect(page.url()).toBe(link);
+  await page.goBack();
+  expect(page.url()).toBe(before);
+  await expect(page.locator('#view-home')).toHaveClass(/active/);
+
+  // A point of the map, clicked, also goes in the address; an unknown place is ignored
+  await page.goto(`${PAGE}#mapa`);
+  await page.locator('#map path.map-point').first().dispatchEvent('click');
+  await expect(page).toHaveURL(/lugar=/);
+  await expect(page.locator('#map-side .map-place h3')).toBeVisible();
+  await page.goto(`${PAGE}#mapa?lugar=0.000,0.000`);
+  await expect(page.locator('#map-side .map-places')).toBeVisible();
+});
+
 test('map: a point per place, its list, the year and the migrations', async ({ page }) => {
   await blockTiles(page);
   await page.goto(`${PAGE}#mapa`);

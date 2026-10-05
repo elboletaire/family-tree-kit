@@ -72,7 +72,7 @@ export const es = {
   },
 
   search: {
-    placeholder: 'Buscar persona o documento…',
+    placeholder: 'Buscar persona, lugar o documento…',
     label: 'Buscar',
   },
 

@@ -6,7 +6,7 @@ import { buildIndex, Search, searchHits } from '../src/components/Search';
 import { DATA, initData, S } from '../src/data';
 import { DocPanel } from '../src/panels/DocPanel';
 import { PersonPanel, siblingsOf } from '../src/panels/PersonPanel';
-import { panel, resetRouter, route } from '../src/router';
+import { panel, place, resetRouter, route, view } from '../src/router';
 import { initFocus, setFocus } from '../src/state';
 import { Documents } from '../src/views/Documents';
 import { News } from '../src/views/News';
@@ -35,6 +35,13 @@ describe('search', () => {
     expect(searchHits(index, 'jose garcia')).toEqual([]);
     expect(searchHits(index, 'f001')).toMatchObject([{ kind: 'd', id: 'F001', sub: 'F001' }]);
     expect(searchHits(index, 'prueba').length).toBe(9);
+    // The places of the map: one result per point, found by any way of writing it, with its facts
+    expect(searchHits(index, 'villa')).toEqual([
+      { kind: 'place', id: '43.100,-5.900', label: 'Villa Alta', sub: '2 acontecimientos', key: 'villa alta villa alta villa alta [?]' },
+    ]);
+    expect(searchHits(index, 'bajo')).toMatchObject([{ kind: 'place', label: 'Puerto Bajo', sub: '3 acontecimientos' }]);
+    // A place without coordinates is not on the map
+    expect(searchHits(index, 'salamanca')).toEqual([]);
     const many = Array.from({ length: 20 }, (_, i) => ({ kind: 'p' as const, id: `p${i}`, label: '', sub: '', key: `persona ${i}` }));
     expect(searchHits(many, 'persona').length).toBe(12);
   });
@@ -50,6 +57,14 @@ describe('search', () => {
     expect(panel()).toBe('p:abuela');
     expect(input.value).toBe('');
     expect(screen.getByRole('listbox', { hidden: true }).hidden).toBe(true);
+  });
+  it('a place goes to the map with it chosen', () => {
+    render(() => <Search />);
+    const input = screen.getByRole('searchbox') as HTMLInputElement;
+    fireEvent.input(input, { target: { value: 'monte' } });
+    expect(screen.getAllByRole('option').map(o => o.textContent)).toEqual(['📍Monte Medio1 acontecimiento']);
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect([view(), place(), location.hash]).toEqual(['map', '42.500,-4.500', '#mapa/yo?lugar=42.500,-4.500']);
   });
 });
 

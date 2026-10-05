@@ -1,14 +1,19 @@
-/* Search of people and documents */
-import { createMemo, createSignal, For, Show } from 'solid-js';
+/* Search of people, places of the map and documents */
+import { createMemo, createSignal, For, Match, Switch } from 'solid-js';
 import { color, DATA } from '../data';
 import { texts } from '../i18n';
-import { go, openDoc, openPerson, view } from '../router';
+import { go, openDoc, openPerson, openPlace, view } from '../router';
 import { norm, years } from '../util';
+import { mapFacts, mapPlaces } from '../views/mapLayout';
 
-export interface Hit { kind: 'p' | 'd'; id: string; label: string; sub: string; key: string }
+/** A result: a person, a document or a point of the map (`id`, its key), found by any way of writing it */
+export interface Hit { kind: 'p' | 'd' | 'place'; id: string; label: string; sub: string; key: string }
 
 export const buildIndex = (): Hit[] => [
   ...DATA.people.map(p => ({ kind: 'p' as const, id: p.id, label: p.name, sub: years(p), key: norm(p.name) })),
+  ...mapPlaces(mapFacts(null, null), '').map(pl => ({
+    kind: 'place' as const, id: pl.key, label: pl.name, sub: texts.map.facts(pl.facts.length), key: norm([pl.name, ...pl.texts].join(' ')),
+  })),
   ...DATA.docs.map(d => ({ kind: 'd' as const, id: d.id, label: d.title, sub: d.id, key: norm(`${d.id} ${d.title}`) })),
 ];
 /** Each word of the query has to appear; two letters are needed */
@@ -27,6 +32,8 @@ export function Search() {
   function pick(h: Hit) {
     setQuery(''); input.blur();
     if (h.kind === 'd') return openDoc(h.id);
+    // A place: the map, with it chosen
+    if (h.kind === 'place') return openPlace(h.id);
     // In the tree and the fan, the chosen person becomes the center
     if (view() === 'tree' || view() === 'fan') go('p:' + h.id, { id: h.id });
     else openPerson(h.id);
@@ -44,9 +51,12 @@ export function Search() {
       <ul id="search-results" class="search-results" role="listbox" hidden={!open() || !hits().length}>
         <For each={hits()}>{(h, i) => (
           <li role="option" aria-selected={i() === sel()} onMouseDown={() => pick(h)}>
-            <Show when={h.kind === 'p'} fallback="📄">
-              <i style={{ width: '10px', height: '10px', 'border-radius': '50%', background: color(h.id) }} />
-            </Show>
+            <Switch fallback="📄">
+              <Match when={h.kind === 'p'}>
+                <i style={{ width: '10px', height: '10px', 'border-radius': '50%', background: color(h.id) }} />
+              </Match>
+              <Match when={h.kind === 'place'}>📍</Match>
+            </Switch>
             {h.label}<small>{h.sub}</small>
           </li>
         )}</For>

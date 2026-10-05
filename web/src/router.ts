@@ -1,7 +1,7 @@
-/* Navigation. The hash is «#view/focus[/panel][?filtro=…]»; the open side panel goes in the third segment («p:slug»,
-   «d:F001», «r:revision»), so the browser's back button returns to the previous card instead of changing view; the
-   filter of people the views share (everybody, blood family, direct line) goes after «?filtro=», unless it is the
-   default one.
+/* Navigation. The hash is «#view/focus[/panel][?filtro=…&lugar=…]»; the open side panel goes in the third segment
+   («p:slug», «d:F001», «r:revision»), so the browser's back button returns to the previous card instead of changing
+   view; the filter of people the views share (everybody, blood family, direct line) goes after «?filtro=», unless it
+   is the default one; the place chosen on the map, after «lugar=» (only in the map).
    The view, the panel and the focused person are signals: the components render from them.
    The view segments of the hash stay in Spanish (#arbol, #abanico…), because the family has saved links; the
    English names of the views are accepted too. */
@@ -11,6 +11,7 @@ import { listen } from './events';
 import { isFamily, setFamily } from './family';
 import { focus, setFocus, type Scope } from './state';
 import type { ResearchKey } from './types';
+import { placeKeys } from './views/mapLayout';
 
 export const VIEWS = ['home', 'tree', 'fan', 'timeline', 'voyage', 'map', 'documents', 'news'] as const;
 export type ViewName = typeof VIEWS[number];
@@ -40,12 +41,26 @@ const [scope, setScopeSignal] = createSignal<Scope>(DEFAULT_SCOPE);
 export { scope };
 const scopeOf = (value: string | null): Scope =>
   (Object.keys(SCOPE_VALUE) as Scope[]).find(s => SCOPE_VALUE[s] === value) ?? DEFAULT_SCOPE;
-/** «?filtro=…» of a filter, empty for the default one */
-const scopeQuery = (s: Scope): string => s === DEFAULT_SCOPE ? '' : `?${SCOPE_PARAM}=${SCOPE_VALUE[s]}`;
 
-/** Hash of a view, optionally with a focused person and a panel; with the current filter */
-export const viewHash = (v: ViewName, id?: string, pnl?: string | null): string =>
-  `#${VIEW_SEGMENT[v]}${id ? '/' + id : ''}${pnl ? '/' + pnl : ''}${scopeQuery(scope())}`;
+/** Name of the place chosen on the map in the hash; its value is the key of the map's point */
+const PLACE_PARAM = 'lugar';
+const [place, setPlaceSignal] = createSignal<string | null>(null);
+/** Place chosen on the map (the key of its point), or null */
+export { place };
+
+/** «?filtro=…&lugar=…» of a filter (nothing for the default one) and of a place of the map */
+function hashQuery(s: Scope, pl: string | null): string {
+  const params = [
+    ...s === DEFAULT_SCOPE ? [] : [`${SCOPE_PARAM}=${SCOPE_VALUE[s]}`],
+    ...pl ? [`${PLACE_PARAM}=${encodeURIComponent(pl).replace(/%2C/g, ',')}`] : [],
+  ];
+  return params.length ? '?' + params.join('&') : '';
+}
+
+/** Hash of a view, optionally with a focused person and a panel; with the current filter and, in the map, the place
+    chosen (or `pl`) */
+export const viewHash = (v: ViewName, id?: string, pnl?: string | null, pl: string | null = place()): string =>
+  `#${VIEW_SEGMENT[v]}${id ? '/' + id : ''}${pnl ? '/' + pnl : ''}${hashQuery(scope(), v === 'map' ? pl : null)}`;
 /** The path and the query of the hash («mapa/slug», «filtro=sangre») */
 export const splitHash = (hash: string): [string, string] => {
   const [path, query = ''] = hash.replace(/^#/, '').split('?');
@@ -61,6 +76,8 @@ function validPanel(pnl: string | null): string | null {
   const ok = (kind === 'p' && P.has(key)) || (kind === 'd' && S.has(key)) || (kind === 'r' && Boolean(DATA.research[key as ResearchKey]));
   return ok ? pnl : null;
 }
+/** The place, if the map has a point with that key */
+const validPlace = (key: string | null): string | null => key && placeKeys().has(key) ? key : null;
 
 let routed: string | null = null;
 let current: ViewName | null = null;
@@ -78,7 +95,9 @@ export function route(): void {
     setView(name);
     setPanel(validPanel(pnl));
     setDepth(historyDepth());
-    setScopeSignal(scopeOf(new URLSearchParams(query).get(SCOPE_PARAM)));
+    const params = new URLSearchParams(query);
+    setScopeSignal(scopeOf(params.get(SCOPE_PARAM)));
+    setPlaceSignal(name === 'map' ? validPlace(params.get(PLACE_PARAM)) : null);
   });
 }
 
@@ -97,6 +116,17 @@ export function go(pnl: string | null, { view: v = view(), id = focus() }: { vie
   if (hash === location.hash) return;
   const d = pnl ? (panel() ? (historyDepth() || 1) + 1 : 1) : 0;
   history.pushState({ depth: d } satisfies HistoryState, '', hash);
+  route();
+}
+/** Goes to the map with the place `key` chosen (or none, with null), leaving an entry in the history; `replace`, without
+    it (a place left out by the filter). From another view, the card closes */
+export function openPlace(key: string | null, { replace = false }: { replace?: boolean } = {}): void {
+  const pnl = view() === 'map' ? panel() : null;
+  const hash = viewHash('map', focus(), pnl, key);
+  if (hash === location.hash) return;
+  // A card kept open is the first of its row: its ← does not go back to another place
+  const state: HistoryState = { depth: pnl ? 1 : 0 };
+  if (replace) history.replaceState(state, '', hash); else history.pushState(state, '', hash);
   route();
 }
 export const openPerson = (id: string): void => go('p:' + id);

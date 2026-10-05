@@ -6,7 +6,7 @@ import { Html } from '../src/components/Html';
 import { Topbar } from '../src/components/Topbar';
 import { initData } from '../src/data';
 import { family, initFamily } from '../src/family';
-import { canGoBack, go, openDoc, openPerson, openResearch, panel, resetRouter, route, scope, setScope, useRouter, view, viewHash, type HistoryState } from '../src/router';
+import { canGoBack, go, openDoc, openPerson, openPlace, openResearch, panel, place, resetRouter, route, scope, setScope, useRouter, view, viewHash, type HistoryState } from '../src/router';
 import { focus, initFocus } from '../src/state';
 import { fixture } from './fixture';
 
@@ -52,6 +52,39 @@ describe('filter of people', () => {
     expect(location.hash).toBe('#cronologia/yo/p:tia?filtro=todos');
     setScope('blood');
     expect(location.hash).toBe('#cronologia/yo/p:tia');
+  });
+});
+
+describe('place of the map', () => {
+  const ALTA = '43.100,-5.900', BAJO = '43.500,-5.700';
+  it('is read from the hash, only in the map and only if the map has it', () => {
+    at(`#mapa/yo?lugar=${ALTA}`);
+    expect([view(), place(), scope()]).toEqual(['map', ALTA, 'blood']);
+    at(`#mapa/abuela?filtro=todos&lugar=${encodeURIComponent(BAJO)}`);
+    expect([focus(), place(), scope()]).toEqual(['abuela', BAJO, 'all']);
+    at('#mapa/yo?lugar=1.000,2.000');
+    expect(place()).toBe(null);
+    at(`#cronologia/yo?lugar=${ALTA}`);
+    expect(place()).toBe(null);
+  });
+  it('choosing it goes to the map with a new history entry; the filter and the cards keep it, other views drop it', async () => {
+    at('#arbol/abuela/p:abuela');
+    openPlace(ALTA);
+    expect(location.hash).toBe(`#mapa/abuela?lugar=${ALTA}`);
+    expect([view(), place(), panel()]).toEqual(['map', ALTA, null]);
+    setScope('all');
+    expect(location.hash).toBe(`#mapa/abuela?filtro=todos&lugar=${ALTA}`);
+    openPerson('tia');
+    expect(location.hash).toBe(`#mapa/abuela/p:tia?filtro=todos&lugar=${ALTA}`);
+    expect(viewHash('fan', 'tia')).toBe('#abanico/tia?filtro=todos');
+    openPlace(BAJO);
+    expect([place(), panel(), depth()]).toEqual([BAJO, 'p:tia', 1]);
+    await traverse(() => history.back());
+    expect([place(), panel()]).toEqual([ALTA, 'p:tia']);
+    const len = history.length;
+    openPlace(null, { replace: true });
+    expect(location.hash).toBe('#mapa/abuela/p:tia?filtro=todos');
+    expect([place(), history.length]).toEqual([null, len]);
   });
 });
 

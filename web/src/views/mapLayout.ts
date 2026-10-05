@@ -100,6 +100,9 @@ export function mapPlaces(facts: Fact[], focus: string): MapPlace[] {
   }).sort((a, b) => b.facts.length - a.facts.length || a.name.localeCompare(b.name));
 }
 
+/** Keys of the points of the map with some fact, of anybody and of any year */
+export const placeKeys = (): Set<string> => new Set(mapPlaces(mapFacts(null, null), '').map(pl => pl.key));
+
 /** [value, times], the most repeated first (ties, in order of appearance) */
 function count(values: string[]): [string, number][] {
   const n = new Map<string, number>();

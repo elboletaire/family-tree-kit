@@ -16,7 +16,7 @@ import { hideTip, showTip } from '../components/Tooltip';
 import { BR, DATA } from '../data';
 import { createFullscreen } from '../fullscreen';
 import { texts } from '../i18n';
-import { scope, setScope, view } from '../router';
+import { openPlace, place, scope, setScope, view } from '../router';
 import { focus, focusName, kinSet } from '../state';
 import { fmtDate, reduced, store } from '../util';
 import { arc, FACT_KINDS, kindCounts, lifeLines, mainBounds, mapFacts, mapPlaces, migrations, radius, unlocated, type Fact, type FactKind, type MapPlace } from './mapLayout';
@@ -128,7 +128,6 @@ export function MapView() {
     store.set(HIDDEN_KINDS_KEY, [...next].join(','));
   };
   const kinds = createMemo(() => new Set(FACT_KINDS.filter(k => !hidden().has(k))));
-  const [selected, setSelected] = createSignal<string | null>(null);
   const [offline, setOffline] = createSignal(false);
 
   const allFacts = createMemo(() => mapFacts(keep(), null, kinds()));
@@ -139,7 +138,7 @@ export function MapView() {
   const shownPoints = createMemo(() => new Set(mapPlaces(mapFacts(keep(), until()), focus()).map(pl => pl.key)));
   const lines = createMemo(() => migrations(keep(), until(), line()).filter(m => shownPoints().has(m.from.key) && shownPoints().has(m.to.key)));
   const lives = createMemo(() => lifeLines(keep(), until(), line()).filter(l => shownPoints().has(l.from.key) && shownPoints().has(l.to.key)));
-  const current = createMemo(() => places().find(pl => pl.key === selected()) ?? null);
+  const current = createMemo(() => places().find(pl => pl.key === place()) ?? null);
   const total = createMemo(() => places().reduce((n, pl) => n + pl.facts.length, 0));
   /** What happened in the year seen, to tell it over the map */
   const happened = createMemo(() => {
@@ -259,7 +258,7 @@ export function MapView() {
     lifeLayer.addTo(map);
     lineLayer.addTo(map);
     pointLayer.addTo(map);
-    map.on('click', () => setSelected(null));
+    map.on('click', () => openPlace(null));
     // While the zoom animates, Leaflet scales the drawings as images, and a zoom of several levels (back from across the
     // ocean) makes the points huge for a moment: during the play's flights they are drawn again at each step, with
     // Leaflet's internal _reset (what it does on a viewreset)
@@ -310,7 +309,7 @@ export function MapView() {
         m.on('mousemove', e => { const p = placeAt.get(key)!; showTip({ title: p.name, lines: tipLines(p) }, (e as L.LeafletMouseEvent).originalEvent); });
         m.on('mouseout', hideTip);
         m.on('click', e => {
-          L.DomEvent.stopPropagation(e); hideTip(); stop(); setSelected(key);
+          L.DomEvent.stopPropagation(e); hideTip(); stop(); if (key !== place()) clicked = key; openPlace(key);
           // On narrow screens the list is below the map: it comes into view
           if (matchMedia('(max-width: 900px)').matches) side.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
         });
@@ -337,7 +336,7 @@ export function MapView() {
   // The chosen point, outlined; the focused person's places, with a dark edge
   createEffect(() => {
     places();
-    const sel = selected();
+    const sel = place();
     markers.forEach((m, key) => {
       // A marker of a place just gone, before the points are updated
       const pl = places().find(p => p.key === key);
@@ -374,13 +373,28 @@ export function MapView() {
       }),
     })), svgLives, playing());
   });
-  // A place chosen from the list: the map goes to it
-  function choose(pl: MapPlace) {
-    setSelected(pl.key);
-    map?.flyTo([pl.lat, pl.lon], Math.max(map.getZoom(), 8), { animate: !reduced, duration: .8 });
-  }
-  // If the chosen place is left without facts (filter or year), the list comes back
-  createEffect(() => { if (selected() && !current()) setSelected(null); });
+  /** The place just clicked on the map: the camera stays where it is */
+  let clicked: string | null = null;
+  // A place chosen (from the list, the search, a link or the back button): the map goes to it. If the filter, the year
+  // or the kinds of facts leave it out, the whole tree is seen, of all the years (and, if needed, all the kinds)
+  createEffect(on(place, key => {
+    const still = clicked === key;
+    clicked = null;
+    if (!key) return;
+    if (!current()) {
+      stop();
+      setScope('all');
+      setUntil(null);
+      if (!current()) { setHiddenSignal(new Set<string>()); store.set(HIDDEN_KINDS_KEY, ''); }
+    }
+    const pl = current();
+    if (!pl || still || !map) return;
+    stop();
+    map.invalidateSize();
+    map.flyTo([pl.lat, pl.lon], Math.max(map.getZoom(), 8), { animate: !reduced, duration: .8 });
+  }));
+  // If the chosen place is left without facts (filter, year or kinds of facts), the list comes back
+  createEffect(on(places, () => { if (place() && !current()) openPlace(null, { replace: true }); }, { defer: true }));
 
   const byKind = (pl: MapPlace, k: FactKind) => pl.facts.filter(f => f.kind === k);
   const usedBranches = createMemo(() => [...new Set(places().map(pl => pl.branch))]);
@@ -444,7 +458,7 @@ export function MapView() {
                 <ul class="map-places">
                   <For each={places()}>{pl => (
                     <li>
-                      <button type="button" data-place={pl.key} onClick={() => choose(pl)}>
+                      <button type="button" data-place={pl.key} onClick={() => openPlace(pl.key)}>
                         <i style={{ background: branchColor(pl.branch) }} classList={{ mine: pl.mine }} />
                         <span>{pl.name}</span><b>{pl.facts.length}</b>
                       </button>
@@ -456,7 +470,7 @@ export function MapView() {
             </>
           }>{pl => (
             <div class="map-place">
-              <button type="button" class="map-back" onClick={() => setSelected(null)}>{texts.map.back}</button>
+              <button type="button" class="map-back" onClick={() => openPlace(null)}>{texts.map.back}</button>
               <h3>{pl().name}</h3>
               <Show when={pl().texts.length > 1 || pl().texts[0] !== pl().name}>
                 <details class="map-written"><summary>{texts.map.writtenAsTitle(pl().texts.length)}</summary>{pl().texts.join(' · ')}</details>
