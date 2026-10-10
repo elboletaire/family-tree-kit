@@ -1,5 +1,6 @@
 # The demo of the template: a fictional tree (scripts/demo.py) and its whole website, published on GitHub Pages on
-# every push to main (`make demo`, build/demo).
+# every push to main (`make demo`, build/demo); and the fictional tree itself, with its Git history, force-pushed as the
+# `demo` branch of the repository, so that anyone can see how a tree is laid out.
 #
 # It only runs in the public template, elboletaire/family-tree-kit: in a family's repository made from it (whatever
 # its name), the jobs are skipped, so the workflow can stay there without publishing anything. A family's tree is
@@ -51,3 +52,26 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # In parallel with the website: Pages does not depend on it. The demo writes its notes without their generated
+  # sections (scripts/references.py adds them), so they are committed on top of its history, as a tree commits them.
+  # A push with GITHUB_TOKEN does not trigger other workflows.
+  branch:
+    if: github.repository == 'elboletaire/family-tree-kit'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run scripts/demo.py build/demo-tree
+      - run: ARBRE_ROOT=build/demo-tree uv run scripts/references.py
+      - name: Push build/demo-tree to the demo branch
+        working-directory: build/demo-tree
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git add --all
+          git -c user.name=Demo -c user.email=demo@example.org commit --quiet --no-verify \
+            -m "Referencias y revisión regeneradas"
+          git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:refs/heads/demo

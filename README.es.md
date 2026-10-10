@@ -217,6 +217,10 @@ publica `build/demo` en GitHub Pages. **Solo funciona en la propia plantilla** (
 copia sus trabajos se saltan, así que nunca genera ni publica nada tuyo, y puedes dejar el fichero como está (o
 borrarlo).
 
+El mismo workflow publica el propio árbol inventado, `build/demo-tree` con su historial de Git, como la rama
+[`demo`](https://github.com/elboletaire/family-tree-kit/tree/demo) (se sustituye en cada ejecución): mírala para ver cómo
+se organiza un árbol, sus fichas, documentos, documentos de investigación y `families.yml`.
+
 ## Idioma
 
 Hoy la web, y todo lo que escriben los scripts (secciones generadas, revisión, informe, GEDCOM), están solo en
