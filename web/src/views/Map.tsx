@@ -129,6 +129,9 @@ export function MapView() {
   };
   const kinds = createMemo(() => new Set(FACT_KINDS.filter(k => !hidden().has(k))));
   const [offline, setOffline] = createSignal(false);
+  /** Opened from the disk (file://): the page has no origin to send as Referer, and OpenStreetMap answers every tile
+      without one with its «Access blocked» image (with a 200, so no tileerror): no tiles, only the coastline */
+  const local = location.protocol === 'file:';
 
   const allFacts = createMemo(() => mapFacts(keep(), null, kinds()));
   const minYear = createMemo(() => Math.min(now, ...allFacts().map(f => f.year ?? now)));
@@ -251,10 +254,12 @@ export function MapView() {
     map.createPane('lives').style.zIndex = '390';    // the migrations of a life, under the others (overlayPane, 400)
     map.createPane('points').style.zIndex = '450';   // over the lines
     L.geoJSON(LAND, { pane: 'outline', interactive: false, style: { color: '#b9ad9c', weight: 1, fillColor: '#f2eee6', fillOpacity: 1 } }).addTo(map);
-    // The server sends «Referrer-Policy: no-referrer», and OpenStreetMap blocks tile requests without a Referer:
-    // the tiles send the site's origin only
-    const tiles = L.tileLayer(TILES, { maxZoom: 18, attribution: texts.map.attribution, referrerPolicy: 'strict-origin' });
-    tiles.on('tileerror', () => setOffline(true)).on('tileload', () => setOffline(false)).addTo(map);
+    if (!local) {
+      // The server sends «Referrer-Policy: no-referrer», and OpenStreetMap blocks tile requests without a Referer:
+      // the tiles send the site's origin only. During the play's flights, only the tiles of the final zoom are loaded
+      const tiles = L.tileLayer(TILES, { maxZoom: 18, attribution: texts.map.attribution, referrerPolicy: 'strict-origin', updateWhenZooming: false });
+      tiles.on('tileerror', () => setOffline(true)).on('tileload', () => setOffline(false)).addTo(map);
+    }
     lifeLayer.addTo(map);
     lineLayer.addTo(map);
     pointLayer.addTo(map);
@@ -440,7 +445,7 @@ export function MapView() {
               <path class="fs-open" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /><path class="fs-close" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
             </svg>
           </button>
-          <Show when={offline()}><p class="map-offline" role="status">{texts.map.offline}</p></Show>
+          <Show when={local || offline()}><p class="map-offline" role="status">{local ? texts.map.local : texts.map.offline}</p></Show>
           <Show when={until() != null}>
             <div class="map-now" id="map-now">
               <b>{until()}</b>

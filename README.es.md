@@ -72,7 +72,8 @@ Sin el texto de arriba, los mismos pasos:
    que partir: un árbol que alguien empezó, esquelas…; si no, no pasa nada), tus padres y tus abuelos, pocas preguntas
    cada vez, y crea las primeras fichas, `families.yml` y `TREE.md` (las convenciones de tu propio árbol). Ves la web
    en cuanto están tus padres, y dónde guardar el árbol se pregunta al final.
-4. `make html` y abre `build/web/index.html`.
+4. `make html`, `make serve` y abre http://127.0.0.1:8765/ (como archivo, `build/web/index.html` también funciona,
+   pero el mapa solo muestra la costa: OpenStreetMap no da su mapa de fondo a una página sin dirección).
 
 **Dónde guardarlo**: solo en tu ordenador (con una copia de seguridad: la carpeta copiada en una nube, un disco
 externo…), en un repositorio de GitHub **privado**, o en otro servidor Git que ya tengas. **Nunca público**: el árbol
@@ -111,6 +112,7 @@ consola de administrador); si no, trabaja dentro de WSL, o copia `.agents/skills
 | `make folders` | Crea las carpetas de datos que nombra `families.yml` (`paths`) |
 | `make validate` | Regenera las secciones generadas y comprueba enlaces, fechas, cónyuges, ficheros y ciclos |
 | `make html` | La web completa en `build/web/index.html` (se abre sin servidor) y el sitio, `build/public/` y `build/private/` |
+| `make serve` | Sirve `build/web` en http://127.0.0.1:8765/, con el mapa de fondo (como archivo, el mapa solo muestra la costa) |
 | `make gedcom` | `build/arbre.ged`, para importar en Gramps, MyHeritage, FamilySearch… |
 | `make public` | Solo lo que se comparte fuera de la familia: el sitio y `build/arbre-publico.ged`, sin los vivos |
 | `make report` | Los documentos de investigación (incoherencias, pendientes) en PDF, para revisar en papel |

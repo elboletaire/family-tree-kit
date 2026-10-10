@@ -73,7 +73,8 @@ Without the prompt above, the same steps:
    and your grandparents, a few questions at a time, and creates the first notes, `families.yml` and `TREE.md` (the
    conventions of your own tree). You see the website as soon as your parents are in, and where to keep the tree is
    asked at the end.
-4. `make html` and open `build/web/index.html`.
+4. `make html`, `make serve` and open http://127.0.0.1:8765/ (opened as a file, `build/web/index.html` works too, but
+   the map shows only the coastline: OpenStreetMap does not serve its tiles to a page without an address).
 
 **Where to keep it**: only on your computer (with a backup: a copy of the folder in a cloud drive, an external
 disk…), in a **private** GitHub repository, or on another Git server you already have. **Never public**: the tree
@@ -111,6 +112,7 @@ otherwise, work inside WSL, or copy `.agents/skills` to `.claude/skills`.
 | `make folders` | Creates the data folders named in `families.yml` (`paths`) |
 | `make validate` | Regenerates the generated sections and checks links, dates, spouses, files and cycles |
 | `make html` | The whole website in `build/web/index.html` (opens without a server) and the site, `build/public/` and `build/private/` |
+| `make serve` | Serves `build/web` at http://127.0.0.1:8765/, with the map's tiles (opened as a file, the map only shows the coastline) |
 | `make gedcom` | `build/arbre.ged`, to import in Gramps, MyHeritage, FamilySearch… |
 | `make public` | Only what is shared outside the family: the site and `build/arbre-publico.ged`, without the living |
 | `make report` | The research documents (incoherencias, pendientes) in PDF, to review on paper |

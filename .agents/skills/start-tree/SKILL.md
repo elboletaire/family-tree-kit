@@ -142,13 +142,15 @@ what you know now, say what is still unknown, and complete it as the tree grows:
 As soon as the user and their parents are in:
 
 1. `make validate` — must end with 0 errors. Fix everything it reports before continuing.
-2. `make html` and open `build/web/index.html` with the user: the tree should show them and their parents. In
+2. `make html`, `make serve` in the background and open http://127.0.0.1:8765/ with the user (not `index.html` as a
+   file: its map would only show the coastline): the tree should show them and their parents. In
    `guiado` mode, open it for them yourself and just say «aquí tienes tu árbol».
 3. Ask whether to go on now with the grandparents and great-grandparents (step 1), or leave it here for today. Both
    are fine: what is written stays, and the next session picks up from the people folder and `pendientes.md`. Before
    stopping, do steps 7 and 8, so nothing is lost.
 
-After each further generation, `make html` again: seeing the tree grow is what keeps people going.
+After each further generation, `make html` again and reload the page (the server keeps running): seeing the tree grow
+is what keeps people going.
 
 ## 7. Where to keep the tree, and the first commit
 

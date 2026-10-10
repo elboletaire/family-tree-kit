@@ -271,6 +271,7 @@ export const es = {
     bornThere: (names: string[]) => `Nacieron allí: ${names.join(', ')}`,
     livedFromTo: (from: string, to: string, names: string[]) => `Nacieron en ${from} y murieron en ${to}: ${names.join(', ')}`,
     offline: 'Sin conexión: no se puede cargar el mapa de fondo. Los lugares se ven sobre un contorno aproximado de la costa.',
+    local: 'La web está abierta como un archivo, y OpenStreetMap solo da su mapa de fondo a las páginas con dirección web. Los lugares se ven sobre un contorno aproximado de la costa; el mapa completo se ve abriendo la web desde su dirección.',
     focusNote: (name: string) => `Con borde oscuro, los lugares de ${name}; en trazo continuo, las migraciones de sus antepasados y descendientes.`,
     empty: 'No hay lugares con coordenadas para estas personas y años.',
     attribution: '© colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',

@@ -1,4 +1,6 @@
 /* Details of the views: the active filter of the voyage, the card always on top and the legends of the timeline */
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { expect, test, type Page } from '@playwright/test';
 
 const PAGE = process.env.E2E_PAGE ?? '';
@@ -13,9 +15,6 @@ test.beforeEach(async ({ page }) => {
 test.afterEach(async ({ page }) => {
   expect((page as Page & { errors?: string[] }).errors).toEqual([]);
 });
-
-// The map's tiles come from OpenStreetMap: the tests do not depend on them (nor on the network)
-const blockTiles = (page: Page) => page.route('https://tile.openstreetmap.org/**', r => r.abort());
 
 // A grid of points over the card: at each one, the element on top has to belong to the card
 async function drawerOnTop(page: Page): Promise<string[]> {
@@ -62,7 +61,6 @@ for (const [name, viewport] of [['desktop', { width: 1400, height: 900 }], ['mob
     // Each view with its segment in the hash
     for (const [view, segment] of [['voyage', 'viaje'], ['tree', 'arbol'], ['fan', 'abanico'], ['timeline', 'cronologia'], ['map', 'mapa'], ['documents', 'documentos'], ['news', 'novedades']]) {
       test(`${view}: the open card stays above the view`, async ({ page }) => {
-        await blockTiles(page);
         await page.goto(`${PAGE}#${segment}`);
         if (view === 'map') await expect(page.locator('#map path.map-point').first()).toBeAttached();
         await expect(page.locator(`#view-${view}`)).toHaveClass(/active/);
@@ -99,7 +97,6 @@ test('timeline: the legends stay above the chart', async ({ page }) => {
 });
 
 test('map: a place found with the search is chosen on the map, also out of the year; the back button returns', async ({ page }) => {
-  await blockTiles(page);
   await page.goto(`${PAGE}#mapa`);
   const names = page.locator('#map-side .map-places button span');
   await expect(names.first()).toBeAttached();
@@ -148,7 +145,6 @@ test('map: a place found with the search is chosen on the map, also out of the y
 });
 
 test('map: a point per place, its list, the year and the migrations', async ({ page }) => {
-  await blockTiles(page);
   await page.goto(`${PAGE}#mapa`);
   await expect(page.locator('#view-map')).toHaveClass(/active/);
   const points = page.locator('#map path.map-point');
@@ -224,4 +220,17 @@ test('map: a point per place, its list, the year and the migrations', async ({ p
   await expect(page.locator('#map-play')).toBeVisible();
   await page.locator('#map-full').click();
   await expect(page.locator('body')).not.toHaveClass(/map-full/);
+});
+
+// Opened from the disk, the page has no address to send as Referer and OpenStreetMap would answer with its «Access
+// blocked» image: no tile is asked for, and the notice says why
+test('map: opened as a file, only the coastline and its notice', async ({ page }) => {
+  const tiles: string[] = [];
+  page.on('request', r => { if (r.url().includes('tile.openstreetmap.org')) tiles.push(r.url()); });
+  await page.goto(pathToFileURL(resolve('../build/web/index.html')).href + '#mapa');
+  await expect(page.locator('#map path.map-point').first()).toBeAttached();
+  await expect(page.locator('.map-offline')).toContainText('abierta como un archivo');
+  await expect(page.locator('#map .leaflet-outline-pane path')).not.toHaveCount(0);
+  await expect(page.locator('#map .leaflet-tile-pane img')).toHaveCount(0);
+  expect(tiles).toEqual([]);
 });

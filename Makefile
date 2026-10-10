@@ -1,5 +1,5 @@
-.PHONY: all folders references validate gedcom places web html test e2e public report check-template hooks demo screenshots clean refs \
-	informe
+.PHONY: all folders references validate gedcom places web html serve test e2e public report check-template hooks demo screenshots clean \
+	refs informe
 
 all: validate gedcom html
 
@@ -33,6 +33,13 @@ web:
 html: validate web places
 	uv run scripts/build_site.py
 	cd web && pnpm exec vitest run test/data-contract.test.ts
+
+# build/web served at http://127.0.0.1:8765/ (the same address as make e2e), to see it locally with its map: opened from
+# the disk (file://), the page has no address to send as Referer, and OpenStreetMap blocks its tiles
+serve:
+	@test -f build/web/index.html || { echo "build/web/index.html does not exist: run make html first" >&2; exit 1; }
+	@echo "http://127.0.0.1:8765/"
+	uv run --no-project python -m http.server 8765 --bind 127.0.0.1 --directory build/web
 
 # Tests: the scripts on a fictional tree with other folder names, the site's server and the protection of the template
 # (check_template.py and the pre-push hook, on scratch repositories) (tests/), the interface's unit

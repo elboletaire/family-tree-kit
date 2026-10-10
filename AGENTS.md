@@ -54,6 +54,10 @@ says nothing, ask once and write it down).
 - **`técnico`**: the user knows agents and Git; commands, paths and commits can be named, and the full reports of
   the skills apply.
 - In both modes, they decide what is researched and published: offers are offered, not done (see the skills).
+- **To show them the website on this computer**, after `make html`: `make serve` in the background (if http://127.0.0.1:8765/
+  already answers, it is running) and open http://127.0.0.1:8765/ in their browser, never `build/web/index.html` as a
+  file (from the disk, the map cannot load OpenStreetMap's tiles). After a new `make html`, reloading the page is
+  enough. In `guiado` mode, open it for them and say it plainly («te he abierto el árbol en el navegador»).
 
 ## Structure
 
@@ -122,9 +126,12 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   error) about the places without coordinates in `places.yml`.
 - `make places` — looks up in Nominatim the places missing from `places.yml` (`make html` and `make public` run it).
 - `make web` — compiles the interface (`web/dist/`); needs Node 22 and pnpm. `make html` already compiles it.
-- `make html` — generates `build/web/` (the whole website, to open without a server; 1-2 min the first time) and the
+- `make html` — generates `build/web/` (the whole website, which works without a server; 1-2 min the first time) and the
   site's pair, `build/public/` and `build/private/`, through the leak check; checks that their `DATA` matches
   `web/src/types.ts`. «Novedades» is read from the Git history of the data (cached in `build/history-cache.json`).
+- `make serve` — serves `build/web` at http://127.0.0.1:8765/ (keep it running in the background): **to show the
+  website locally, open that address, never `index.html` as a file**. Opened from the disk (`file://`), the page has no
+  address to send as Referer, OpenStreetMap blocks its tiles, and the map only shows the coastline and a notice.
 - `make test` (`tests/test_scripts.py`, `tests/test_server.py`, `tests/test_template.py` and vitest) · `make e2e` (Playwright on `build/web`,
   served with `python3 -m http.server 8765`, and on the site served by `deploy/server.py`, public on 8766 and closed
   on 8767; the first time, `cd web && pnpm exec playwright install chromium`).
