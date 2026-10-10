@@ -215,6 +215,10 @@ publishes `build/demo` on GitHub Pages. It **only runs in the template itself** 
 your copy the jobs are skipped, so nothing of yours is ever built or published by it, and you can leave the file as it
 is (or delete it).
 
+The same workflow publishes the fictional tree itself, `build/demo-tree` with its Git history, as the
+[`demo`](https://github.com/elboletaire/family-tree-kit/tree/demo) branch (replaced on every run): browse it to see how
+a tree is laid out, its notes, sources, research documents and `families.yml`.
+
 ## Language
 
 Today the website, and everything the scripts write (generated sections, research review, report, GEDCOM), are only

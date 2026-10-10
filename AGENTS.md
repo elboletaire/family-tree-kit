@@ -104,7 +104,8 @@ default names, `people/`, `sources/`, `research/` and `portraits/`.
   (`build.Dockerfile`: Node, pnpm and uv) and the server's `post-receive` hook.
 - `docs/screenshots/` — the screenshots of the READMEs, taken from the demo (`make screenshots`, with
   `web/screenshots/`).
-- `.github/workflows/demo.yml` — builds the demo and publishes it on GitHub Pages; it only runs in the public template
+- `.github/workflows/demo.yml` — builds the demo and publishes it on GitHub Pages, and force-pushes its fictional tree
+  (`build/demo-tree`, with its Git history) as the `demo` branch; it only runs in the public template
   (`elboletaire/family-tree-kit`), never in a family's repository.
 - `tests/` — test of the scripts on a fictional tree, in a temporary folder and with the default folders
   (`ARBRE_ROOT` points the scripts to another tree), the public version and «Novedades» (on a scratch Git repository)
