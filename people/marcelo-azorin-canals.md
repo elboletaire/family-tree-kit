@@ -33,3 +33,11 @@ en Baeza el 9 de octubre de 1951.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+- [F014 — Partida de bautismo de Marcelo Azorin Canals](../sources/F014.md)
+- [F015 — Partida de matrimonio de Marcelo Azorin Canals y Ascensión Ramírez Jaén](../sources/F015.md)
+- [F016 — Fotografía de la familia Azorin en Úbeda](../sources/F016.md)
+<!-- referencias:fin -->

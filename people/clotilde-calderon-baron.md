@@ -25,3 +25,9 @@ panadera. Murió en Ribadeo el 10 de diciembre de 1995.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F002 — Conversación con Jonatan Barón Maldonado sobre su familia](../sources/F002.md)
+<!-- referencias:fin -->

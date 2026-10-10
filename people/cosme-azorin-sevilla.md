@@ -27,3 +27,9 @@ Canals](../people/anna-azorin-canals.md), [Agustín Azorin Canals](../people/agu
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+- [F014 — Partida de bautismo de Marcelo Azorin Canals](../sources/F014.md)
+<!-- referencias:fin -->

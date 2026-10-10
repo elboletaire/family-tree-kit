@@ -21,3 +21,8 @@ Cantón](../people/gaspar-baron-canton.md) y [Ximena Amor Santamaria](../people/
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F002 — Conversación con Jonatan Barón Maldonado sobre su familia](../sources/F002.md)
+<!-- referencias:fin -->

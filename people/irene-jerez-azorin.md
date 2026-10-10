@@ -25,3 +25,8 @@ en Úbeda el 12 de enero de 1957.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+<!-- referencias:fin -->

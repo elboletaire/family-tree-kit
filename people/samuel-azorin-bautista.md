@@ -32,3 +32,9 @@ Azorin Torrent](../people/victoriano-azorin-torrent.md). Murió en Granada el 23
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+- [F004 — Conversación con Oriana Azorin Torrent sobre sus abuelos](../sources/F004.md)
+<!-- referencias:fin -->

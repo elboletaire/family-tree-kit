@@ -28,3 +28,11 @@ en A Coruña el 15 de febrero de 2009.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F002 — Conversación con Jonatan Barón Maldonado sobre su familia](../sources/F002.md)
+- [F012 — Libro de familia de Paco Barón Cantón y Montserrat Maldonado Román](../sources/F012.md)
+- [F013 — Esquela de Paco Barón Cantón](../sources/F013.md)
+<!-- referencias:fin -->

@@ -32,3 +32,9 @@ Vilalba el 9 de enero de 1951.
 ## Notas de investigación
 
 La filiación solo consta en la recopilación de la familia: falta la partida de bautismo que la pruebe.
+
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+<!-- referencias:fin -->

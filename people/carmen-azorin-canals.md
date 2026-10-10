@@ -31,3 +31,9 @@ casó en Úbeda el 14 de diciembre de 1894 con [Luciano Jerez Barco](../people/l
 ## Notas de investigación
 
 La filiación solo consta en la recopilación de la familia: falta la partida de bautismo que la pruebe.
+
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+<!-- referencias:fin -->

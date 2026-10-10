@@ -25,3 +25,10 @@ joven, dejando dos hijos pequeños. Murió en Lugo el 27 de marzo de 1949 ([F011
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F002 — Conversación con Jonatan Barón Maldonado sobre su familia](../sources/F002.md)
+- [F011 — Inscripción de defunción de María Pilar Escalona Giner](../sources/F011.md)
+<!-- referencias:fin -->

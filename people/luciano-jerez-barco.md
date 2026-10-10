@@ -24,3 +24,8 @@ Azorin](../people/belen-jerez-azorin.md). Murió en Úbeda el 1 de agosto de 194
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+<!-- referencias:fin -->

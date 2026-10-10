@@ -23,3 +23,8 @@ Andres](../people/amilcar-ramirez-andres.md). Murió en Baeza el 21 de enero de 
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+<!-- referencias:fin -->

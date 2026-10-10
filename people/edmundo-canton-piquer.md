@@ -25,3 +25,9 @@ Cantón Paredes](../people/evita-canton-paredes.md). Murió en Viveiro el 22 de 
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F009 — Fotografía de la boda de Marcial Barón Iriarte y Evita Cantón Paredes](../sources/F009.md)
+<!-- referencias:fin -->

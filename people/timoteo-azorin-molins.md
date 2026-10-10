@@ -25,3 +25,8 @@ comerciante. Murió en Úbeda el 16 de febrero de 1965.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+<!-- referencias:fin -->

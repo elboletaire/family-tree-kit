@@ -25,3 +25,9 @@ Caparrós](../people/caridad-iriarte-caparros.md). Murió en Vilalba el 14 de en
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F006 — Partida de matrimonio de José Barón Artigas y María Dolores Iriarte Caparrós](../sources/F006.md)
+<!-- referencias:fin -->

@@ -25,3 +25,8 @@ Murió en Viveiro el 6 de octubre de 1958.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+<!-- referencias:fin -->

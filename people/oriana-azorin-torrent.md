@@ -28,3 +28,8 @@ Maldonado](../people/jonatan-baron-maldonado.md). Tuvo 2 hijos: [Lucila Barón A
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F004 — Conversación con Oriana Azorin Torrent sobre sus abuelos](../sources/F004.md)
+<!-- referencias:fin -->

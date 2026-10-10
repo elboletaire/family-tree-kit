@@ -35,3 +35,12 @@ Cantón](../people/ciriaco-baron-canton.md), [Reina Barón Cantón](../people/re
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F007 — Padrón municipal de Ribadeo, 1900](../sources/F007.md)
+- [F008 — Pasaje de Marcial Barón Iriarte a La Habana](../sources/F008.md)
+- [F009 — Fotografía de la boda de Marcial Barón Iriarte y Evita Cantón Paredes](../sources/F009.md)
+- [F010 — Testamento de José Barón Artigas](../sources/F010.md)
+<!-- referencias:fin -->

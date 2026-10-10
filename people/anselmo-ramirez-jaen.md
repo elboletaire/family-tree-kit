@@ -30,3 +30,9 @@ hijo: [Amílcar Ramírez Andres](../people/amilcar-ramirez-andres.md). Murió en
 ## Notas de investigación
 
 La filiación solo consta en la recopilación de la familia: falta la partida de bautismo que la pruebe.
+
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+<!-- referencias:fin -->

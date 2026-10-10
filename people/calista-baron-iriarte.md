@@ -31,3 +31,10 @@ Ribadeo el 20 de enero de 1976.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F007 — Padrón municipal de Ribadeo, 1900](../sources/F007.md)
+- [F010 — Testamento de José Barón Artigas](../sources/F010.md)
+<!-- referencias:fin -->

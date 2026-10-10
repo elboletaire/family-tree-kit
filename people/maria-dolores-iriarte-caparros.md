@@ -32,3 +32,10 @@ Artigas](../people/jose-baron-artigas.md). Tuvo 4 hijos: [Marcial Barón Iriarte
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F006 — Partida de matrimonio de José Barón Artigas y María Dolores Iriarte Caparrós](../sources/F006.md)
+- [F007 — Padrón municipal de Ribadeo, 1900](../sources/F007.md)
+<!-- referencias:fin -->

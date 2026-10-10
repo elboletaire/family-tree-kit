@@ -26,3 +26,9 @@ Bautista](../people/samuel-azorin-bautista.md), [Bautista Azorin Bautista](../pe
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+- [F004 — Conversación con Oriana Azorin Torrent sobre sus abuelos](../sources/F004.md)
+<!-- referencias:fin -->

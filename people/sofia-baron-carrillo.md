@@ -25,3 +25,8 @@ de su casa. Murió en Mondoñedo el 15 de julio de 1971.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+<!-- referencias:fin -->

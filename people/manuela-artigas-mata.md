@@ -25,3 +25,9 @@ Mondoñedo el 13 de noviembre de 1918.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F005 — Partida de bautismo de José Barón Artigas](../sources/F005.md)
+<!-- referencias:fin -->

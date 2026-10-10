@@ -25,3 +25,8 @@ telefonista. Murió en Vilalba el 24 de enero de 1970.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+<!-- referencias:fin -->

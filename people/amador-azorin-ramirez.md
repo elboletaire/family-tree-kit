@@ -33,3 +33,10 @@ servicio militar en Melilla en 1920, en los meses de la guerra del Rif, y volvi�
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+- [F016 — Fotografía de la familia Azorin en Úbeda](../sources/F016.md)
+- [F017 — Hoja de servicios de Amador Azorin Ramírez](../sources/F017.md)
+<!-- referencias:fin -->

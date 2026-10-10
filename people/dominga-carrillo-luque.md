@@ -24,3 +24,8 @@ Barón Carrillo](../people/bernardo-baron-carrillo.md). Murió en Mondoñedo el 
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+<!-- referencias:fin -->

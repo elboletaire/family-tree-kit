@@ -24,3 +24,9 @@ Ramírez Jaén](../people/clementina-ramirez-jaen.md). Murió en Baeza el 11 de 
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+- [F015 — Partida de matrimonio de Marcelo Azorin Canals y Ascensión Ramírez Jaén](../sources/F015.md)
+<!-- referencias:fin -->

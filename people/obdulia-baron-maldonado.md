@@ -22,3 +22,10 @@ ingeniera.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F002 — Conversación con Jonatan Barón Maldonado sobre su familia](../sources/F002.md)
+- [F012 — Libro de familia de Paco Barón Cantón y Montserrat Maldonado Román](../sources/F012.md)
+- [F013 — Esquela de Paco Barón Cantón](../sources/F013.md)
+<!-- referencias:fin -->

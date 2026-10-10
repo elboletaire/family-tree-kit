@@ -23,3 +23,9 @@ Amor](../people/emperatriz-baron-amor.md). Murió en Lugo el 7 de octubre de 200
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F002 — Conversación con Jonatan Barón Maldonado sobre su familia](../sources/F002.md)
+<!-- referencias:fin -->

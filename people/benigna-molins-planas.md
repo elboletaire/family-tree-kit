@@ -23,3 +23,8 @@ Molins](../people/timoteo-azorin-molins.md). Murió en Úbeda el 22 de enero de 
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+<!-- referencias:fin -->

@@ -33,3 +33,10 @@ en Baeza el 27 de marzo de 1956.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F003 — Relación de la familia Azorin de Úbeda](../sources/F003.md)
+- [F015 — Partida de matrimonio de Marcelo Azorin Canals y Ascensión Ramírez Jaén](../sources/F015.md)
+- [F016 — Fotografía de la familia Azorin en Úbeda](../sources/F016.md)
+<!-- referencias:fin -->

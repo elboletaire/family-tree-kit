@@ -33,3 +33,12 @@ Vilalba el 6 de febrero de 1921.
 
 ## Notas de investigación
 
+## Referencias
+
+<!-- referencias:inicio (generado con `make refs`; no editar a mano) -->
+- [F001 — Árbol genealógico manuscrito de la familia Barón](../sources/F001.md)
+- [F005 — Partida de bautismo de José Barón Artigas](../sources/F005.md)
+- [F006 — Partida de matrimonio de José Barón Artigas y María Dolores Iriarte Caparrós](../sources/F006.md)
+- [F007 — Padrón municipal de Ribadeo, 1900](../sources/F007.md)
+- [F010 — Testamento de José Barón Artigas](../sources/F010.md)
+<!-- referencias:fin -->
